@@ -55,6 +55,36 @@ def calculate_aggregate_impact(reform):
     avg_benefit = ctc_change[ctc_change > 0].mean() if beneficiaries > 0 else 0
     children_affected = eligible_children[ctc_change > 0].sum() if beneficiaries > 0 else 0
 
+    # Get total population counts for rate calculations
+    total_population = sim_baseline.calculate("person_count", period=2026).sum()
+    total_households = len(household_weight)  # Count of household records, not weighted sum
+
+    # Winners/losers analysis (at household level)
+    winners = (ctc_change > 1).sum()  # Households with >$1 gain
+    losers = (ctc_change < -1).sum()  # Households with >$1 loss
+    winners_rate = (winners / total_households * 100) if total_households > 0 else 0
+    losers_rate = (losers / total_households * 100) if total_households > 0 else 0
+
+    # Poverty impact (using person_in_poverty variable at person level)
+    person_in_poverty_baseline = sim_baseline.calculate("person_in_poverty", period=2026)
+    person_in_poverty_reform = sim_reform.calculate("person_in_poverty", period=2026)
+
+    poverty_baseline_count = person_in_poverty_baseline.sum()
+    poverty_reform_count = person_in_poverty_reform.sum()
+    poverty_baseline_rate = (poverty_baseline_count / total_population * 100) if total_population > 0 else 0
+    poverty_reform_rate = (poverty_reform_count / total_population * 100) if total_population > 0 else 0
+    poverty_rate_change = poverty_reform_rate - poverty_baseline_rate  # Negative = reduction
+
+    # Child poverty impact (filter poverty to children only)
+    is_child = sim_baseline.calculate("is_child", period=2026)
+    total_children = is_child.sum()
+
+    child_poverty_baseline_count = (person_in_poverty_baseline & is_child).sum()
+    child_poverty_reform_count = (person_in_poverty_reform & is_child).sum()
+    child_poverty_baseline_rate = (child_poverty_baseline_count / total_children * 100) if total_children > 0 else 0
+    child_poverty_reform_rate = (child_poverty_reform_count / total_children * 100) if total_children > 0 else 0
+    child_poverty_rate_change = child_poverty_reform_rate - child_poverty_baseline_rate  # Negative = reduction
+
     # Income bracket analysis
     income_brackets = [
         (0, 50000, "Under $50k"),
@@ -83,6 +113,19 @@ def calculate_aggregate_impact(reform):
         "beneficiaries": float(beneficiaries),
         "avg_benefit": float(avg_benefit),
         "children_affected": float(children_affected),
+        # Winners/losers (counts and rates)
+        "winners": float(winners),
+        "losers": float(losers),
+        "winners_rate": float(winners_rate),
+        "losers_rate": float(losers_rate),
+        # Poverty rates
+        "poverty_baseline_rate": float(poverty_baseline_rate),
+        "poverty_reform_rate": float(poverty_reform_rate),
+        "poverty_rate_change": float(poverty_rate_change),
+        # Child poverty rates
+        "child_poverty_baseline_rate": float(child_poverty_baseline_rate),
+        "child_poverty_reform_rate": float(child_poverty_reform_rate),
+        "child_poverty_rate_change": float(child_poverty_rate_change),
         "by_income_bracket": by_income_bracket
     }
 
