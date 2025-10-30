@@ -631,19 +631,19 @@ def main():
                 with col4:
                     st.metric(
                         "Poverty Rate Change",
-                        f"{impact['poverty_reform_rate']:.2f}%",
-                        delta=f"{impact['poverty_rate_change']:.2f}pp",
+                        f"{impact['poverty_percent_change']:.2f}%",
+                        delta=None,
                         delta_color="inverse",
-                        help=f"Change in poverty rate. Baseline: {impact['poverty_baseline_rate']:.2f}% → Reform: {impact['poverty_reform_rate']:.2f}%"
+                        help=f"Percent change in poverty rate from baseline to reform. Baseline: {impact['poverty_baseline_rate']:.2f}% → Reform: {impact['poverty_reform_rate']:.2f}% (change: {impact['poverty_rate_change']:.2f}pp)"
                     )
 
                 with col5:
                     st.metric(
                         "Child Poverty Rate Change",
-                        f"{impact['child_poverty_reform_rate']:.2f}%",
-                        delta=f"{impact['child_poverty_rate_change']:.2f}pp",
+                        f"{impact['child_poverty_percent_change']:.2f}%",
+                        delta=None,
                         delta_color="inverse",
-                        help=f"Change in child poverty rate. Baseline: {impact['child_poverty_baseline_rate']:.2f}% → Reform: {impact['child_poverty_reform_rate']:.2f}%"
+                        help=f"Percent change in child poverty rate from baseline to reform. Baseline: {impact['child_poverty_baseline_rate']:.2f}% → Reform: {impact['child_poverty_reform_rate']:.2f}% (change: {impact['child_poverty_rate_change']:.2f}pp)"
                     )
 
                 with col6:
