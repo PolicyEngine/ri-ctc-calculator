@@ -650,7 +650,7 @@ def main():
                     st.metric(
                         "Winners / Losers",
                         f"{impact['winners_rate']:.1f}% / {impact['losers_rate']:.1f}%",
-                        help=f"Percentage of households that gain vs. lose from the reform. Winners: {impact['winners']:,.0f} households, Losers: {impact['losers']:,.0f} households"
+                        help=f"Percentage of RI households that gain vs. lose from the reform. Winners: {impact['winners_rate']:.1f}%, Losers: {impact['losers_rate']:.1f}%"
                     )
 
                 st.markdown("---")
