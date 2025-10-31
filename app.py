@@ -251,8 +251,8 @@ def main():
         with st.expander("⚙️ Customize Dependent Exemption", expanded=False):
             enable_exemption_reform = st.checkbox(
                 "Enable Dependent Exemption Reform",
-                value=True,
-                help="Modify dependent exemption rules"
+                value=False,
+                help="Modify dependent exemption rules (baseline already has $5,200 exemption inactive)"
             )
 
             if enable_exemption_reform:
@@ -260,7 +260,7 @@ def main():
                     "Exemption Amount",
                     min_value=0,
                     max_value=20000,
-                    value=5100,
+                    value=5200,
                     step=100,
                     help="Dependent exemption amount per dependent"
                 )
@@ -344,8 +344,8 @@ def main():
                     exemption_phaseout_rate = 0
                     exemption_phaseout_thresholds = None
             else:
-                exemption_amount = 5100
-                exemption_age_limit_enabled = False
+                exemption_amount = 5200
+                exemption_age_limit_enabled = True
                 exemption_age_threshold = 18
                 exemption_phaseout_rate = 0
                 exemption_phaseout_thresholds = None
@@ -422,6 +422,8 @@ def main():
                     ctc_baseline_range,
                     ctc_reform_range,
                     x_axis_max,
+                    ctc_component,
+                    exemption_tax_benefit,
                     ri_exemptions_baseline,
                     ri_exemptions_reform,
                     exemption_change,
@@ -444,6 +446,9 @@ def main():
                     st.session_state.fig_comparison = fig_comparison
                     st.session_state.fig_delta = fig_delta
                     st.session_state.x_axis_max = x_axis_max
+                    # Store component data
+                    st.session_state.ctc_component = ctc_component
+                    st.session_state.exemption_tax_benefit = exemption_tax_benefit
                     # Store diagnostic data
                     st.session_state.ri_exemptions_baseline = ri_exemptions_baseline
                     st.session_state.ri_exemptions_reform = ri_exemptions_reform
@@ -454,22 +459,13 @@ def main():
 
         # Show tabs using cached charts
         if hasattr(st.session_state, "fig_delta") and st.session_state.fig_delta is not None:
-            tab1, tab2, tab3, tab4 = st.tabs([
-                "Benefit from reform",
-                "Baseline vs. reform",
-                "Your impact",
-                "Statewide impact"
+            tab1, tab2 = st.tabs([
+                "Impact Analysis",
+                "Statewide Impact"
             ])
 
             with tab1:
-                st.plotly_chart(
-                    st.session_state.fig_delta,
-                    use_container_width=True,
-                    config={"displayModeBar": False},
-                    key="benefit_chart",
-                )
-
-            with tab2:
+                # Show comparison chart
                 st.plotly_chart(
                     st.session_state.fig_comparison,
                     use_container_width=True,
@@ -477,7 +473,8 @@ def main():
                     key="comparison_chart",
                 )
 
-            with tab3:
+                # Show "Your impact" section below the chart
+                st.markdown("---")  # Separator
                 st.markdown("### Your Personal Impact")
                 st.markdown(f"Based on your household income of **${params['income']:,}**")
 
@@ -509,6 +506,18 @@ def main():
                         st.session_state.ctc_reform_range,
                     )
                     difference = ctc_reform - ctc_baseline
+
+                    # Interpolate component values
+                    ctc_amt = np.interp(
+                        user_income,
+                        st.session_state.income_range,
+                        st.session_state.ctc_component,
+                    )
+                    exemption_benefit = np.interp(
+                        user_income,
+                        st.session_state.income_range,
+                        st.session_state.exemption_tax_benefit,
+                    )
 
                     # Display metrics
                     st.markdown(
@@ -556,61 +565,22 @@ def main():
                         else:
                             st.metric("No change", "$0")
 
-                    # Diagnostic breakdown
-                    with st.expander("🔍 Detailed breakdown (for debugging)"):
-                        # Find the index closest to user's income
-                        income_idx = np.argmin(np.abs(st.session_state.income_range - user_income))
+                    # Show component breakdown
+                    if difference > 0:
+                        st.markdown("")  # Spacing
+                        st.markdown("**Benefit breakdown:**")
+                        comp_cols = st.columns(2)
+                        with comp_cols[0]:
+                            if ctc_amt > 0:
+                                st.markdown(f"• **CTC credit:** ${ctc_amt:,.0f}")
+                        with comp_cols[1]:
+                            if exemption_benefit > 0:
+                                st.markdown(f"• **Exemption tax savings:** ${exemption_benefit:,.0f}")
+                            elif exemption_benefit < 0:
+                                st.markdown(f"• **Exemption tax increase:** ${-exemption_benefit:,.0f}")
 
-                        st.markdown("**Tax component analysis:**")
-                        st.write(f"- **Baseline RI exemptions:** ${st.session_state.ri_exemptions_baseline[income_idx]:,.0f}")
-                        st.write(f"- **Reform RI exemptions:** ${st.session_state.ri_exemptions_reform[income_idx]:,.0f}")
-                        st.write(f"- **Exemption change:** ${st.session_state.exemption_change[income_idx]:,.0f}")
-                        st.write("")
-                        st.write(f"- **Baseline RI tax:** ${st.session_state.ri_tax_baseline[income_idx]:,.0f}")
-                        st.write(f"- **Reform RI tax:** ${st.session_state.ri_tax_reform[income_idx]:,.0f}")
-                        st.write(f"- **Tax change:** ${st.session_state.tax_change[income_idx]:,.0f} {'(increase)' if st.session_state.tax_change[income_idx] > 0 else '(decrease)'}")
-                        st.write("")
-                        st.write(f"- **Net income change:** ${difference:,.0f}")
 
-                        st.markdown("**Expected behavior:**")
-                        st.write("- If exemptions decrease → tax increases → net income decreases")
-                        st.write("- If exemptions increase → tax decreases → net income increases")
-                        st.write("- If CTC increases → net income increases (via credits)")
-
-                    # Details
-                    with st.expander("See calculation details"):
-                        household_size = (
-                            1
-                            + (1 if params["age_spouse"] else 0)
-                            + len(params["dependent_ages"])
-                        )
-                        eligible_children = sum(
-                            1 for age in params["dependent_ages"] if age < 18
-                        )
-
-                        st.write(
-                            f"""
-                        ### Your household
-                        - **Size:** {household_size} people
-                        - **Eligible children (under 18):** {eligible_children}
-                        - **Income (AGI):** ${user_income:,}
-                        - **State:** Rhode Island
-
-                        ### How Rhode Island CTC works
-
-                        The Rhode Island Child Tax Credit provides tax relief for families with children under age 18.
-
-                        **Key features:**
-                        - **Non-refundable**: Can reduce your RI tax liability to zero, but not below
-                        - **Age limit**: Children must be under 18
-                        - **Phase-out**: Credit may be reduced at higher incomes based on AGI
-                        - **RI residents**: Must be a Rhode Island resident to claim
-
-                        **Note**: This is a non-refundable credit, meaning it can only reduce your Rhode Island tax liability. If you have no RI tax liability, you would not benefit from this credit.
-                        """
-                        )
-
-            with tab4:
+            with tab2:
                 st.markdown("### Statewide Impact Analysis")
                 st.markdown(
                     """
@@ -652,6 +622,35 @@ def main():
                         "Average Benefit",
                         f"${impact['avg_benefit']:,.0f}",
                         help="Average annual benefit among households that receive the credit"
+                    )
+
+                # Second row: Poverty impacts
+                st.markdown("")
+                col4, col5, col6 = st.columns(3)
+
+                with col4:
+                    st.metric(
+                        "Poverty Rate Change",
+                        f"{impact['poverty_percent_change']:.2f}%",
+                        delta=None,
+                        delta_color="inverse",
+                        help=f"Percent change in poverty rate from baseline to reform. Baseline: {impact['poverty_baseline_rate']:.2f}% → Reform: {impact['poverty_reform_rate']:.2f}% (change: {impact['poverty_rate_change']:.2f}pp)"
+                    )
+
+                with col5:
+                    st.metric(
+                        "Child Poverty Rate Change",
+                        f"{impact['child_poverty_percent_change']:.2f}%",
+                        delta=None,
+                        delta_color="inverse",
+                        help=f"Percent change in child poverty rate from baseline to reform. Baseline: {impact['child_poverty_baseline_rate']:.2f}% → Reform: {impact['child_poverty_reform_rate']:.2f}% (change: {impact['child_poverty_rate_change']:.2f}pp)"
+                    )
+
+                with col6:
+                    st.metric(
+                        "Winners / Losers",
+                        f"{impact['winners_rate']:.1f}% / {impact['losers_rate']:.1f}%",
+                        help=f"Percentage of RI households that gain vs. lose from the reform. Winners: {impact['winners_rate']:.1f}%, Losers: {impact['losers_rate']:.1f}%"
                     )
 
                 st.markdown("---")
@@ -718,33 +717,6 @@ def main():
                         """
                     )
 
-            # About section
-            with st.expander("About this calculator"):
-                from importlib.metadata import version
-
-                pe_version = version("policyengine-us")
-
-                st.markdown(
-                    f"""
-                This calculator models the Rhode Island Child Tax Credit reform proposal based on [PolicyEngine US PR #6643](https://github.com/PolicyEngine/policyengine-us/pull/6643).
-
-                This calculator uses [PolicyEngine's open-source tax-benefit microsimulation model](https://github.com/PolicyEngine/policyengine-us) (version {pe_version}).
-
-                **Reform parameters:**
-                - **Eligibility**: Children under age 18
-                - **Credit structure**: Non-refundable
-                - **Phase-out**: AGI-based (Adjusted Gross Income)
-                - **State**: Rhode Island residents only
-
-                **Important notes:**
-                - This calculator models the reform as implemented in PolicyEngine US
-                - Actual policy details may differ from this model
-                - The RI CTC is non-refundable, so benefits depend on having RI tax liability
-                - Results assume standard household circumstances; actual benefits may vary
-
-                📖 [Learn more about PolicyEngine](https://policyengine.org)
-                """
-                )
 
 
 def create_chart(
@@ -814,28 +786,66 @@ def create_chart(
             "household_net_income", map_to="household", period=2026
         )
 
-        # The benefit is the increase in net income
+        # Calculate total benefit
         ctc_range_baseline = np.zeros(len(income_range))  # For labeling purposes
         ctc_range_reform = net_income_reform - net_income_baseline  # Total benefit
 
-        # Store diagnostic data
-        tax_change = ri_tax_reform - ri_tax_baseline  # Should be negative (tax savings) or positive (tax increase)
-        exemption_change = ri_exemptions_reform - ri_exemptions_baseline
+        # Calculate tax changes
+        tax_change = ri_tax_reform - ri_tax_baseline  # Tax change (negative = tax savings)
+        exemption_change = ri_exemptions_reform - ri_exemptions_baseline  # Exemption change
+
+        # Calculate a "hypothetical" tax change if only exemptions changed (no CTC)
+        # This is approximated by looking at the marginal tax rate effect
+        # For now, use the actual tax change as the exemption effect
+        # The CTC component is the remaining benefit after accounting for exemption tax effects
+
+        # Tax savings from exemption changes (opposite sign of tax_change)
+        # Note: tax_change includes both exemption effects AND CTC effects
+        # We need to separate them
+
+        # Approach: Total benefit = CTC credit + tax savings from exemptions
+        # But the tax_change we observe = tax increase/decrease from exemption change - CTC credit applied
+        # So: exemption_tax_benefit = -tax_change (flipping the sign)
+        #     BUT we need to account for the fact that tax_change already includes CTC
+
+        # Simpler approach: Calculate what tax would be with only exemption reform
+        # Create a reform with only exemption changes (no CTC)
+        exemption_only_reform = create_custom_reform(
+            ctc_amount=0,  # No CTC
+            enable_exemption_reform=reform_params.get("enable_exemption_reform", False),
+            exemption_amount=reform_params.get("exemption_amount", 5200),
+            exemption_age_limit_enabled=reform_params.get("exemption_age_limit_enabled", True),
+            exemption_age_threshold=reform_params.get("exemption_age_threshold", 18),
+            exemption_phaseout_rate=reform_params.get("exemption_phaseout_rate", 0),
+            exemption_phaseout_thresholds=reform_params.get("exemption_phaseout_thresholds", None),
+        )
+        sim_exemption_only = Simulation(situation=base_household, reform=exemption_only_reform)
+
+        ri_tax_exemption_only = sim_exemption_only.calculate(
+            "ri_income_tax", map_to="tax_unit", period=2026
+        )
+        net_income_exemption_only = sim_exemption_only.calculate(
+            "household_net_income", map_to="household", period=2026
+        )
+
+        # Now we can isolate the components:
+        exemption_tax_benefit = net_income_exemption_only - net_income_baseline  # Benefit from exemptions only
+        ctc_component = ctc_range_reform - exemption_tax_benefit  # Remaining benefit is from CTC
 
         # Find where CTC goes to zero for dynamic x-axis range
-        max_income_with_ctc = 200000  # Default fallback
+        max_income_with_ctc = 400000  # Default to $400k
         for i in range(len(ctc_range_reform) - 1, -1, -1):
             if ctc_range_reform[i] > 0:
                 max_income_with_ctc = income_range[i]
                 break
 
-        # Add 10% padding to the range
-        x_axis_max = min(500000, max_income_with_ctc * 1.2)
+        # Add 10% padding to the range, default to $400k
+        x_axis_max = max(400000, min(500000, max_income_with_ctc * 1.2))
 
         # Calculate delta
         delta_range = ctc_range_reform - ctc_range_baseline
 
-        # Create hover text with diagnostic info
+        # Create hover text with component breakdown
         hover_text = []
         for i in range(len(income_range)):
             inc = income_range[i]
@@ -843,18 +853,29 @@ def create_chart(
             ctc_ref = ctc_range_reform[i]
             delta = delta_range[i]
 
-            text = f"<b>Income: ${inc:,.0f}</b><br><br>"
-            text += f"<b>Current law benefit:</b> ${ctc_base:,.0f}<br>"
-            text += f"<b>With reform benefit:</b> ${ctc_ref:,.0f}<br>"
+            # Component breakdown
+            ctc_amt = ctc_component[i]
+            exemp_benefit = exemption_tax_benefit[i]
 
-            # Add diagnostic information
-            text += f"<br><b>Exemptions change:</b> ${exemption_change[i]:,.0f}<br>"
-            text += f"<b>RI tax change:</b> ${tax_change[i]:,.0f}<br>"
+            text = f"<b>Income: ${inc:,.0f}</b><br><br>"
+
+            # Show components
+            text += f"<b>Benefit Components:</b><br>"
+            if ctc_amt > 0:
+                text += f"  • CTC: ${ctc_amt:,.0f}<br>"
+            if exemp_benefit > 0:
+                text += f"  • Exemption tax savings: ${exemp_benefit:,.0f}<br>"
+            elif exemp_benefit < 0:
+                text += f"  • Exemption tax increase: ${-exemp_benefit:,.0f}<br>"
+
+            text += f"<br><b>Net Income:</b><br>"
+            text += f"  • Baseline: ${inc + ctc_base:,.0f}<br>"
+            text += f"  • With reform: ${inc + ctc_ref:,.0f}<br>"
 
             if delta > 0:
-                text += f"<br><b>Total net income increase:</b> ${delta:,.0f}"
+                text += f"<br><b>Total benefit:</b> ${delta:,.0f}"
             elif delta < 0:
-                text += f"<br><b>Total net income decrease:</b> ${-delta:,.0f}"
+                text += f"<br><b>Net cost:</b> ${-delta:,.0f}"
             else:
                 text += "<br><b>No change</b>"
 
@@ -928,19 +949,31 @@ def create_chart(
         # Create delta chart
         fig_delta = go.Figure()
 
-        # Create hover text for delta chart
+        # Create hover text for delta chart with component breakdown
         delta_hover_text = []
         for i in range(len(income_range)):
             inc = income_range[i]
             delta = delta_range[i]
-            ctc_ref = ctc_range_reform[i]
+            ctc_amt = ctc_component[i]
+            exemp_benefit = exemption_tax_benefit[i]
 
             text = f"<b>Income: ${inc:,.0f}</b><br><br>"
-            text += f"<b>Total benefit:</b> ${ctc_ref:,.0f}<br>"
+
+            # Show components
+            text += f"<b>Benefit Components:</b><br>"
+            if ctc_amt > 0:
+                text += f"  • CTC: ${ctc_amt:,.0f}<br>"
+            if exemp_benefit > 0:
+                text += f"  • Exemption tax savings: ${exemp_benefit:,.0f}<br>"
+            elif exemp_benefit < 0:
+                text += f"  • Exemption tax increase: ${-exemp_benefit:,.0f}<br>"
+
             if delta > 0:
-                text += f"<b>Increase in net income:</b> ${delta:,.0f}"
+                text += f"<br><b>Total benefit:</b> ${delta:,.0f}"
+            elif delta < 0:
+                text += f"<br><b>Net cost:</b> ${-delta:,.0f}"
             else:
-                text += "<b>No change</b>"
+                text += "<br><b>No change</b>"
 
             delta_hover_text.append(text)
 
@@ -1006,6 +1039,9 @@ def create_chart(
             ctc_range_baseline,
             ctc_range_reform,
             x_axis_max,
+            # Component data
+            ctc_component,
+            exemption_tax_benefit,
             # Diagnostic data
             ri_exemptions_baseline,
             ri_exemptions_reform,
@@ -1019,8 +1055,8 @@ def create_chart(
         st.error(f"Error generating charts: {str(e)}")
         import traceback
         st.error(traceback.format_exc())
-        # Return None for all values including diagnostic data
-        return None, None, None, None, None, None, 200000, None, None, None, None, None, None
+        # Return None for all values including component and diagnostic data
+        return None, None, None, None, None, None, 200000, None, None, None, None, None, None, None, None
 
 
 if __name__ == "__main__":

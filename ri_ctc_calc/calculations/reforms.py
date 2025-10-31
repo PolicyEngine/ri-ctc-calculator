@@ -87,10 +87,10 @@ def create_ri_dependent_exemption_reform():
                 "2026-01-01.2100-12-31": True
             },
             # Dependent exemption amount per dependent
-            # Note: Baseline is $5,050 (2025), $5,100 (2026) with IRS uprating
+            # Note: Baseline is $5,050 (2025), $5,200 (2026) with IRS uprating/projections
             # Override only if you want a different amount than baseline
             "gov.contrib.states.ri.dependent_exemption.amount": {
-                "2026-01-01.2100-12-31": 5100  # Example: Use 2026 baseline amount
+                "2026-01-01.2100-12-31": 5200  # Use 2026 projected amount
             },
             # Enable age limit on dependent exemptions
             "gov.contrib.states.ri.dependent_exemption.age_limit.in_effect": {
@@ -174,7 +174,7 @@ def create_combined_ri_reform():
                 "2026-01-01.2100-12-31": True
             },
             "gov.contrib.states.ri.dependent_exemption.amount": {
-                "2026-01-01.2100-12-31": 5100
+                "2026-01-01.2100-12-31": 5200
             },
             "gov.contrib.states.ri.dependent_exemption.age_limit.in_effect": {
                 "2026-01-01.2100-12-31": True
@@ -213,8 +213,8 @@ def create_custom_reform(
     ctc_phaseout_rate: float = 0,
     ctc_phaseout_thresholds: Optional[Dict[str, float]] = None,
     # Dependent exemption parameters
-    enable_exemption_reform: bool = True,
-    exemption_amount: float = 5100,
+    enable_exemption_reform: bool = False,
+    exemption_amount: float = 5200,
     exemption_age_limit_enabled: bool = True,
     exemption_age_threshold: int = 18,
     exemption_phaseout_rate: float = 0,
