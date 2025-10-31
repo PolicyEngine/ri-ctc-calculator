@@ -83,20 +83,12 @@ export default function AggregateImpact({ reformParams }: Props) {
           <p className="text-3xl font-bold text-gray-800">
             {data.poverty_percent_change.toFixed(2)}%
           </p>
-          <p className="text-xs text-gray-500 mt-1">
-            Baseline: {data.poverty_baseline_rate.toFixed(2)}% → Reform:{' '}
-            {data.poverty_reform_rate.toFixed(2)}%
-          </p>
         </div>
 
         <div className="bg-yellow-50 rounded-lg p-6 border border-yellow-500">
           <p className="text-sm text-gray-600 mb-2">Child Poverty Rate Change</p>
           <p className="text-3xl font-bold text-yellow-700">
             {data.child_poverty_percent_change.toFixed(2)}%
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            Baseline: {data.child_poverty_baseline_rate.toFixed(2)}% → Reform:{' '}
-            {data.child_poverty_reform_rate.toFixed(2)}%
           </p>
         </div>
 
