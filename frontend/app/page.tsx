@@ -35,7 +35,13 @@ export default function Home() {
     exemption_age_limit_enabled: true,
     exemption_age_threshold: 18,
     exemption_phaseout_rate: 0,
-    exemption_phaseout_thresholds: null,
+    exemption_phaseout_thresholds: {
+      SINGLE: 0,
+      JOINT: 0,
+      HEAD_OF_HOUSEHOLD: 0,
+      SURVIVING_SPOUSE: 0,
+      SEPARATE: 0,
+    },
   });
 
   // Last calculated params (the ones actually used for calculation)
@@ -74,7 +80,7 @@ export default function Home() {
             Rhode Island Child Tax Credit Calculator
           </h1>
           <p className="text-lg opacity-90">
-            Explore how the Rhode Island Child Tax Credit reform would affect your household
+            Design a Rhode Island child tax credit and see how it would affect your household and the state
           </p>
         </div>
       </div>

@@ -300,38 +300,99 @@ export default function HouseholdForm({
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Refundability
+                      Refundability Cap
                     </label>
-                    <select
-                      value={
-                        reformParams.ctc_refundability_cap === 0
-                          ? 'non-refundable'
-                          : reformParams.ctc_refundability_cap === reformParams.ctc_amount
-                          ? 'fully-refundable'
-                          : 'partially-refundable'
+                    <input
+                      type="number"
+                      value={reformParams.ctc_refundability_cap}
+                      onChange={(e) =>
+                        setReformParams({
+                          ...reformParams,
+                          ctc_refundability_cap: Number(e.target.value),
+                        })
                       }
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        if (value === 'non-refundable') {
-                          setReformParams({ ...reformParams, ctc_refundability_cap: 0 });
-                        } else if (value === 'fully-refundable') {
-                          setReformParams({
-                            ...reformParams,
-                            ctc_refundability_cap: reformParams.ctc_amount,
-                          });
-                        } else {
-                          setReformParams({
-                            ...reformParams,
-                            ctc_refundability_cap: reformParams.ctc_amount / 2,
-                          });
-                        }
-                      }}
                       className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                    >
-                      <option value="non-refundable">Non-refundable</option>
-                      <option value="partially-refundable">Partially refundable</option>
-                      <option value="fully-refundable">Fully refundable</option>
-                    </select>
+                      min="0"
+                      max={reformParams.ctc_amount}
+                      step="100"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Maximum refundable amount (0 = non-refundable, {reformParams.ctc_amount} = fully refundable)
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Phaseout Rate
+                    </label>
+                    <input
+                      type="number"
+                      value={reformParams.ctc_phaseout_rate}
+                      onChange={(e) =>
+                        setReformParams({
+                          ...reformParams,
+                          ctc_phaseout_rate: Number(e.target.value),
+                        })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Rate at which benefit phases out (0 = no phaseout, 1 = 100% phaseout)
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Phaseout Threshold (Joint)
+                    </label>
+                    <input
+                      type="number"
+                      value={reformParams.ctc_phaseout_thresholds.JOINT}
+                      onChange={(e) =>
+                        setReformParams({
+                          ...reformParams,
+                          ctc_phaseout_thresholds: {
+                            ...reformParams.ctc_phaseout_thresholds,
+                            JOINT: Number(e.target.value),
+                          },
+                        })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                      min="0"
+                      step="1000"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Income level where phaseout begins for married filing jointly
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Phaseout Threshold (Single/HOH)
+                    </label>
+                    <input
+                      type="number"
+                      value={reformParams.ctc_phaseout_thresholds.SINGLE}
+                      onChange={(e) =>
+                        setReformParams({
+                          ...reformParams,
+                          ctc_phaseout_thresholds: {
+                            ...reformParams.ctc_phaseout_thresholds,
+                            SINGLE: Number(e.target.value),
+                            HEAD_OF_HOUSEHOLD: Number(e.target.value),
+                          },
+                        })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                      min="0"
+                      step="1000"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Income level where phaseout begins for single/head of household filers
+                    </p>
                   </div>
                 </div>
               )}
@@ -369,25 +430,156 @@ export default function HouseholdForm({
                   </div>
 
                   {reformParams.enable_exemption_reform && (
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Exemption Amount
-                      </label>
-                      <input
-                        type="number"
-                        value={reformParams.exemption_amount}
-                        onChange={(e) =>
-                          setReformParams({
-                            ...reformParams,
-                            exemption_amount: Number(e.target.value),
-                          })
-                        }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                        min="0"
-                        max="20000"
-                        step="100"
-                      />
-                    </div>
+                    <>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Exemption Amount
+                        </label>
+                        <input
+                          type="number"
+                          value={reformParams.exemption_amount}
+                          onChange={(e) =>
+                            setReformParams({
+                              ...reformParams,
+                              exemption_amount: Number(e.target.value),
+                            })
+                          }
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                          min="0"
+                          max="20000"
+                          step="100"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            checked={reformParams.exemption_age_limit_enabled}
+                            onChange={(e) =>
+                              setReformParams({
+                                ...reformParams,
+                                exemption_age_limit_enabled: e.target.checked,
+                              })
+                            }
+                            className="w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded"
+                          />
+                          <span className="text-sm font-semibold text-gray-700">
+                            Enable Age Limit on Exemption
+                          </span>
+                        </label>
+                      </div>
+
+                      {reformParams.exemption_age_limit_enabled && (
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Exemption Age Threshold
+                          </label>
+                          <input
+                            type="number"
+                            value={reformParams.exemption_age_threshold}
+                            onChange={(e) =>
+                              setReformParams({
+                                ...reformParams,
+                                exemption_age_threshold: Number(e.target.value),
+                              })
+                            }
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                            min="0"
+                            max="26"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Maximum age for dependent exemption eligibility
+                          </p>
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Exemption Phaseout Rate
+                        </label>
+                        <input
+                          type="number"
+                          value={reformParams.exemption_phaseout_rate}
+                          onChange={(e) =>
+                            setReformParams({
+                              ...reformParams,
+                              exemption_phaseout_rate: Number(e.target.value),
+                            })
+                          }
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                          min="0"
+                          max="1"
+                          step="0.01"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Rate at which exemption phases out (0 = no phaseout)
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Exemption Phaseout Threshold (Joint)
+                        </label>
+                        <input
+                          type="number"
+                          value={reformParams.exemption_phaseout_thresholds?.JOINT ?? 0}
+                          onChange={(e) =>
+                            setReformParams({
+                              ...reformParams,
+                              exemption_phaseout_thresholds: {
+                                ...(reformParams.exemption_phaseout_thresholds || {
+                                  SINGLE: 0,
+                                  JOINT: 0,
+                                  HEAD_OF_HOUSEHOLD: 0,
+                                  SURVIVING_SPOUSE: 0,
+                                  SEPARATE: 0,
+                                }),
+                                JOINT: Number(e.target.value),
+                              },
+                            })
+                          }
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                          min="0"
+                          step="1000"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Income where exemption phaseout begins (married filing jointly)
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Exemption Phaseout Threshold (Single/HOH)
+                        </label>
+                        <input
+                          type="number"
+                          value={reformParams.exemption_phaseout_thresholds?.SINGLE ?? 0}
+                          onChange={(e) =>
+                            setReformParams({
+                              ...reformParams,
+                              exemption_phaseout_thresholds: {
+                                ...(reformParams.exemption_phaseout_thresholds || {
+                                  SINGLE: 0,
+                                  JOINT: 0,
+                                  HEAD_OF_HOUSEHOLD: 0,
+                                  SURVIVING_SPOUSE: 0,
+                                  SEPARATE: 0,
+                                }),
+                                SINGLE: Number(e.target.value),
+                                HEAD_OF_HOUSEHOLD: Number(e.target.value),
+                              },
+                            })
+                          }
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                          min="0"
+                          step="1000"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Income where exemption phaseout begins (single/head of household)
+                        </p>
+                      </div>
+                    </>
                   )}
                 </div>
               )}
