@@ -38,7 +38,7 @@ def build_household_situation(
             [
                 {
                     "name": "employment_income",
-                    "count": 10_001,
+                    "count": 4_001,
                     "min": 0,
                     "max": 1000000,
                     "period": year,
