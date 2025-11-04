@@ -116,11 +116,11 @@ export default function HouseholdForm({
         <p className="text-sm text-gray-600">Adjust any step to see updated results</p>
       </div>
 
-      {/* STEP 1: Basic Information */}
+      {/* STEP 1: Household & Dependents */}
       <div>
         <StepHeader
           stepNumber={1}
-          title="Basic Information"
+          title="Household & Dependents"
           isExpanded={expandedStep === 1}
         />
         {expandedStep === 1 && (
@@ -188,19 +188,7 @@ export default function HouseholdForm({
                 />
               </div>
             )}
-          </div>
-        )}
-      </div>
 
-      {/* STEP 2: Dependents */}
-      <div>
-        <StepHeader
-          stepNumber={2}
-          title={`Dependents (${dependentAges.length})`}
-          isExpanded={expandedStep === 2}
-        />
-        {expandedStep === 2 && (
-          <div className="mt-4 space-y-4 pl-2">
             {/* Dependents Count */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -245,14 +233,14 @@ export default function HouseholdForm({
         )}
       </div>
 
-      {/* STEP 3: Advanced Options */}
+      {/* STEP 2: Reform Options */}
       <div>
         <StepHeader
-          stepNumber={3}
-          title="Advanced Options"
-          isExpanded={expandedStep === 3}
+          stepNumber={2}
+          title="Reform Options"
+          isExpanded={expandedStep === 2}
         />
-        {expandedStep === 3 && (
+        {expandedStep === 2 && (
           <div className="mt-4 space-y-4 pl-2">
 
             {/* CTC Customization */}
@@ -265,7 +253,7 @@ export default function HouseholdForm({
                 <span>{showCTCCustomization ? '−' : '+'}</span>
               </button>
 
-              {showCTCCustomization && (
+{showCTCCustomization && (
                 <div className="mt-4 space-y-4 pl-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -346,7 +334,29 @@ export default function HouseholdForm({
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Phaseout Threshold (Joint)
+                      Phaseout Threshold (Single)
+                    </label>
+                    <input
+                      type="number"
+                      value={reformParams.ctc_phaseout_thresholds.SINGLE}
+                      onChange={(e) =>
+                        setReformParams({
+                          ...reformParams,
+                          ctc_phaseout_thresholds: {
+                            ...reformParams.ctc_phaseout_thresholds,
+                            SINGLE: Number(e.target.value),
+                          },
+                        })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                      min="0"
+                      step="1000"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Phaseout Threshold (Married Filing Jointly)
                     </label>
                     <input
                       type="number"
@@ -364,24 +374,20 @@ export default function HouseholdForm({
                       min="0"
                       step="1000"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Income level where phaseout begins for married filing jointly
-                    </p>
                   </div>
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Phaseout Threshold (Single/HOH)
+                      Phaseout Threshold (Head of Household)
                     </label>
                     <input
                       type="number"
-                      value={reformParams.ctc_phaseout_thresholds.SINGLE}
+                      value={reformParams.ctc_phaseout_thresholds.HEAD_OF_HOUSEHOLD}
                       onChange={(e) =>
                         setReformParams({
                           ...reformParams,
                           ctc_phaseout_thresholds: {
                             ...reformParams.ctc_phaseout_thresholds,
-                            SINGLE: Number(e.target.value),
                             HEAD_OF_HOUSEHOLD: Number(e.target.value),
                           },
                         })
@@ -390,9 +396,50 @@ export default function HouseholdForm({
                       min="0"
                       step="1000"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Income level where phaseout begins for single/head of household filers
-                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Phaseout Threshold (Surviving Spouse)
+                    </label>
+                    <input
+                      type="number"
+                      value={reformParams.ctc_phaseout_thresholds.SURVIVING_SPOUSE}
+                      onChange={(e) =>
+                        setReformParams({
+                          ...reformParams,
+                          ctc_phaseout_thresholds: {
+                            ...reformParams.ctc_phaseout_thresholds,
+                            SURVIVING_SPOUSE: Number(e.target.value),
+                          },
+                        })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                      min="0"
+                      step="1000"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Phaseout Threshold (Married Filing Separately)
+                    </label>
+                    <input
+                      type="number"
+                      value={reformParams.ctc_phaseout_thresholds.SEPARATE}
+                      onChange={(e) =>
+                        setReformParams({
+                          ...reformParams,
+                          ctc_phaseout_thresholds: {
+                            ...reformParams.ctc_phaseout_thresholds,
+                            SEPARATE: Number(e.target.value),
+                          },
+                        })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                      min="0"
+                      step="1000"
+                    />
                   </div>
                 </div>
               )}
@@ -519,7 +566,35 @@ export default function HouseholdForm({
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Exemption Phaseout Threshold (Joint)
+                          Exemption Phaseout Threshold (Single)
+                        </label>
+                        <input
+                          type="number"
+                          value={reformParams.exemption_phaseout_thresholds?.SINGLE ?? 0}
+                          onChange={(e) =>
+                            setReformParams({
+                              ...reformParams,
+                              exemption_phaseout_thresholds: {
+                                ...(reformParams.exemption_phaseout_thresholds || {
+                                  SINGLE: 0,
+                                  JOINT: 0,
+                                  HEAD_OF_HOUSEHOLD: 0,
+                                  SURVIVING_SPOUSE: 0,
+                                  SEPARATE: 0,
+                                }),
+                                SINGLE: Number(e.target.value),
+                              },
+                            })
+                          }
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                          min="0"
+                          step="1000"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Exemption Phaseout Threshold (Married Filing Jointly)
                         </label>
                         <input
                           type="number"
@@ -543,18 +618,15 @@ export default function HouseholdForm({
                           min="0"
                           step="1000"
                         />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Income where exemption phaseout begins (married filing jointly)
-                        </p>
                       </div>
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Exemption Phaseout Threshold (Single/HOH)
+                          Exemption Phaseout Threshold (Head of Household)
                         </label>
                         <input
                           type="number"
-                          value={reformParams.exemption_phaseout_thresholds?.SINGLE ?? 0}
+                          value={reformParams.exemption_phaseout_thresholds?.HEAD_OF_HOUSEHOLD ?? 0}
                           onChange={(e) =>
                             setReformParams({
                               ...reformParams,
@@ -566,7 +638,6 @@ export default function HouseholdForm({
                                   SURVIVING_SPOUSE: 0,
                                   SEPARATE: 0,
                                 }),
-                                SINGLE: Number(e.target.value),
                                 HEAD_OF_HOUSEHOLD: Number(e.target.value),
                               },
                             })
@@ -575,9 +646,62 @@ export default function HouseholdForm({
                           min="0"
                           step="1000"
                         />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Income where exemption phaseout begins (single/head of household)
-                        </p>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Exemption Phaseout Threshold (Surviving Spouse)
+                        </label>
+                        <input
+                          type="number"
+                          value={reformParams.exemption_phaseout_thresholds?.SURVIVING_SPOUSE ?? 0}
+                          onChange={(e) =>
+                            setReformParams({
+                              ...reformParams,
+                              exemption_phaseout_thresholds: {
+                                ...(reformParams.exemption_phaseout_thresholds || {
+                                  SINGLE: 0,
+                                  JOINT: 0,
+                                  HEAD_OF_HOUSEHOLD: 0,
+                                  SURVIVING_SPOUSE: 0,
+                                  SEPARATE: 0,
+                                }),
+                                SURVIVING_SPOUSE: Number(e.target.value),
+                              },
+                            })
+                          }
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                          min="0"
+                          step="1000"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Exemption Phaseout Threshold (Married Filing Separately)
+                        </label>
+                        <input
+                          type="number"
+                          value={reformParams.exemption_phaseout_thresholds?.SEPARATE ?? 0}
+                          onChange={(e) =>
+                            setReformParams({
+                              ...reformParams,
+                              exemption_phaseout_thresholds: {
+                                ...(reformParams.exemption_phaseout_thresholds || {
+                                  SINGLE: 0,
+                                  JOINT: 0,
+                                  HEAD_OF_HOUSEHOLD: 0,
+                                  SURVIVING_SPOUSE: 0,
+                                  SEPARATE: 0,
+                                }),
+                                SEPARATE: Number(e.target.value),
+                              },
+                            })
+                          }
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                          min="0"
+                          step="1000"
+                        />
                       </div>
                     </>
                   )}
