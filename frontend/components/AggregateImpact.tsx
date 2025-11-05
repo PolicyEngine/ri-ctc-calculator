@@ -41,8 +41,8 @@ export default function AggregateImpact({ reformParams }: Props) {
 
   if (!data) return null;
 
-  const formatCurrency = (value: number) => `$${value.toLocaleString()}`;
-  const formatMillion = (value: number) => `$${(value / 1e6).toFixed(1)}M`;
+  const formatCurrency = (value: number) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const formatMillion = (value: number) => `$${(value / 1e6).toFixed(2)}M`;
 
   return (
     <div className="space-y-8">
@@ -71,7 +71,7 @@ export default function AggregateImpact({ reformParams }: Props) {
 
         <div className="bg-blue-50 rounded-lg p-6 border border-blue-500">
           <p className="text-sm text-gray-700 mb-2">Average Benefit</p>
-          <p className="text-3xl font-bold text-blue-600">{formatCurrency(Math.round(data.avg_benefit))}</p>
+          <p className="text-3xl font-bold text-blue-600">{formatCurrency(data.avg_benefit)}</p>
           <p className="text-xs text-gray-600 mt-1">Average annual benefit per household</p>
         </div>
       </div>
@@ -154,7 +154,7 @@ export default function AggregateImpact({ reformParams }: Props) {
                         {formatCurrency(bracket.total_cost)}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900">
-                        {formatCurrency(Math.round(bracket.avg_benefit))}
+                        {formatCurrency(bracket.avg_benefit)}
                       </td>
                     </tr>
                   ))}

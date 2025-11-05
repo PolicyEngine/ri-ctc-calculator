@@ -72,7 +72,7 @@ export default function ImpactAnalysis({
     }))
     .filter(d => d.income <= data.x_axis_max);
 
-  const formatCurrency = (value: number) => `$${value.toLocaleString()}`;
+  const formatCurrency = (value: number) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const formatIncome = (value: number) => `$${(value / 1000).toFixed(0)}k`;
 
   // Extract benefit data from the response
