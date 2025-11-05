@@ -66,7 +66,8 @@ def test_build_household_with_axes():
     assert "axes" in situation
     assert len(situation["axes"]) == 1
     assert len(situation["axes"][0]) == 1
-    assert situation["axes"][0][0]["name"] == "employment_income"
-    assert situation["axes"][0][0]["count"] == 10_001
+    assert situation["axes"][0][0]["name"] == "adjusted_gross_income"
+    assert situation["axes"][0][0]["target"] == "tax_unit"
+    assert situation["axes"][0][0]["count"] == 4_001
     assert situation["axes"][0][0]["min"] == 0
-    assert situation["axes"][0][0]["max"] == 1000000
+    assert situation["axes"][0][0]["max"] == 1_000_000

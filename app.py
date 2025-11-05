@@ -756,7 +756,7 @@ def create_chart(
         sim_reform = Simulation(situation=base_household, reform=reform)
 
         income_range = sim_baseline.calculate(
-            "employment_income", map_to="household", period=2026
+            "adjusted_gross_income", map_to="tax_unit", period=2026
         )
 
         # Calculate detailed tax components for both scenarios

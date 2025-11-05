@@ -39,14 +39,8 @@ def calculate_ri_ctc(
         # Deep copy and inject income
         sit = copy.deepcopy(situation)
 
-        # Split income between adults if married
-        if age_spouse:
-            sit["people"]["you"]["employment_income"] = {2026: income / 2}
-            sit["people"]["your partner"]["employment_income"] = {
-                2026: income / 2
-            }
-        else:
-            sit["people"]["you"]["employment_income"] = {2026: income}
+        # Set AGI at tax unit level (no need to split for married couples)
+        sit["tax_units"]["your tax unit"]["adjusted_gross_income"] = {2026: income}
 
         # Create reform if requested
         reform = create_ri_ctc_reform() if use_reform else None
