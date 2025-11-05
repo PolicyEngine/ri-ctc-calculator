@@ -46,8 +46,8 @@ async def calculate_household_benefit_quick(
         with_axes=False,  # No income sweep for quick calculation
     )
 
-    # Set AGI as employment income (AGI input approximated as employment income for PolicyEngine)
-    household["people"]["you"]["employment_income"] = {"2026": income}
+    # Set AGI on the tax unit level
+    household["tax_units"]["your tax unit"]["adjusted_gross_income"] = {"2026": income}
 
     # Create reform
     reform = create_custom_reform(**reform_params)
@@ -129,9 +129,9 @@ async def calculate_household_impact(
     sim_baseline = Simulation(situation=base_household)
     sim_reform = Simulation(situation=base_household, reform=reform)
 
-    # Get income range
+    # Get AGI range
     income_range = sim_baseline.calculate(
-        "employment_income", map_to="household", period=2026
+        "adjusted_gross_income", map_to="tax_unit", period=2026
     )
 
     # Calculate net income for both scenarios

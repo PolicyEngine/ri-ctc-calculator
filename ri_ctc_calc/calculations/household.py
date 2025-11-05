@@ -17,7 +17,7 @@ def build_household_situation(
         age_spouse: Age of spouse (None if not married)
         dependent_ages: List of dependent ages
         year: Year for simulation
-        with_axes: If True, add employment_income axis for income sweep
+        with_axes: If True, add adjusted_gross_income axis for AGI sweep
 
     Returns:
         dict: PolicyEngine situation dictionary
@@ -37,11 +37,12 @@ def build_household_situation(
         situation["axes"] = [
             [
                 {
-                    "name": "employment_income",
-                    "count": 4_001,
+                    "name": "adjusted_gross_income",
                     "min": 0,
-                    "max": 1000000,
+                    "max": 1_000_000,
+                    "count": 4_001,
                     "period": year,
+                    "target": "tax_unit",  # AGI is a tax unit level variable
                 }
             ]
         ]
