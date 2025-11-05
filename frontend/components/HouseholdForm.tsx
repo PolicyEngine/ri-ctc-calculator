@@ -128,7 +128,7 @@ export default function HouseholdForm({
             {/* Income */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Annual Household Income
+                Adjusted Gross Income (AGI)
               </label>
               <input
                 type="number"
@@ -140,7 +140,7 @@ export default function HouseholdForm({
                 step="1000"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Your total annual household income (AGI)
+                Combined household AGI (for married couples, enter your joint AGI)
               </p>
             </div>
 
