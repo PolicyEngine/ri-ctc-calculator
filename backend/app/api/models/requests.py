@@ -41,7 +41,7 @@ class HouseholdRequest(BaseModel):
     age_head: int = Field(..., ge=18, le=100, description="Age of household head")
     age_spouse: Optional[int] = Field(None, ge=18, le=100, description="Age of spouse (if married)")
     dependent_ages: List[int] = Field(default_factory=list, description="List of dependent ages")
-    income: int = Field(..., ge=0, description="Annual household income for specific calculation")
+    income: int = Field(..., ge=0, description="Adjusted Gross Income (AGI) - combined household AGI")
     reform_params: ReformParams
 
 

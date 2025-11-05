@@ -31,8 +31,11 @@ async def calculate_household_benefit_quick(
     reform_params: dict,
 ) -> BenefitAtIncome:
     """
-    Quick calculation of benefit at specific income only (no income sweep).
+    Quick calculation of benefit at specific AGI level only (no income sweep).
     Much faster than full calculation.
+
+    Args:
+        income: Adjusted Gross Income (AGI) for the household
     """
     # Build household situation WITHOUT axes (single income point)
     household = build_household_situation(
@@ -43,7 +46,7 @@ async def calculate_household_benefit_quick(
         with_axes=False,  # No income sweep for quick calculation
     )
 
-    # Set the employment income for the head
+    # Set AGI as employment income (AGI input approximated as employment income for PolicyEngine)
     household["people"]["you"]["employment_income"] = {"2026": income}
 
     # Create reform
@@ -106,6 +109,9 @@ async def calculate_household_impact(
     Calculate household impact with income sweep.
 
     This replicates the create_chart() function from the Streamlit app.
+
+    Args:
+        income: Adjusted Gross Income (AGI) - used to identify the household's position on charts
     """
     # Build household situation with axes for income sweep
     base_household = build_household_situation(
