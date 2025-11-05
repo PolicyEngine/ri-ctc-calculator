@@ -64,14 +64,14 @@ export default function AggregateImpact({ reformParams }: Props) {
         <div className="bg-green-50 rounded-lg p-6 border border-success">
           <p className="text-sm text-gray-700 mb-2">Households Benefiting</p>
           <p className="text-3xl font-bold text-green-600">
-            {data.beneficiaries.toLocaleString()}
+            {Math.round(data.beneficiaries).toLocaleString()}
           </p>
           <p className="text-xs text-gray-600 mt-1">Number of RI households that benefit</p>
         </div>
 
         <div className="bg-blue-50 rounded-lg p-6 border border-blue-500">
           <p className="text-sm text-gray-700 mb-2">Average Benefit</p>
-          <p className="text-3xl font-bold text-blue-600">{formatCurrency(data.avg_benefit)}</p>
+          <p className="text-3xl font-bold text-blue-600">{formatCurrency(Math.round(data.avg_benefit))}</p>
           <p className="text-xs text-gray-600 mt-1">Average annual benefit per household</p>
         </div>
       </div>
@@ -148,13 +148,13 @@ export default function AggregateImpact({ reformParams }: Props) {
                     <tr key={index} className="hover:bg-gray-100">
                       <td className="px-4 py-3 text-sm text-gray-900">{bracket.bracket}</td>
                       <td className="px-4 py-3 text-sm text-gray-900">
-                        {bracket.beneficiaries.toLocaleString()}
+                        {Math.round(bracket.beneficiaries).toLocaleString()}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900">
                         {formatCurrency(bracket.total_cost)}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900">
-                        {formatCurrency(bracket.avg_benefit)}
+                        {formatCurrency(Math.round(bracket.avg_benefit))}
                       </td>
                     </tr>
                   ))}

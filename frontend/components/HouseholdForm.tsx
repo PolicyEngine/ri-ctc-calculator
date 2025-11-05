@@ -94,7 +94,7 @@ export default function HouseholdForm({
       }`}
     >
       <div className="flex items-center space-x-3">
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold ${
+        <div className={`w-8 h-8 flex-shrink-0 rounded-full flex items-center justify-center font-semibold ${
           isExpanded
             ? 'bg-primary-500 text-white'
             : 'bg-gray-300 text-gray-600'
