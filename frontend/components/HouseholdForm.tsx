@@ -157,31 +157,45 @@ export default function HouseholdForm({
               </label>
             </div>
 
-            {/* Age Head */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                How old are you?
-              </label>
-              <input
-                type="number"
-                value={ageHead}
-                onChange={(e) => setAgeHead(Number(e.target.value))}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                min="18"
-                max="100"
-              />
-            </div>
-
-            {/* Age Spouse */}
-            {married && (
+            {/* Age Inputs - Side by side when married */}
+            {married ? (
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    How old are you?
+                  </label>
+                  <input
+                    type="number"
+                    value={ageHead}
+                    onChange={(e) => setAgeHead(Number(e.target.value))}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                    min="18"
+                    max="100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    How old is your spouse?
+                  </label>
+                  <input
+                    type="number"
+                    value={ageSpouse || 35}
+                    onChange={(e) => setAgeSpouse(Number(e.target.value))}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                    min="18"
+                    max="100"
+                  />
+                </div>
+              </div>
+            ) : (
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  How old is your spouse?
+                  How old are you?
                 </label>
                 <input
                   type="number"
-                  value={ageSpouse || 35}
-                  onChange={(e) => setAgeSpouse(Number(e.target.value))}
+                  value={ageHead}
+                  onChange={(e) => setAgeHead(Number(e.target.value))}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
                   min="18"
                   max="100"
@@ -210,7 +224,7 @@ export default function HouseholdForm({
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   What are their ages?
                 </label>
-                <div className="space-y-2">
+                <div className="grid grid-cols-3 gap-4">
                   {dependentAges.map((age, index) => (
                     <div key={index}>
                       <label className="text-xs text-gray-600 mb-1 block">
@@ -310,136 +324,144 @@ export default function HouseholdForm({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Phaseout Rate
-                    </label>
-                    <input
-                      type="number"
-                      value={reformParams.ctc_phaseout_rate}
-                      onChange={(e) =>
-                        setReformParams({
-                          ...reformParams,
-                          ctc_phaseout_rate: Number(e.target.value),
-                        })
-                      }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                      min="0"
-                      max="1"
-                      step="0.01"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Rate at which benefit phases out (0 = no phaseout, 1 = 100% phaseout)
-                    </p>
-                  </div>
+                    <h4 className="text-sm font-bold text-gray-800 mb-3 mt-2">Phaseout</h4>
 
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Phaseout Threshold (Single)
-                    </label>
-                    <input
-                      type="number"
-                      value={reformParams.ctc_phaseout_thresholds.SINGLE}
-                      onChange={(e) =>
-                        setReformParams({
-                          ...reformParams,
-                          ctc_phaseout_thresholds: {
-                            ...reformParams.ctc_phaseout_thresholds,
-                            SINGLE: Number(e.target.value),
-                          },
-                        })
-                      }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                      min="0"
-                      step="1000"
-                    />
-                  </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Rate
+                      </label>
+                      <input
+                        type="number"
+                        value={reformParams.ctc_phaseout_rate}
+                        onChange={(e) =>
+                          setReformParams({
+                            ...reformParams,
+                            ctc_phaseout_rate: Number(e.target.value),
+                          })
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Rate at which benefit phases out (0 = no phaseout, 1 = 100% phaseout)
+                      </p>
+                    </div>
 
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Phaseout Threshold (Married Filing Jointly)
-                    </label>
-                    <input
-                      type="number"
-                      value={reformParams.ctc_phaseout_thresholds.JOINT}
-                      onChange={(e) =>
-                        setReformParams({
-                          ...reformParams,
-                          ctc_phaseout_thresholds: {
-                            ...reformParams.ctc_phaseout_thresholds,
-                            JOINT: Number(e.target.value),
-                          },
-                        })
-                      }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                      min="0"
-                      step="1000"
-                    />
-                  </div>
+                    <h5 className="text-sm font-semibold text-gray-700 mb-3 mt-4">Thresholds by Filing Status</h5>
 
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Phaseout Threshold (Head of Household)
-                    </label>
-                    <input
-                      type="number"
-                      value={reformParams.ctc_phaseout_thresholds.HEAD_OF_HOUSEHOLD}
-                      onChange={(e) =>
-                        setReformParams({
-                          ...reformParams,
-                          ctc_phaseout_thresholds: {
-                            ...reformParams.ctc_phaseout_thresholds,
-                            HEAD_OF_HOUSEHOLD: Number(e.target.value),
-                          },
-                        })
-                      }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                      min="0"
-                      step="1000"
-                    />
-                  </div>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Single
+                        </label>
+                        <input
+                          type="number"
+                          value={reformParams.ctc_phaseout_thresholds.SINGLE}
+                          onChange={(e) =>
+                            setReformParams({
+                              ...reformParams,
+                              ctc_phaseout_thresholds: {
+                                ...reformParams.ctc_phaseout_thresholds,
+                                SINGLE: Number(e.target.value),
+                              },
+                            })
+                          }
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                          min="0"
+                          step="1000"
+                        />
+                      </div>
 
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Phaseout Threshold (Surviving Spouse)
-                    </label>
-                    <input
-                      type="number"
-                      value={reformParams.ctc_phaseout_thresholds.SURVIVING_SPOUSE}
-                      onChange={(e) =>
-                        setReformParams({
-                          ...reformParams,
-                          ctc_phaseout_thresholds: {
-                            ...reformParams.ctc_phaseout_thresholds,
-                            SURVIVING_SPOUSE: Number(e.target.value),
-                          },
-                        })
-                      }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                      min="0"
-                      step="1000"
-                    />
-                  </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Married Filing Jointly
+                        </label>
+                        <input
+                          type="number"
+                          value={reformParams.ctc_phaseout_thresholds.JOINT}
+                          onChange={(e) =>
+                            setReformParams({
+                              ...reformParams,
+                              ctc_phaseout_thresholds: {
+                                ...reformParams.ctc_phaseout_thresholds,
+                                JOINT: Number(e.target.value),
+                              },
+                            })
+                          }
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                          min="0"
+                          step="1000"
+                        />
+                      </div>
 
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Phaseout Threshold (Married Filing Separately)
-                    </label>
-                    <input
-                      type="number"
-                      value={reformParams.ctc_phaseout_thresholds.SEPARATE}
-                      onChange={(e) =>
-                        setReformParams({
-                          ...reformParams,
-                          ctc_phaseout_thresholds: {
-                            ...reformParams.ctc_phaseout_thresholds,
-                            SEPARATE: Number(e.target.value),
-                          },
-                        })
-                      }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                      min="0"
-                      step="1000"
-                    />
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Head of Household
+                        </label>
+                        <input
+                          type="number"
+                          value={reformParams.ctc_phaseout_thresholds.HEAD_OF_HOUSEHOLD}
+                          onChange={(e) =>
+                            setReformParams({
+                              ...reformParams,
+                              ctc_phaseout_thresholds: {
+                                ...reformParams.ctc_phaseout_thresholds,
+                                HEAD_OF_HOUSEHOLD: Number(e.target.value),
+                              },
+                            })
+                          }
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                          min="0"
+                          step="1000"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Surviving Spouse
+                        </label>
+                        <input
+                          type="number"
+                          value={reformParams.ctc_phaseout_thresholds.SURVIVING_SPOUSE}
+                          onChange={(e) =>
+                            setReformParams({
+                              ...reformParams,
+                              ctc_phaseout_thresholds: {
+                                ...reformParams.ctc_phaseout_thresholds,
+                                SURVIVING_SPOUSE: Number(e.target.value),
+                              },
+                            })
+                          }
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                          min="0"
+                          step="1000"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Married Filing Separately
+                        </label>
+                        <input
+                          type="number"
+                          value={reformParams.ctc_phaseout_thresholds.SEPARATE}
+                          onChange={(e) =>
+                            setReformParams({
+                              ...reformParams,
+                              ctc_phaseout_thresholds: {
+                                ...reformParams.ctc_phaseout_thresholds,
+                                SEPARATE: Number(e.target.value),
+                              },
+                            })
+                          }
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                          min="0"
+                          step="1000"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -542,166 +564,174 @@ export default function HouseholdForm({
                       )}
 
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Exemption Phaseout Rate
-                        </label>
-                        <input
-                          type="number"
-                          value={reformParams.exemption_phaseout_rate}
-                          onChange={(e) =>
-                            setReformParams({
-                              ...reformParams,
-                              exemption_phaseout_rate: Number(e.target.value),
-                            })
-                          }
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                          min="0"
-                          max="1"
-                          step="0.01"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Rate at which exemption phases out (0 = no phaseout)
-                        </p>
-                      </div>
+                        <h4 className="text-sm font-bold text-gray-800 mb-3 mt-2">Phaseout</h4>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Exemption Phaseout Threshold (Single)
-                        </label>
-                        <input
-                          type="number"
-                          value={reformParams.exemption_phaseout_thresholds?.SINGLE ?? 0}
-                          onChange={(e) =>
-                            setReformParams({
-                              ...reformParams,
-                              exemption_phaseout_thresholds: {
-                                ...(reformParams.exemption_phaseout_thresholds || {
-                                  SINGLE: 0,
-                                  JOINT: 0,
-                                  HEAD_OF_HOUSEHOLD: 0,
-                                  SURVIVING_SPOUSE: 0,
-                                  SEPARATE: 0,
-                                }),
-                                SINGLE: Number(e.target.value),
-                              },
-                            })
-                          }
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                          min="0"
-                          step="1000"
-                        />
-                      </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Rate
+                          </label>
+                          <input
+                            type="number"
+                            value={reformParams.exemption_phaseout_rate}
+                            onChange={(e) =>
+                              setReformParams({
+                                ...reformParams,
+                                exemption_phaseout_rate: Number(e.target.value),
+                              })
+                            }
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Rate at which exemption phases out (0 = no phaseout)
+                          </p>
+                        </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Exemption Phaseout Threshold (Married Filing Jointly)
-                        </label>
-                        <input
-                          type="number"
-                          value={reformParams.exemption_phaseout_thresholds?.JOINT ?? 0}
-                          onChange={(e) =>
-                            setReformParams({
-                              ...reformParams,
-                              exemption_phaseout_thresholds: {
-                                ...(reformParams.exemption_phaseout_thresholds || {
-                                  SINGLE: 0,
-                                  JOINT: 0,
-                                  HEAD_OF_HOUSEHOLD: 0,
-                                  SURVIVING_SPOUSE: 0,
-                                  SEPARATE: 0,
-                                }),
-                                JOINT: Number(e.target.value),
-                              },
-                            })
-                          }
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                          min="0"
-                          step="1000"
-                        />
-                      </div>
+                        <h5 className="text-sm font-semibold text-gray-700 mb-3 mt-4">Thresholds by Filing Status</h5>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Exemption Phaseout Threshold (Head of Household)
-                        </label>
-                        <input
-                          type="number"
-                          value={reformParams.exemption_phaseout_thresholds?.HEAD_OF_HOUSEHOLD ?? 0}
-                          onChange={(e) =>
-                            setReformParams({
-                              ...reformParams,
-                              exemption_phaseout_thresholds: {
-                                ...(reformParams.exemption_phaseout_thresholds || {
-                                  SINGLE: 0,
-                                  JOINT: 0,
-                                  HEAD_OF_HOUSEHOLD: 0,
-                                  SURVIVING_SPOUSE: 0,
-                                  SEPARATE: 0,
-                                }),
-                                HEAD_OF_HOUSEHOLD: Number(e.target.value),
-                              },
-                            })
-                          }
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                          min="0"
-                          step="1000"
-                        />
-                      </div>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                              Single
+                            </label>
+                            <input
+                              type="number"
+                              value={reformParams.exemption_phaseout_thresholds?.SINGLE ?? 0}
+                              onChange={(e) =>
+                                setReformParams({
+                                  ...reformParams,
+                                  exemption_phaseout_thresholds: {
+                                    ...(reformParams.exemption_phaseout_thresholds || {
+                                      SINGLE: 0,
+                                      JOINT: 0,
+                                      HEAD_OF_HOUSEHOLD: 0,
+                                      SURVIVING_SPOUSE: 0,
+                                      SEPARATE: 0,
+                                    }),
+                                    SINGLE: Number(e.target.value),
+                                  },
+                                })
+                              }
+                              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                              min="0"
+                              step="1000"
+                            />
+                          </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Exemption Phaseout Threshold (Surviving Spouse)
-                        </label>
-                        <input
-                          type="number"
-                          value={reformParams.exemption_phaseout_thresholds?.SURVIVING_SPOUSE ?? 0}
-                          onChange={(e) =>
-                            setReformParams({
-                              ...reformParams,
-                              exemption_phaseout_thresholds: {
-                                ...(reformParams.exemption_phaseout_thresholds || {
-                                  SINGLE: 0,
-                                  JOINT: 0,
-                                  HEAD_OF_HOUSEHOLD: 0,
-                                  SURVIVING_SPOUSE: 0,
-                                  SEPARATE: 0,
-                                }),
-                                SURVIVING_SPOUSE: Number(e.target.value),
-                              },
-                            })
-                          }
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                          min="0"
-                          step="1000"
-                        />
-                      </div>
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                              Married Filing Jointly
+                            </label>
+                            <input
+                              type="number"
+                              value={reformParams.exemption_phaseout_thresholds?.JOINT ?? 0}
+                              onChange={(e) =>
+                                setReformParams({
+                                  ...reformParams,
+                                  exemption_phaseout_thresholds: {
+                                    ...(reformParams.exemption_phaseout_thresholds || {
+                                      SINGLE: 0,
+                                      JOINT: 0,
+                                      HEAD_OF_HOUSEHOLD: 0,
+                                      SURVIVING_SPOUSE: 0,
+                                      SEPARATE: 0,
+                                    }),
+                                    JOINT: Number(e.target.value),
+                                  },
+                                })
+                              }
+                              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                              min="0"
+                              step="1000"
+                            />
+                          </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Exemption Phaseout Threshold (Married Filing Separately)
-                        </label>
-                        <input
-                          type="number"
-                          value={reformParams.exemption_phaseout_thresholds?.SEPARATE ?? 0}
-                          onChange={(e) =>
-                            setReformParams({
-                              ...reformParams,
-                              exemption_phaseout_thresholds: {
-                                ...(reformParams.exemption_phaseout_thresholds || {
-                                  SINGLE: 0,
-                                  JOINT: 0,
-                                  HEAD_OF_HOUSEHOLD: 0,
-                                  SURVIVING_SPOUSE: 0,
-                                  SEPARATE: 0,
-                                }),
-                                SEPARATE: Number(e.target.value),
-                              },
-                            })
-                          }
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                          min="0"
-                          step="1000"
-                        />
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                              Head of Household
+                            </label>
+                            <input
+                              type="number"
+                              value={reformParams.exemption_phaseout_thresholds?.HEAD_OF_HOUSEHOLD ?? 0}
+                              onChange={(e) =>
+                                setReformParams({
+                                  ...reformParams,
+                                  exemption_phaseout_thresholds: {
+                                    ...(reformParams.exemption_phaseout_thresholds || {
+                                      SINGLE: 0,
+                                      JOINT: 0,
+                                      HEAD_OF_HOUSEHOLD: 0,
+                                      SURVIVING_SPOUSE: 0,
+                                      SEPARATE: 0,
+                                    }),
+                                    HEAD_OF_HOUSEHOLD: Number(e.target.value),
+                                  },
+                                })
+                              }
+                              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                              min="0"
+                              step="1000"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                              Surviving Spouse
+                            </label>
+                            <input
+                              type="number"
+                              value={reformParams.exemption_phaseout_thresholds?.SURVIVING_SPOUSE ?? 0}
+                              onChange={(e) =>
+                                setReformParams({
+                                  ...reformParams,
+                                  exemption_phaseout_thresholds: {
+                                    ...(reformParams.exemption_phaseout_thresholds || {
+                                      SINGLE: 0,
+                                      JOINT: 0,
+                                      HEAD_OF_HOUSEHOLD: 0,
+                                      SURVIVING_SPOUSE: 0,
+                                      SEPARATE: 0,
+                                    }),
+                                    SURVIVING_SPOUSE: Number(e.target.value),
+                                  },
+                                })
+                              }
+                              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                              min="0"
+                              step="1000"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                              Married Filing Separately
+                            </label>
+                            <input
+                              type="number"
+                              value={reformParams.exemption_phaseout_thresholds?.SEPARATE ?? 0}
+                              onChange={(e) =>
+                                setReformParams({
+                                  ...reformParams,
+                                  exemption_phaseout_thresholds: {
+                                    ...(reformParams.exemption_phaseout_thresholds || {
+                                      SINGLE: 0,
+                                      JOINT: 0,
+                                      HEAD_OF_HOUSEHOLD: 0,
+                                      SURVIVING_SPOUSE: 0,
+                                      SEPARATE: 0,
+                                    }),
+                                    SEPARATE: Number(e.target.value),
+                                  },
+                                })
+                              }
+                              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                              min="0"
+                              step="1000"
+                            />
+                          </div>
+                        </div>
                       </div>
                     </>
                   )}
