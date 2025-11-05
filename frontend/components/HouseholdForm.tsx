@@ -76,6 +76,18 @@ export default function HouseholdForm({
     setExpandedStep(expandedStep === step ? 0 : step);
   };
 
+  // Format number with commas
+  const formatNumber = (num: number): string => {
+    return num.toLocaleString('en-US');
+  };
+
+  // Parse number from string, removing commas
+  const parseNumber = (str: string): number => {
+    const cleaned = str.replace(/,/g, '');
+    const num = Number(cleaned);
+    return isNaN(num) ? 0 : num;
+  };
+
   const StepHeader = ({
     stepNumber,
     title,
@@ -131,13 +143,11 @@ export default function HouseholdForm({
                 Adjusted Gross Income (AGI)
               </label>
               <input
-                type="number"
-                value={income}
-                onChange={(e) => setIncome(Number(e.target.value))}
+                type="text"
+                value={formatNumber(income)}
+                onChange={(e) => setIncome(parseNumber(e.target.value))}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                min="0"
-                max="1000000"
-                step="1000"
+                placeholder="0"
               />
               <p className="text-xs text-gray-500 mt-1">
                 Combined household AGI (for married couples, enter your joint AGI)
@@ -357,20 +367,19 @@ export default function HouseholdForm({
                           Single
                         </label>
                         <input
-                          type="number"
-                          value={reformParams.ctc_phaseout_thresholds.SINGLE}
+                          type="text"
+                          value={formatNumber(reformParams.ctc_phaseout_thresholds.SINGLE)}
                           onChange={(e) =>
                             setReformParams({
                               ...reformParams,
                               ctc_phaseout_thresholds: {
                                 ...reformParams.ctc_phaseout_thresholds,
-                                SINGLE: Number(e.target.value),
+                                SINGLE: parseNumber(e.target.value),
                               },
                             })
                           }
                           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                          min="0"
-                          step="1000"
+                          placeholder="0"
                         />
                       </div>
 
@@ -379,20 +388,19 @@ export default function HouseholdForm({
                           Married Filing Jointly
                         </label>
                         <input
-                          type="number"
-                          value={reformParams.ctc_phaseout_thresholds.JOINT}
+                          type="text"
+                          value={formatNumber(reformParams.ctc_phaseout_thresholds.JOINT)}
                           onChange={(e) =>
                             setReformParams({
                               ...reformParams,
                               ctc_phaseout_thresholds: {
                                 ...reformParams.ctc_phaseout_thresholds,
-                                JOINT: Number(e.target.value),
+                                JOINT: parseNumber(e.target.value),
                               },
                             })
                           }
                           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                          min="0"
-                          step="1000"
+                          placeholder="0"
                         />
                       </div>
 
@@ -401,20 +409,19 @@ export default function HouseholdForm({
                           Head of Household
                         </label>
                         <input
-                          type="number"
-                          value={reformParams.ctc_phaseout_thresholds.HEAD_OF_HOUSEHOLD}
+                          type="text"
+                          value={formatNumber(reformParams.ctc_phaseout_thresholds.HEAD_OF_HOUSEHOLD)}
                           onChange={(e) =>
                             setReformParams({
                               ...reformParams,
                               ctc_phaseout_thresholds: {
                                 ...reformParams.ctc_phaseout_thresholds,
-                                HEAD_OF_HOUSEHOLD: Number(e.target.value),
+                                HEAD_OF_HOUSEHOLD: parseNumber(e.target.value),
                               },
                             })
                           }
                           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                          min="0"
-                          step="1000"
+                          placeholder="0"
                         />
                       </div>
 
@@ -423,20 +430,19 @@ export default function HouseholdForm({
                           Surviving Spouse
                         </label>
                         <input
-                          type="number"
-                          value={reformParams.ctc_phaseout_thresholds.SURVIVING_SPOUSE}
+                          type="text"
+                          value={formatNumber(reformParams.ctc_phaseout_thresholds.SURVIVING_SPOUSE)}
                           onChange={(e) =>
                             setReformParams({
                               ...reformParams,
                               ctc_phaseout_thresholds: {
                                 ...reformParams.ctc_phaseout_thresholds,
-                                SURVIVING_SPOUSE: Number(e.target.value),
+                                SURVIVING_SPOUSE: parseNumber(e.target.value),
                               },
                             })
                           }
                           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                          min="0"
-                          step="1000"
+                          placeholder="0"
                         />
                       </div>
 
@@ -445,20 +451,19 @@ export default function HouseholdForm({
                           Married Filing Separately
                         </label>
                         <input
-                          type="number"
-                          value={reformParams.ctc_phaseout_thresholds.SEPARATE}
+                          type="text"
+                          value={formatNumber(reformParams.ctc_phaseout_thresholds.SEPARATE)}
                           onChange={(e) =>
                             setReformParams({
                               ...reformParams,
                               ctc_phaseout_thresholds: {
                                 ...reformParams.ctc_phaseout_thresholds,
-                                SEPARATE: Number(e.target.value),
+                                SEPARATE: parseNumber(e.target.value),
                               },
                             })
                           }
                           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                          min="0"
-                          step="1000"
+                          placeholder="0"
                         />
                       </div>
                     </div>
@@ -597,8 +602,8 @@ export default function HouseholdForm({
                               Single
                             </label>
                             <input
-                              type="number"
-                              value={reformParams.exemption_phaseout_thresholds?.SINGLE ?? 0}
+                              type="text"
+                              value={formatNumber(reformParams.exemption_phaseout_thresholds?.SINGLE ?? 0)}
                               onChange={(e) =>
                                 setReformParams({
                                   ...reformParams,
@@ -610,13 +615,12 @@ export default function HouseholdForm({
                                       SURVIVING_SPOUSE: 0,
                                       SEPARATE: 0,
                                     }),
-                                    SINGLE: Number(e.target.value),
+                                    SINGLE: parseNumber(e.target.value),
                                   },
                                 })
                               }
                               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                              min="0"
-                              step="1000"
+                              placeholder="0"
                             />
                           </div>
 
@@ -625,8 +629,8 @@ export default function HouseholdForm({
                               Married Filing Jointly
                             </label>
                             <input
-                              type="number"
-                              value={reformParams.exemption_phaseout_thresholds?.JOINT ?? 0}
+                              type="text"
+                              value={formatNumber(reformParams.exemption_phaseout_thresholds?.JOINT ?? 0)}
                               onChange={(e) =>
                                 setReformParams({
                                   ...reformParams,
@@ -638,13 +642,12 @@ export default function HouseholdForm({
                                       SURVIVING_SPOUSE: 0,
                                       SEPARATE: 0,
                                     }),
-                                    JOINT: Number(e.target.value),
+                                    JOINT: parseNumber(e.target.value),
                                   },
                                 })
                               }
                               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                              min="0"
-                              step="1000"
+                              placeholder="0"
                             />
                           </div>
 
@@ -653,8 +656,8 @@ export default function HouseholdForm({
                               Head of Household
                             </label>
                             <input
-                              type="number"
-                              value={reformParams.exemption_phaseout_thresholds?.HEAD_OF_HOUSEHOLD ?? 0}
+                              type="text"
+                              value={formatNumber(reformParams.exemption_phaseout_thresholds?.HEAD_OF_HOUSEHOLD ?? 0)}
                               onChange={(e) =>
                                 setReformParams({
                                   ...reformParams,
@@ -666,13 +669,12 @@ export default function HouseholdForm({
                                       SURVIVING_SPOUSE: 0,
                                       SEPARATE: 0,
                                     }),
-                                    HEAD_OF_HOUSEHOLD: Number(e.target.value),
+                                    HEAD_OF_HOUSEHOLD: parseNumber(e.target.value),
                                   },
                                 })
                               }
                               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                              min="0"
-                              step="1000"
+                              placeholder="0"
                             />
                           </div>
 
@@ -681,8 +683,8 @@ export default function HouseholdForm({
                               Surviving Spouse
                             </label>
                             <input
-                              type="number"
-                              value={reformParams.exemption_phaseout_thresholds?.SURVIVING_SPOUSE ?? 0}
+                              type="text"
+                              value={formatNumber(reformParams.exemption_phaseout_thresholds?.SURVIVING_SPOUSE ?? 0)}
                               onChange={(e) =>
                                 setReformParams({
                                   ...reformParams,
@@ -694,13 +696,12 @@ export default function HouseholdForm({
                                       SURVIVING_SPOUSE: 0,
                                       SEPARATE: 0,
                                     }),
-                                    SURVIVING_SPOUSE: Number(e.target.value),
+                                    SURVIVING_SPOUSE: parseNumber(e.target.value),
                                   },
                                 })
                               }
                               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                              min="0"
-                              step="1000"
+                              placeholder="0"
                             />
                           </div>
 
@@ -709,8 +710,8 @@ export default function HouseholdForm({
                               Married Filing Separately
                             </label>
                             <input
-                              type="number"
-                              value={reformParams.exemption_phaseout_thresholds?.SEPARATE ?? 0}
+                              type="text"
+                              value={formatNumber(reformParams.exemption_phaseout_thresholds?.SEPARATE ?? 0)}
                               onChange={(e) =>
                                 setReformParams({
                                   ...reformParams,
@@ -722,13 +723,12 @@ export default function HouseholdForm({
                                       SURVIVING_SPOUSE: 0,
                                       SEPARATE: 0,
                                     }),
-                                    SEPARATE: Number(e.target.value),
+                                    SEPARATE: parseNumber(e.target.value),
                                   },
                                 })
                               }
                               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                              min="0"
-                              step="1000"
+                              placeholder="0"
                             />
                           </div>
                         </div>

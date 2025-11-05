@@ -86,7 +86,7 @@ export default function ImpactAnalysis({
       <div>
         <h3 className="text-xl font-bold text-gray-800 mb-4">Your Personal Impact</h3>
         <p className="text-gray-600 mb-4">
-          Based on your household income of <strong>{formatCurrency(income)}</strong>
+          Based on your adjusted gross income of <strong>{formatCurrency(income)}</strong>
         </p>
 
         {/* Metrics */}
@@ -159,7 +159,7 @@ export default function ImpactAnalysis({
       {/* Chart */}
       <div className="bg-white border rounded-lg p-6">
         <h3 className="text-lg font-semibold mb-4 text-gray-800">
-          Total Benefit from RI Reform by Household Income (2026)
+          Total Benefit from RI CTC Reform by Adjusted Gross Income (2026)
         </h3>
         <ResponsiveContainer width="100%" height={400}>
           <LineChart data={chartData}>
