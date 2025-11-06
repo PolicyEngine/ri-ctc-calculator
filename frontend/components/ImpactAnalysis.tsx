@@ -105,7 +105,7 @@ export default function ImpactAnalysis({
               <div className="space-y-2">
                 {benefitData.ctc_component > 0 && (
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-700">• CTC credit:</span>
+                    <span className="text-gray-700">• RI CTC:</span>
                     <span className="font-semibold text-gray-900">
                       +{formatCurrency(benefitData.ctc_component)}
                     </span>
@@ -114,7 +114,7 @@ export default function ImpactAnalysis({
                 {benefitData.exemption_tax_benefit !== 0 && (
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-700">
-                      • Change in income tax:
+                      • RI Dependent Exemption:
                     </span>
                     <span className="font-semibold text-gray-900">
                       {benefitData.exemption_tax_benefit > 0 ? '+' : ''}{formatCurrency(benefitData.exemption_tax_benefit)}
