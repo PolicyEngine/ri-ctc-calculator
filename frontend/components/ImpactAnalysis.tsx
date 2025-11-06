@@ -89,69 +89,42 @@ export default function ImpactAnalysis({
           Based on your adjusted gross income of <strong>{formatCurrency(income)}</strong>
         </p>
 
-        {/* Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-            <p className="text-sm text-gray-600 mb-2">Current Law</p>
-            <p className="text-3xl font-bold text-gray-800">
-              {formatCurrency(benefitData.baseline)}
-            </p>
-          </div>
+        {/* Change in Net Income */}
+        <div className="bg-green-50 rounded-lg p-6 border border-success">
+          <p className="text-sm text-gray-700 mb-2">Change in Net Income</p>
+          <p className="text-3xl font-bold text-green-600">
+            {benefitData.difference > 0
+              ? `+${formatCurrency(benefitData.difference)}/year`
+              : '$0'}
+          </p>
 
-          <div className="bg-primary-50 rounded-lg p-6 border border-primary-500">
-            <p className="text-sm text-gray-700 mb-2">With Reform</p>
-            <p className="text-3xl font-bold text-primary-600">
-              {formatCurrency(benefitData.reform)}
-            </p>
-          </div>
-
-          <div className="bg-green-50 rounded-lg p-6 border border-success">
-            <p className="text-sm text-gray-700 mb-2">Net Income Increase</p>
-            <p className="text-3xl font-bold text-green-600">
-              {benefitData.difference > 0
-                ? `+${formatCurrency(benefitData.difference)}/year`
-                : '$0'}
-            </p>
-          </div>
-        </div>
-
-        {/* Breakdown by Program */}
-        {benefitData.difference > 0 && (
-          <div className="mt-6">
-            <button
-              onClick={() => setBreakdownExpanded(!breakdownExpanded)}
-              className="w-full flex items-center justify-between text-left text-gray-700 hover:text-gray-900 transition-colors"
-            >
-              <span className="text-sm font-semibold">Breakdown by Program</span>
-              <span className="text-gray-400">{breakdownExpanded ? '▼' : '▶'}</span>
-            </button>
-
-            {breakdownExpanded && (
-              <div className="mt-3 bg-gray-50 rounded-lg p-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {benefitData.ctc_component > 0 && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-700">• CTC credit:</span>
-                      <span className="font-semibold text-gray-900">
-                        {formatCurrency(benefitData.ctc_component)}
-                      </span>
-                    </div>
-                  )}
-                  {benefitData.exemption_tax_benefit !== 0 && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-700">
-                        • Exemption tax {benefitData.exemption_tax_benefit > 0 ? 'savings' : 'increase'}:
-                      </span>
-                      <span className="font-semibold text-gray-900">
-                        {formatCurrency(Math.abs(benefitData.exemption_tax_benefit))}
-                      </span>
-                    </div>
-                  )}
-                </div>
+          {/* Breakdown */}
+          {benefitData.difference > 0 && (
+            <div className="mt-4 pt-4 border-t border-green-200">
+              <p className="text-xs text-gray-600 font-semibold mb-3">Breakdown:</p>
+              <div className="space-y-2">
+                {benefitData.ctc_component > 0 && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-700">• RI CTC:</span>
+                    <span className="font-semibold text-gray-900">
+                      +{formatCurrency(benefitData.ctc_component)}
+                    </span>
+                  </div>
+                )}
+                {benefitData.exemption_tax_benefit !== 0 && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-700">
+                      • RI Dependent Exemption:
+                    </span>
+                    <span className="font-semibold text-gray-900">
+                      {benefitData.exemption_tax_benefit > 0 ? '+' : ''}{formatCurrency(benefitData.exemption_tax_benefit)}
+                    </span>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
 
       <hr className="border-gray-200" />
@@ -159,10 +132,10 @@ export default function ImpactAnalysis({
       {/* Chart */}
       <div className="bg-white border rounded-lg p-6">
         <h3 className="text-lg font-semibold mb-4 text-gray-800">
-          Total Benefit from RI CTC Reform by Adjusted Gross Income (2026)
+          Change in Net Income from RI CTC Reform by Adjusted Gross Income (2026)
         </h3>
         <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={chartData}>
+          <LineChart data={chartData} margin={{ left: 20, right: 20, top: 5, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
             <XAxis
               dataKey="income"
@@ -172,7 +145,11 @@ export default function ImpactAnalysis({
               domain={[0, data.x_axis_max]}
               allowDataOverflow={false}
             />
-            <YAxis tickFormatter={formatCurrency} stroke="#666" />
+            <YAxis
+              tickFormatter={formatCurrency}
+              stroke="#666"
+              width={80}
+            />
             <Tooltip
               formatter={(value: number) => formatCurrency(value)}
               labelFormatter={(value: number) => `Income: ${formatCurrency(value)}`}
@@ -180,18 +157,10 @@ export default function ImpactAnalysis({
             <Legend />
             <Line
               type="monotone"
-              dataKey="baseline"
-              stroke="#CBD5E1"
-              strokeWidth={2}
-              name="Current Law"
-              dot={false}
-            />
-            <Line
-              type="monotone"
-              dataKey="reform"
+              dataKey="benefit"
               stroke="#319795"
               strokeWidth={3}
-              name="With RI CTC Reform"
+              name="Change in Net Income"
               dot={false}
             />
           </LineChart>
