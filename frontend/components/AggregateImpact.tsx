@@ -19,7 +19,16 @@ interface Props {
 }
 
 export default function AggregateImpact({ reformParams }: Props) {
+  console.log('[AggregateImpact] Component rendered with reformParams:', reformParams);
+
   const { data, isLoading, error } = useAggregateImpact(reformParams);
+
+  console.log('[AggregateImpact] Query state:', {
+    hasData: !!data,
+    isLoading,
+    hasError: !!error,
+    error: error instanceof Error ? error.message : error
+  });
 
   if (isLoading) {
     return (
@@ -33,10 +42,24 @@ export default function AggregateImpact({ reformParams }: Props) {
   }
 
   if (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorDetails = (error as any)?.response?.data || (error as any)?.cause || '';
+
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-6">
         <h3 className="text-red-800 font-semibold mb-2">Error Calculating Aggregate Impact</h3>
-        <p className="text-red-700">{(error as Error).message}</p>
+        <p className="text-red-700 font-medium mb-2">{errorMessage}</p>
+        {errorDetails && (
+          <details className="mt-2">
+            <summary className="cursor-pointer text-red-600 text-sm">Show technical details</summary>
+            <pre className="mt-2 text-xs bg-red-100 p-2 rounded overflow-auto max-h-40">
+              {JSON.stringify(errorDetails, null, 2)}
+            </pre>
+          </details>
+        )}
+        <p className="text-sm text-gray-600 mt-4">
+          Note: Statewide calculations take ~90 seconds. If you see a timeout error, please wait and the calculation will complete.
+        </p>
       </div>
     );
   }
