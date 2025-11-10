@@ -84,19 +84,17 @@
 # 1. Navigate to backend
 cd backend
 
-# 2. Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# 3. Install dependencies
+# 2. Install dependencies (virtual environment optional but recommended)
 pip install -r requirements.txt
 
-# 4. Run FastAPI server
-python -m app.main
+# 3. Run FastAPI server
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
 
-# API will be available at http://localhost:8000
-# API docs at http://localhost:8000/docs
+# API will be available at http://localhost:8080
+# API docs at http://localhost:8080/docs
 ```
+
+**Note**: First startup takes 30-60 seconds to download the RI dataset from HuggingFace.
 
 ### Frontend
 
