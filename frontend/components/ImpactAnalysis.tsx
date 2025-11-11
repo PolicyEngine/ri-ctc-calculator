@@ -12,6 +12,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  ReferenceLine,
 } from 'recharts';
 
 interface Props {
@@ -90,24 +91,38 @@ export default function ImpactAnalysis({
         </p>
 
         {/* Change in Net Income */}
-        <div className="bg-green-50 rounded-lg p-6 border border-success">
+        <div className={`rounded-lg p-6 border ${
+          benefitData.difference > 0
+            ? 'bg-green-50 border-success'
+            : benefitData.difference < 0
+            ? 'bg-red-50 border-red-300'
+            : 'bg-gray-50 border-gray-300'
+        }`}>
           <p className="text-sm text-gray-700 mb-2">Change in Net Income</p>
-          <p className="text-3xl font-bold text-green-600">
-            {benefitData.difference > 0
-              ? `+${formatCurrency(benefitData.difference)}/year`
-              : '$0'}
+          <p className={`text-3xl font-bold ${
+            benefitData.difference > 0
+              ? 'text-green-600'
+              : benefitData.difference < 0
+              ? 'text-red-600'
+              : 'text-gray-600'
+          }`}>
+            {benefitData.difference !== 0
+              ? `${benefitData.difference > 0 ? '+' : ''}${formatCurrency(benefitData.difference)}/year`
+              : '$0/year'}
           </p>
 
           {/* Breakdown */}
-          {benefitData.difference > 0 && (
-            <div className="mt-4 pt-4 border-t border-green-200">
+          {benefitData.difference !== 0 && (
+            <div className={`mt-4 pt-4 border-t ${
+              benefitData.difference > 0 ? 'border-green-200' : 'border-red-200'
+            }`}>
               <p className="text-xs text-gray-600 font-semibold mb-3">Breakdown:</p>
               <div className="space-y-2">
-                {benefitData.ctc_component > 0 && (
+                {benefitData.ctc_component !== 0 && (
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-700">• RI CTC:</span>
                     <span className="font-semibold text-gray-900">
-                      +{formatCurrency(benefitData.ctc_component)}
+                      {benefitData.ctc_component > 0 ? '+' : ''}{formatCurrency(benefitData.ctc_component)}
                     </span>
                   </div>
                 )}
@@ -155,6 +170,7 @@ export default function ImpactAnalysis({
               labelFormatter={(value: number) => `Income: ${formatCurrency(value)}`}
             />
             <Legend />
+            <ReferenceLine y={0} stroke="#666" strokeWidth={2} />
             <Line
               type="monotone"
               dataKey="benefit"

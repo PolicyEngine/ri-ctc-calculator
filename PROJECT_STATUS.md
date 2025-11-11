@@ -78,17 +78,24 @@
 ```bash
 # Terminal 1: Backend
 cd backend
-python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-python -m app.main
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
+
+# Backend running at http://localhost:8080
+# API docs at http://localhost:8080/docs
 
 # Terminal 2: Frontend
 cd frontend
 npm install
 npm run dev
 
-# Open http://localhost:3000
+# Frontend running at http://localhost:3000
 ```
+
+**Important Notes**:
+- Backend runs on port **8080** (not 8000)
+- First startup takes 30-60 seconds to load RI dataset
+- Aggregate calculations take ~90 seconds (frontend timeout set to 120s)
 
 ### 2. Deploy to Cloud Run
 

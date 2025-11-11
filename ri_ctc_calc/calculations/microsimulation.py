@@ -51,9 +51,14 @@ def calculate_aggregate_impact(reform):
 
     # Aggregate statistics
     total_cost = ctc_change.sum()
-    beneficiaries = (ctc_change > 0).sum()
-    avg_benefit = ctc_change[ctc_change > 0].mean() if beneficiaries > 0 else 0
-    children_affected = eligible_children[ctc_change > 0].sum() if beneficiaries > 0 else 0
+    # Count all households with any impact (positive or negative)
+    affected_households = (np.abs(ctc_change) > 1).sum()
+    # Keep beneficiaries as weighted count of households with positive impact
+    beneficiaries_mask = ctc_change > 0
+    beneficiaries = household_weight[beneficiaries_mask].sum()
+    # Calculate average impact across ALL affected households (not just beneficiaries)
+    avg_benefit = ctc_change[np.abs(ctc_change) > 1].mean() if affected_households > 0 else 0
+    children_affected = eligible_children[beneficiaries_mask].sum() if beneficiaries > 0 else 0
 
     # Get total population counts for rate calculations
     total_population = sim_baseline.calculate("person_count", period=2026).sum()
@@ -103,14 +108,15 @@ def calculate_aggregate_impact(reform):
 
     by_income_bracket = []
     for min_income, max_income, label in income_brackets:
-        mask = (agi >= min_income) & (agi < max_income) & (ctc_change > 0)
-        bracket_beneficiaries = mask.sum()
+        # Include ALL households affected (positive or negative impact)
+        mask = (agi >= min_income) & (agi < max_income) & (np.abs(ctc_change) > 1)
+        bracket_affected = mask.sum()
         bracket_cost = ctc_change[mask].sum()
-        bracket_avg = ctc_change[mask].mean() if bracket_beneficiaries > 0 else 0
+        bracket_avg = ctc_change[mask].mean() if bracket_affected > 0 else 0
 
         by_income_bracket.append({
             "bracket": label,
-            "beneficiaries": float(bracket_beneficiaries),
+            "beneficiaries": float(bracket_affected),
             "total_cost": float(bracket_cost),
             "avg_benefit": float(bracket_avg)
         })
