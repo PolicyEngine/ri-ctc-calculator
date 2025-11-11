@@ -53,9 +53,8 @@ def calculate_aggregate_impact(reform):
     total_cost = ctc_change.sum()
     # Count all households with any impact (positive or negative)
     affected_households = (np.abs(ctc_change) > 1).sum()
-    # Keep beneficiaries as weighted count of households with positive impact
     beneficiaries_mask = ctc_change > 0
-    beneficiaries = household_weight[beneficiaries_mask].sum()
+    beneficiaries = beneficiaries_mask.sum()
     # Calculate average impact across ALL affected households (not just beneficiaries)
     avg_benefit = ctc_change[np.abs(ctc_change) > 1].mean() if affected_households > 0 else 0
     children_affected = eligible_children[beneficiaries_mask].sum() if beneficiaries > 0 else 0
