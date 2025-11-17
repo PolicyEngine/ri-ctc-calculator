@@ -30,6 +30,8 @@ export default function Home() {
       SURVIVING_SPOUSE: 0,
       SEPARATE: 0,
     },
+    ctc_young_child_boost_amount: 0,
+    ctc_young_child_boost_age_limit: 6,
     enable_exemption_reform: false,
     exemption_amount: 5200,
     exemption_age_limit_enabled: true,
