@@ -59,6 +59,13 @@ def create_ri_ctc_reform():
             "gov.contrib.states.ri.ctc.phaseout.threshold.SEPARATE": {
                 "2026-01-01.2100-12-31": 0
             },
+            # Young child boost parameters
+            "gov.contrib.states.ri.ctc.young_child_boost.amount": {
+                "2026-01-01.2100-12-31": 0  # Additional boost per young child
+            },
+            "gov.contrib.states.ri.ctc.young_child_boost.age_limit": {
+                "2026-01-01.2100-12-31": 6  # Children must be under this age for boost
+            },
         },
         country_id="us",
     )
@@ -169,6 +176,13 @@ def create_combined_ri_reform():
             "gov.contrib.states.ri.ctc.phaseout.threshold.SEPARATE": {
                 "2026-01-01.2100-12-31": 0
             },
+            # Young child boost parameters
+            "gov.contrib.states.ri.ctc.young_child_boost.amount": {
+                "2026-01-01.2100-12-31": 0
+            },
+            "gov.contrib.states.ri.ctc.young_child_boost.age_limit": {
+                "2026-01-01.2100-12-31": 6
+            },
             # ===== Dependent Exemption Parameters =====
             "gov.contrib.states.ri.dependent_exemption.in_effect": {
                 "2026-01-01.2100-12-31": True
@@ -212,6 +226,8 @@ def create_custom_reform(
     ctc_refundability_cap: float = 0,
     ctc_phaseout_rate: float = 0,
     ctc_phaseout_thresholds: Optional[Dict[str, float]] = None,
+    ctc_young_child_boost_amount: float = 0,
+    ctc_young_child_boost_age_limit: int = 6,
     # Dependent exemption parameters
     enable_exemption_reform: bool = False,
     exemption_amount: float = 5200,
@@ -228,6 +244,8 @@ def create_custom_reform(
         ctc_refundability_cap: Refundability cap (0=non-refundable, higher=more refundable)
         ctc_phaseout_rate: CTC phase-out rate (0=no phaseout)
         ctc_phaseout_thresholds: Dict of phase-out thresholds by filing status
+        ctc_young_child_boost_amount: Additional boost amount per young child
+        ctc_young_child_boost_age_limit: Maximum age for young child boost eligibility
         enable_exemption_reform: Whether to enable dependent exemption reform
         exemption_amount: Dependent exemption amount
         exemption_age_limit_enabled: Whether to enable age limit on exemptions
@@ -270,6 +288,12 @@ def create_custom_reform(
         },
         "gov.contrib.states.ri.ctc.refundability.cap": {
             "2026-01-01.2100-12-31": ctc_refundability_cap
+        },
+        "gov.contrib.states.ri.ctc.young_child_boost.amount": {
+            "2026-01-01.2100-12-31": ctc_young_child_boost_amount
+        },
+        "gov.contrib.states.ri.ctc.young_child_boost.age_limit": {
+            "2026-01-01.2100-12-31": ctc_young_child_boost_age_limit
         },
     }
 

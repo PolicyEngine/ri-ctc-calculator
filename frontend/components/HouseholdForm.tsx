@@ -312,6 +312,51 @@ export default function HouseholdForm({
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Young Child Boost Amount
+                    </label>
+                    <input
+                      type="number"
+                      value={reformParams.ctc_young_child_boost_amount}
+                      onChange={(e) =>
+                        setReformParams({
+                          ...reformParams,
+                          ctc_young_child_boost_amount: Number(e.target.value),
+                        })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                      min="0"
+                      max="10000"
+                      step="100"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Additional amount per child under the young child age limit
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Young Child Boost Age Limit
+                    </label>
+                    <input
+                      type="number"
+                      value={reformParams.ctc_young_child_boost_age_limit}
+                      onChange={(e) =>
+                        setReformParams({
+                          ...reformParams,
+                          ctc_young_child_boost_age_limit: Number(e.target.value),
+                        })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                      min="0"
+                      max="26"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Children must be under this age to receive the young child boost
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Refundability Cap
                     </label>
                     <input
@@ -325,11 +370,11 @@ export default function HouseholdForm({
                       }
                       className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
                       min="0"
-                      max={reformParams.ctc_amount}
+                      max="999999"
                       step="100"
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Maximum refundable amount (0 = non-refundable, {reformParams.ctc_amount} = fully refundable)
+                      Maximum refundable amount per household (0 = non-refundable, set high to make fully refundable for all families)
                     </p>
                   </div>
 

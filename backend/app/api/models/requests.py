@@ -22,6 +22,8 @@ class ReformParams(BaseModel):
         },
         description="CTC phase-out thresholds by filing status"
     )
+    ctc_young_child_boost_amount: float = Field(0, ge=0, le=10000, description="Additional boost per young child")
+    ctc_young_child_boost_age_limit: int = Field(6, ge=0, le=26, description="Maximum age for young child boost")
 
     # Dependent exemption parameters
     enable_exemption_reform: bool = Field(False, description="Enable dependent exemption reform")
