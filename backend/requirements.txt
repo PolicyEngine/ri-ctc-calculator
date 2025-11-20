@@ -5,7 +5,7 @@ pydantic==2.5.3
 pydantic-settings==2.1.0
 
 # PolicyEngine dependencies
-policyengine_us>=1.409.0
+policyengine_us>=1.434.0
 numpy
 pandas
 
