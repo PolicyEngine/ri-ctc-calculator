@@ -3,8 +3,8 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { api } from '@/lib/api';
-import type { ReformParams } from '@/lib/types';
+import { api } from '@/apiLib/api';
+import type { ReformParams } from '@/apiLib/types';
 
 export function useAggregateImpact(reformParams: ReformParams, enabled: boolean = true) {
   return useQuery({

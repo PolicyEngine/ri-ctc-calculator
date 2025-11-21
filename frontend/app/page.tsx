@@ -4,7 +4,7 @@ import { useState } from 'react';
 import HouseholdForm from '@/components/HouseholdForm';
 import ImpactAnalysis from '@/components/ImpactAnalysis';
 import AggregateImpact from '@/components/AggregateImpact';
-import type { ReformParams } from '@/lib/types';
+import type { ReformParams } from '@/apiLib/types';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'impact' | 'aggregate'>('impact');

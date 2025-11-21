@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { ReformParams } from '@/lib/types';
+import type { ReformParams } from '@/apiLib/types';
 
 interface Props {
   ageHead: number;

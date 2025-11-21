@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useHouseholdImpact } from '@/hooks/useHouseholdImpact';
-import type { ReformParams } from '@/lib/types';
+import type { ReformParams } from '@/apiLib/types';
 import {
   LineChart,
   Line,

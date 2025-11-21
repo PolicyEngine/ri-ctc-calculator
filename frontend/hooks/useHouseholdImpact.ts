@@ -3,8 +3,8 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { api } from '@/lib/api';
-import type { HouseholdRequest } from '@/lib/types';
+import { api } from '@/apiLib/api';
+import type { HouseholdRequest } from '@/apiLib/types';
 
 export function useHouseholdImpact(request: HouseholdRequest, enabled: boolean = true) {
   return useQuery({

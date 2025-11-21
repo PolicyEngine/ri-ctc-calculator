@@ -1,7 +1,7 @@
 'use client';
 
 import { useAggregateImpact } from '@/hooks/useAggregateImpact';
-import type { ReformParams } from '@/lib/types';
+import type { ReformParams } from '@/apiLib/types';
 import {
   BarChart,
   Bar,
