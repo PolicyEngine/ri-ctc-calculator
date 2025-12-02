@@ -117,7 +117,7 @@ export default function Home() {
                 <h2 className="text-2xl font-bold text-primary mb-4">Get Started</h2>
                 <p className="text-gray-700 mb-4">
                   Configure your household in the sidebar, then click{' '}
-                  <span className="font-semibold">"Calculate Impact"</span> to see:
+                  <span className="font-semibold">&ldquo;Calculate Impact&rdquo;</span> to see:
                 </p>
                 <ul className="list-disc list-inside space-y-2 text-gray-700">
                   <li>How the Rhode Island Child Tax Credit would benefit your household</li>
