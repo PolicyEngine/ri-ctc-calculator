@@ -21,8 +21,10 @@ class DatasetManager:
 
         logger.info("Loading RI microsimulation dataset...")
         try:
-            # Load dataset once and keep in memory
-            self.baseline_sim = Microsimulation(dataset="hf://policyengine/test/RI.h5")
+            # Load RI-specific dataset from HuggingFace
+            self.baseline_sim = Microsimulation(
+                dataset="hf://policyengine/policyengine-us-data/states/RI.h5"
+            )
             self._is_loaded = True
             logger.info("✓ RI dataset loaded successfully")
         except Exception as e:
