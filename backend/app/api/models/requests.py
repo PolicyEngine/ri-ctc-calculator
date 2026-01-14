@@ -22,6 +22,8 @@ class ReformParams(BaseModel):
         },
         description="CTC phase-out thresholds by filing status"
     )
+    ctc_phaseout_range_based: bool = Field(False, description="Use range-based phaseout instead of rate-based")
+    ctc_phaseout_end: float = Field(0, ge=0, description="Phaseout end point for range-based phaseout")
     ctc_young_child_boost_amount: float = Field(0, ge=0, le=10000, description="Additional boost per young child")
     ctc_young_child_boost_age_limit: int = Field(6, ge=0, le=26, description="Maximum age for young child boost")
 

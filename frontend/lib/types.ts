@@ -24,6 +24,8 @@ export interface ReformParams {
   ctc_refundability_cap: number;
   ctc_phaseout_rate: number;
   ctc_phaseout_thresholds: PhaseoutThresholds;
+  ctc_phaseout_range_based: boolean;  // true = range-based, false = rate-based
+  ctc_phaseout_end: number;           // end point for range-based phaseout
   ctc_young_child_boost_amount: number;
   ctc_young_child_boost_age_limit: number;
 

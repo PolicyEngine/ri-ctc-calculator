@@ -279,6 +279,52 @@ export default function HouseholdForm({
 
 {showCTCCustomization && (
                 <div className="mt-4 space-y-4 pl-4">
+                  {/* Governor's Proposal Button */}
+                  <div className="mb-4">
+                    <button
+                      onClick={() => {
+                        setReformParams({
+                          ...reformParams,
+                          ctc_amount: 325,
+                          ctc_age_limit: 19,
+                          ctc_refundability_cap: 100000,
+                          ctc_phaseout_range_based: true,
+                          ctc_phaseout_rate: 0,
+                          ctc_phaseout_thresholds: {
+                            SINGLE: 261000,
+                            JOINT: 261000,
+                            HEAD_OF_HOUSEHOLD: 261000,
+                            SURVIVING_SPOUSE: 261000,
+                            SEPARATE: 261000,
+                          },
+                          ctc_phaseout_end: 300000,
+                          ctc_young_child_boost_amount: 0,
+                          ctc_young_child_boost_age_limit: 6,
+                          enable_exemption_reform: true,
+                          exemption_amount: 0,
+                          exemption_age_limit_enabled: true,
+                          exemption_age_threshold: 19,
+                          exemption_phaseout_rate: 0,
+                          exemption_phaseout_thresholds: {
+                            SINGLE: 0,
+                            JOINT: 0,
+                            HEAD_OF_HOUSEHOLD: 0,
+                            SURVIVING_SPOUSE: 0,
+                            SEPARATE: 0,
+                          },
+                        });
+                      }}
+                      className="w-full px-4 py-3 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors font-semibold text-sm"
+                    >
+                      Apply Governor&apos;s Proposal
+                    </button>
+                    <p className="text-xs text-gray-500 mt-2">
+                      $325/child, fully refundable, ages 0-18, phaseout $261k-$300k, dependent exemption set to $0 for children
+                    </p>
+                  </div>
+
+                  <hr className="border-gray-200" />
+
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       CTC Amount per Child
@@ -381,137 +427,219 @@ export default function HouseholdForm({
                   <div>
                     <h4 className="text-sm font-bold text-gray-800 mb-3 mt-2">Phaseout</h4>
 
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Rate
+                    {/* Range-based toggle */}
+                    <div className="mb-4">
+                      <label className="flex items-start space-x-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={reformParams.ctc_phaseout_range_based}
+                          onChange={(e) =>
+                            setReformParams({
+                              ...reformParams,
+                              ctc_phaseout_range_based: e.target.checked,
+                            })
+                          }
+                          className="mt-1 h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary"
+                        />
+                        <div>
+                          <span className="text-sm font-semibold text-gray-700">
+                            Use Range-Based Phaseout
+                          </span>
+                          <p className="text-xs text-gray-500 mt-1">
+                            With range-based phaseout, the credit phases out completely between the start and end income levels. Households with more children will see a faster phaseout per dollar of income since their total credit is larger but the phaseout range is fixed.
+                          </p>
+                        </div>
                       </label>
-                      <input
-                        type="number"
-                        value={reformParams.ctc_phaseout_rate}
-                        onChange={(e) =>
-                          setReformParams({
-                            ...reformParams,
-                            ctc_phaseout_rate: Number(e.target.value),
-                          })
-                        }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                        min="0"
-                        max="1"
-                        step="0.01"
-                      />
-                      <p className="text-xs text-gray-500 mt-1">
-                        Rate at which benefit phases out (0 = no phaseout, 1 = 100% phaseout)
-                      </p>
                     </div>
 
-                    <h5 className="text-sm font-semibold text-gray-700 mb-3 mt-4">Thresholds by Filing Status</h5>
+                    {reformParams.ctc_phaseout_range_based ? (
+                      /* Range-based phaseout inputs */
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Phaseout Start (All Filing Statuses)
+                          </label>
+                          <input
+                            type="text"
+                            value={formatNumber(reformParams.ctc_phaseout_thresholds.SINGLE)}
+                            onChange={(e) => {
+                              const value = parseNumber(e.target.value);
+                              setReformParams({
+                                ...reformParams,
+                                ctc_phaseout_thresholds: {
+                                  SINGLE: value,
+                                  JOINT: value,
+                                  HEAD_OF_HOUSEHOLD: value,
+                                  SURVIVING_SPOUSE: value,
+                                  SEPARATE: value,
+                                },
+                              });
+                            }}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                            placeholder="0"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            AGI level where the credit begins to phase out
+                          </p>
+                        </div>
 
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Single
-                        </label>
-                        <input
-                          type="text"
-                          value={formatNumber(reformParams.ctc_phaseout_thresholds.SINGLE)}
-                          onChange={(e) =>
-                            setReformParams({
-                              ...reformParams,
-                              ctc_phaseout_thresholds: {
-                                ...reformParams.ctc_phaseout_thresholds,
-                                SINGLE: parseNumber(e.target.value),
-                              },
-                            })
-                          }
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                          placeholder="0"
-                        />
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Phaseout End
+                          </label>
+                          <input
+                            type="text"
+                            value={formatNumber(reformParams.ctc_phaseout_end)}
+                            onChange={(e) =>
+                              setReformParams({
+                                ...reformParams,
+                                ctc_phaseout_end: parseNumber(e.target.value),
+                              })
+                            }
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                            placeholder="0"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            AGI level where the credit is fully phased out
+                          </p>
+                        </div>
                       </div>
+                    ) : (
+                      /* Rate-based phaseout inputs (existing) */
+                      <>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Rate
+                          </label>
+                          <input
+                            type="number"
+                            value={reformParams.ctc_phaseout_rate}
+                            onChange={(e) =>
+                              setReformParams({
+                                ...reformParams,
+                                ctc_phaseout_rate: Number(e.target.value),
+                              })
+                            }
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Rate at which benefit phases out (0 = no phaseout, 1 = 100% phaseout)
+                          </p>
+                        </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Married Filing Jointly
-                        </label>
-                        <input
-                          type="text"
-                          value={formatNumber(reformParams.ctc_phaseout_thresholds.JOINT)}
-                          onChange={(e) =>
-                            setReformParams({
-                              ...reformParams,
-                              ctc_phaseout_thresholds: {
-                                ...reformParams.ctc_phaseout_thresholds,
-                                JOINT: parseNumber(e.target.value),
-                              },
-                            })
-                          }
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                          placeholder="0"
-                        />
-                      </div>
+                        <h5 className="text-sm font-semibold text-gray-700 mb-3 mt-4">Thresholds by Filing Status</h5>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Head of Household
-                        </label>
-                        <input
-                          type="text"
-                          value={formatNumber(reformParams.ctc_phaseout_thresholds.HEAD_OF_HOUSEHOLD)}
-                          onChange={(e) =>
-                            setReformParams({
-                              ...reformParams,
-                              ctc_phaseout_thresholds: {
-                                ...reformParams.ctc_phaseout_thresholds,
-                                HEAD_OF_HOUSEHOLD: parseNumber(e.target.value),
-                              },
-                            })
-                          }
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                          placeholder="0"
-                        />
-                      </div>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                              Single
+                            </label>
+                            <input
+                              type="text"
+                              value={formatNumber(reformParams.ctc_phaseout_thresholds.SINGLE)}
+                              onChange={(e) =>
+                                setReformParams({
+                                  ...reformParams,
+                                  ctc_phaseout_thresholds: {
+                                    ...reformParams.ctc_phaseout_thresholds,
+                                    SINGLE: parseNumber(e.target.value),
+                                  },
+                                })
+                              }
+                              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                              placeholder="0"
+                            />
+                          </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Surviving Spouse
-                        </label>
-                        <input
-                          type="text"
-                          value={formatNumber(reformParams.ctc_phaseout_thresholds.SURVIVING_SPOUSE)}
-                          onChange={(e) =>
-                            setReformParams({
-                              ...reformParams,
-                              ctc_phaseout_thresholds: {
-                                ...reformParams.ctc_phaseout_thresholds,
-                                SURVIVING_SPOUSE: parseNumber(e.target.value),
-                              },
-                            })
-                          }
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                          placeholder="0"
-                        />
-                      </div>
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                              Married Filing Jointly
+                            </label>
+                            <input
+                              type="text"
+                              value={formatNumber(reformParams.ctc_phaseout_thresholds.JOINT)}
+                              onChange={(e) =>
+                                setReformParams({
+                                  ...reformParams,
+                                  ctc_phaseout_thresholds: {
+                                    ...reformParams.ctc_phaseout_thresholds,
+                                    JOINT: parseNumber(e.target.value),
+                                  },
+                                })
+                              }
+                              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                              placeholder="0"
+                            />
+                          </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Married Filing Separately
-                        </label>
-                        <input
-                          type="text"
-                          value={formatNumber(reformParams.ctc_phaseout_thresholds.SEPARATE)}
-                          onChange={(e) =>
-                            setReformParams({
-                              ...reformParams,
-                              ctc_phaseout_thresholds: {
-                                ...reformParams.ctc_phaseout_thresholds,
-                                SEPARATE: parseNumber(e.target.value),
-                              },
-                            })
-                          }
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                          placeholder="0"
-                        />
-                      </div>
-                    </div>
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                              Head of Household
+                            </label>
+                            <input
+                              type="text"
+                              value={formatNumber(reformParams.ctc_phaseout_thresholds.HEAD_OF_HOUSEHOLD)}
+                              onChange={(e) =>
+                                setReformParams({
+                                  ...reformParams,
+                                  ctc_phaseout_thresholds: {
+                                    ...reformParams.ctc_phaseout_thresholds,
+                                    HEAD_OF_HOUSEHOLD: parseNumber(e.target.value),
+                                  },
+                                })
+                              }
+                              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                              placeholder="0"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                              Surviving Spouse
+                            </label>
+                            <input
+                              type="text"
+                              value={formatNumber(reformParams.ctc_phaseout_thresholds.SURVIVING_SPOUSE)}
+                              onChange={(e) =>
+                                setReformParams({
+                                  ...reformParams,
+                                  ctc_phaseout_thresholds: {
+                                    ...reformParams.ctc_phaseout_thresholds,
+                                    SURVIVING_SPOUSE: parseNumber(e.target.value),
+                                  },
+                                })
+                              }
+                              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                              placeholder="0"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                              Married Filing Separately
+                            </label>
+                            <input
+                              type="text"
+                              value={formatNumber(reformParams.ctc_phaseout_thresholds.SEPARATE)}
+                              onChange={(e) =>
+                                setReformParams({
+                                  ...reformParams,
+                                  ctc_phaseout_thresholds: {
+                                    ...reformParams.ctc_phaseout_thresholds,
+                                    SEPARATE: parseNumber(e.target.value),
+                                  },
+                                })
+                              }
+                              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                              placeholder="0"
+                            />
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               )}

@@ -23,6 +23,60 @@ from app.api.models.responses import (
 )
 
 
+def calculate_range_based_rate(
+    dependent_ages: list[int],
+    reform_params: dict,
+) -> dict:
+    """
+    Calculate the effective phaseout rate for range-based phaseout.
+
+    For range-based phaseout, the rate is calculated as:
+    rate = max_credit / (phaseout_end - phaseout_start)
+
+    This means households with more children see faster phaseout per dollar
+    of income since their total credit is larger but the range is fixed.
+
+    Returns a modified copy of reform_params with the calculated rate.
+    """
+    params = reform_params.copy()
+
+    # Only calculate if range-based phaseout is enabled
+    if not params.get("ctc_phaseout_range_based", False):
+        return params
+
+    phaseout_end = params.get("ctc_phaseout_end", 0)
+    # Use the first threshold as the start (they should all be the same for range-based)
+    thresholds = params.get("ctc_phaseout_thresholds", {})
+    phaseout_start = thresholds.get("SINGLE", 0) or thresholds.get("JOINT", 0) or 0
+
+    # Need valid range
+    if phaseout_end <= phaseout_start:
+        return params
+
+    # Count eligible children
+    ctc_age_limit = params.get("ctc_age_limit", 18)
+    eligible_children = sum(1 for age in dependent_ages if age < ctc_age_limit)
+
+    # Count young children for boost
+    young_child_age_limit = params.get("ctc_young_child_boost_age_limit", 6)
+    young_children = sum(
+        1 for age in dependent_ages
+        if age < young_child_age_limit and age < ctc_age_limit
+    )
+
+    # Calculate maximum credit
+    ctc_amount = params.get("ctc_amount", 1000)
+    boost_amount = params.get("ctc_young_child_boost_amount", 0)
+    max_credit = (eligible_children * ctc_amount) + (young_children * boost_amount)
+
+    # Calculate effective rate
+    if max_credit > 0:
+        rate = max_credit / (phaseout_end - phaseout_start)
+        params["ctc_phaseout_rate"] = rate
+
+    return params
+
+
 async def calculate_household_benefit_quick(
     age_head: int,
     age_spouse: int | None,
@@ -49,8 +103,11 @@ async def calculate_household_benefit_quick(
     # Set AGI on the tax unit level
     household["tax_units"]["your tax unit"]["adjusted_gross_income"] = {"2026": income}
 
+    # Calculate range-based rate if enabled
+    effective_params = calculate_range_based_rate(dependent_ages, reform_params)
+
     # Create reform
-    reform = create_custom_reform(**reform_params)
+    reform = create_custom_reform(**effective_params)
 
     # Create simulations (single point, no sweep)
     sim_baseline = Simulation(situation=household)
@@ -122,8 +179,11 @@ async def calculate_household_impact(
         with_axes=True,
     )
 
+    # Calculate range-based rate if enabled
+    effective_params = calculate_range_based_rate(dependent_ages, reform_params)
+
     # Create reform with custom parameters
-    reform = create_custom_reform(**reform_params)
+    reform = create_custom_reform(**effective_params)
 
     # Create simulations
     sim_baseline = Simulation(situation=base_household)
@@ -171,16 +231,8 @@ async def calculate_household_impact(
         exemption_tax_benefit = np.zeros(len(income_range))
         ctc_component = ctc_range_reform
 
-    # Find x-axis max - where benefit drops to near zero
-    max_income_with_ctc = 200000  # Default minimum
-    for i in range(len(ctc_range_reform) - 1, -1, -1):
-        if ctc_range_reform[i] > 1:  # More than $1 benefit
-            max_income_with_ctc = income_range[i]
-            break
-
-    # Add 20% breathing room and round to nearest 50k
-    x_axis_max = max_income_with_ctc * 1.2
-    x_axis_max = max(200000, min(600000, round(x_axis_max / 50000) * 50000))
+    # Fixed x-axis max at $500k for household calculator
+    x_axis_max = 500000
 
     # Interpolate values at user's income
     # With 10,001 points, interpolation is highly accurate (~$100 step size)
