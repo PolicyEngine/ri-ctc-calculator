@@ -152,7 +152,7 @@ export default function HouseholdForm({
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
               >
                 <option value={2026}>2026</option>
-                <option value={2027}>2027 (Governor&apos;s Proposal Effective)</option>
+                <option value={2027}>2027</option>
               </select>
               <p className="text-xs text-gray-500 mt-1">
                 The Governor&apos;s proposal takes effect January 1, 2027

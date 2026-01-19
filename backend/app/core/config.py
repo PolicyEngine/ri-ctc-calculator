@@ -14,8 +14,11 @@ class Settings(BaseSettings):
 
     # CORS settings - can be overridden via environment variable
     cors_origins: List[str] = [
-        "http://localhost:3000",  # Next.js dev
-        "http://localhost:8000",  # FastAPI dev
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
+        "http://localhost:3003",
+        "http://localhost:8080",
     ]
 
     # Production frontend URL (set via environment variable)
