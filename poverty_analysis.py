@@ -115,6 +115,14 @@ def analyze_year(year):
     print(f"SPM units in poverty receiving ANY benefit: {len(poverty_with_benefit)}")
     print(f"SPM units in poverty with children receiving benefit: {len(poverty_with_children_and_benefit)}")
 
+    # Get SPM unit weights (need to calculate from person weights)
+    # Use the sum of person weights in each SPM unit as the SPM unit weight
+    spm_weight_df = df.groupby("spm_unit_id").agg({
+        "person_weight": "first"  # All persons in same SPM unit have same weight
+    }).reset_index()
+    spm_weight_df.rename(columns={"person_weight": "spm_weight"}, inplace=True)
+    spm_df = spm_df.merge(spm_weight_df, on="spm_unit_id", how="left")
+
     # Transitions
     lifted_out = spm_df[(spm_df["in_poverty_baseline"]) & (~spm_df["in_poverty_reform"])]
     pushed_in = spm_df[(~spm_df["in_poverty_baseline"]) & (spm_df["in_poverty_reform"])]
@@ -129,6 +137,13 @@ def analyze_year(year):
         print(f"Avg children in lifted households: {lifted_out['num_children'].mean():.1f}")
         print(f"Avg benefit: ${lifted_out['benefit'].mean():.0f}")
         print(f"Avg poverty gap (before): ${lifted_out['poverty_gap_baseline'].mean():.0f}")
+        print(f"Total weighted people lifted: {lifted_out['spm_weight'].sum():,.0f}")
+
+        print(f"\n--- EACH SPM UNIT LIFTED OUT OF POVERTY ---")
+        print(f"SPM ID | Children | Gap | Benefit | Weight | Weighted People")
+        print("-" * 75)
+        for _, row in lifted_out.iterrows():
+            print(f"{int(row['spm_unit_id']):>6} | {int(row['num_children']):>8} | ${row['poverty_gap_baseline']:>5,.0f} | ${row['benefit']:>7,.0f} | {row['spm_weight']:>10,.0f} | {row['spm_weight']:>15,.0f}")
 
     # 10 closest to poverty line (in poverty, with children)
     print(f"\n--- 10 CLOSEST SPM UNITS TO POVERTY LINE (IN POVERTY, WITH CHILDREN) ---")
@@ -177,13 +192,47 @@ if __name__ == "__main__":
     print(f"{'SPM units in poverty receiving benefit':<45} {results_2026['poverty_with_benefit']:>10} {results_2027['poverty_with_benefit']:>10}")
     print(f"{'SPM units lifted out of poverty':<45} {results_2026['lifted_out']:>10} {results_2027['lifted_out']:>10}")
 
+    df_2026 = results_2026["df"]
+    df_2027 = results_2027["df"]
+
+    # Check SPM unit 3952 specifically
+    print(f"\n{'='*60}")
+    print("SPM UNIT 3952 ANALYSIS (THE HIGH-WEIGHT HOUSEHOLD)")
+    print(f"{'='*60}")
+
+    spm_3952_2026 = df_2026[df_2026["spm_unit_id"] == 3952]
+    spm_3952_2027 = df_2027[df_2027["spm_unit_id"] == 3952]
+
+    if len(spm_3952_2026) > 0:
+        row = spm_3952_2026.iloc[0]
+        print(f"\n2026:")
+        print(f"  In poverty (baseline): {row['in_poverty_baseline']}")
+        print(f"  In poverty (reform): {row['in_poverty_reform']}")
+        print(f"  SPM threshold: ${row['spm_threshold']:,.0f}")
+        print(f"  SPM resources (baseline): ${row['spm_resources_baseline']:,.0f}")
+        print(f"  SPM resources (reform): ${row['spm_resources_reform']:,.0f}")
+        print(f"  Poverty gap: ${row['poverty_gap_baseline']:,.0f}")
+        print(f"  Benefit: ${row['benefit']:,.0f}")
+        print(f"  Children: {int(row['num_children'])}")
+        print(f"  Weight: {row['spm_weight']:,.0f}")
+
+    if len(spm_3952_2027) > 0:
+        row = spm_3952_2027.iloc[0]
+        print(f"\n2027:")
+        print(f"  In poverty (baseline): {row['in_poverty_baseline']}")
+        print(f"  In poverty (reform): {row['in_poverty_reform']}")
+        print(f"  SPM threshold: ${row['spm_threshold']:,.0f}")
+        print(f"  SPM resources (baseline): ${row['spm_resources_baseline']:,.0f}")
+        print(f"  SPM resources (reform): ${row['spm_resources_reform']:,.0f}")
+        print(f"  Poverty gap: ${row['poverty_gap_baseline']:,.0f}")
+        print(f"  Benefit: ${row['benefit']:,.0f}")
+        print(f"  Children: {int(row['num_children'])}")
+        print(f"  Weight: {row['spm_weight']:,.0f}")
+
     # Compare the same SPM units across years
     print(f"\n{'='*60}")
     print("SAME HOUSEHOLD COMPARISON")
     print(f"{'='*60}")
-
-    df_2026 = results_2026["df"]
-    df_2027 = results_2027["df"]
 
     # Merge on SPM unit ID
     merged = df_2026.merge(df_2027, on="spm_unit_id", suffixes=("_2026", "_2027"))
