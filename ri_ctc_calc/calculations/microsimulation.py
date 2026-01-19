@@ -5,13 +5,14 @@ import pandas as pd
 import numpy as np
 
 
-def calculate_aggregate_impact(reform):
+def calculate_aggregate_impact(reform, year=2027):
     """Calculate aggregate impact of RI CTC reform on Rhode Island population.
 
     Uses the Rhode Island microsimulation dataset to estimate statewide impact.
 
     Args:
         reform: PolicyEngine reform object
+        year: Tax year for the simulation (2026 or 2027)
 
     Returns:
         dict: Aggregate impact statistics including:
@@ -28,26 +29,26 @@ def calculate_aggregate_impact(reform):
 
     # Calculate household net income for both scenarios
     # This captures the total impact: CTC + tax savings from exemption changes
-    net_income_baseline = sim_baseline.calculate("household_net_income", period=2026, map_to="household")
-    net_income_reform = sim_reform.calculate("household_net_income", period=2026, map_to="household")
+    net_income_baseline = sim_baseline.calculate("household_net_income", period=year, map_to="household")
+    net_income_reform = sim_reform.calculate("household_net_income", period=year, map_to="household")
 
     # Calculate the benefit (increase in net income)
     # Map to tax_unit level for analysis
     net_income_change_household = net_income_reform - net_income_baseline
 
     # Map to tax unit for analysis (using reform sim to get mapping)
-    tax_unit_id = sim_reform.calculate("tax_unit_id", period=2026, map_to="household")
-    household_id = sim_reform.calculate("household_id", period=2026, map_to="household")
+    tax_unit_id = sim_reform.calculate("tax_unit_id", period=year, map_to="household")
+    household_id = sim_reform.calculate("household_id", period=year, map_to="household")
 
     # For simplicity, use household-level change as the benefit
     ctc_change = net_income_change_household
 
     # Get household-level data for analysis
-    household_weight = sim_reform.calculate("household_weight", period=2026)
-    agi = sim_reform.calculate("adjusted_gross_income", period=2026, map_to="household")
+    household_weight = sim_reform.calculate("household_weight", period=year)
+    agi = sim_reform.calculate("adjusted_gross_income", period=year, map_to="household")
 
     # Calculate eligible children counts (map to household for consistency)
-    eligible_children = sim_reform.calculate("ri_ctc_eligible_children", period=2026, map_to="household")
+    eligible_children = sim_reform.calculate("ri_ctc_eligible_children", period=year, map_to="household")
 
     # Aggregate statistics
     total_cost = ctc_change.sum()
@@ -60,7 +61,7 @@ def calculate_aggregate_impact(reform):
     children_affected = eligible_children[beneficiaries_mask].sum() if beneficiaries > 0 else 0
 
     # Get total population counts for rate calculations
-    total_population = sim_baseline.calculate("person_count", period=2026).sum()
+    total_population = sim_baseline.calculate("person_count", period=year).sum()
     total_households = household_weight.sum()  # Weighted sum = total RI households
 
     # Winners/losers analysis (at household level)
@@ -73,8 +74,8 @@ def calculate_aggregate_impact(reform):
     losers_rate = (losers / total_households * 100) if total_households > 0 else 0
 
     # Poverty impact (using person_in_poverty variable at person level)
-    person_in_poverty_baseline = sim_baseline.calculate("person_in_poverty", period=2026)
-    person_in_poverty_reform = sim_reform.calculate("person_in_poverty", period=2026)
+    person_in_poverty_baseline = sim_baseline.calculate("person_in_poverty", period=year)
+    person_in_poverty_reform = sim_reform.calculate("person_in_poverty", period=year)
 
     poverty_baseline_count = person_in_poverty_baseline.sum()
     poverty_reform_count = person_in_poverty_reform.sum()
@@ -85,7 +86,7 @@ def calculate_aggregate_impact(reform):
     poverty_percent_change = ((poverty_reform_rate - poverty_baseline_rate) / poverty_baseline_rate * 100) if poverty_baseline_rate > 0 else 0
 
     # Child poverty impact (filter poverty to children only)
-    is_child = sim_baseline.calculate("is_child", period=2026)
+    is_child = sim_baseline.calculate("is_child", period=year)
     total_children = is_child.sum()
 
     child_poverty_baseline_count = (person_in_poverty_baseline & is_child).sum()

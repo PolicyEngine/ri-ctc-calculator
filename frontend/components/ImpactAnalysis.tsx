@@ -20,6 +20,7 @@ interface Props {
   ageSpouse: number | null;
   dependentAges: number[];
   income: number;
+  year: number;
   reformParams: ReformParams;
 }
 
@@ -28,6 +29,7 @@ export default function ImpactAnalysis({
   ageSpouse,
   dependentAges,
   income,
+  year,
   reformParams,
 }: Props) {
   const [breakdownExpanded, setBreakdownExpanded] = useState(false);
@@ -38,6 +40,7 @@ export default function ImpactAnalysis({
     age_spouse: ageSpouse,
     dependent_ages: dependentAges,
     income: income,
+    year: year,
     reform_params: reformParams,
   });
 
@@ -147,7 +150,7 @@ export default function ImpactAnalysis({
       {/* Chart */}
       <div className="bg-white border rounded-lg p-6">
         <h3 className="text-lg font-semibold mb-4 text-gray-800">
-          Change in Net Income from RI CTC Reform by Adjusted Gross Income (2026)
+          Change in Net Income from RI CTC Reform by Adjusted Gross Income ({year})
         </h3>
         <ResponsiveContainer width="100%" height={400}>
           <LineChart data={chartData} margin={{ left: 20, right: 20, top: 5, bottom: 5 }}>

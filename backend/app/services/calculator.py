@@ -23,66 +23,13 @@ from app.api.models.responses import (
 )
 
 
-def calculate_range_based_rate(
-    dependent_ages: list[int],
-    reform_params: dict,
-) -> dict:
-    """
-    Calculate the effective phaseout rate for range-based phaseout.
-
-    For range-based phaseout, the rate is calculated as:
-    rate = max_credit / (phaseout_end - phaseout_start)
-
-    This means households with more children see faster phaseout per dollar
-    of income since their total credit is larger but the range is fixed.
-
-    Returns a modified copy of reform_params with the calculated rate.
-    """
-    params = reform_params.copy()
-
-    # Only calculate if range-based phaseout is enabled
-    if not params.get("ctc_phaseout_range_based", False):
-        return params
-
-    phaseout_end = params.get("ctc_phaseout_end", 0)
-    # Use the first threshold as the start (they should all be the same for range-based)
-    thresholds = params.get("ctc_phaseout_thresholds", {})
-    phaseout_start = thresholds.get("SINGLE", 0) or thresholds.get("JOINT", 0) or 0
-
-    # Need valid range
-    if phaseout_end <= phaseout_start:
-        return params
-
-    # Count eligible children
-    ctc_age_limit = params.get("ctc_age_limit", 18)
-    eligible_children = sum(1 for age in dependent_ages if age < ctc_age_limit)
-
-    # Count young children for boost
-    young_child_age_limit = params.get("ctc_young_child_boost_age_limit", 6)
-    young_children = sum(
-        1 for age in dependent_ages
-        if age < young_child_age_limit and age < ctc_age_limit
-    )
-
-    # Calculate maximum credit
-    ctc_amount = params.get("ctc_amount", 1000)
-    boost_amount = params.get("ctc_young_child_boost_amount", 0)
-    max_credit = (eligible_children * ctc_amount) + (young_children * boost_amount)
-
-    # Calculate effective rate
-    if max_credit > 0:
-        rate = max_credit / (phaseout_end - phaseout_start)
-        params["ctc_phaseout_rate"] = rate
-
-    return params
-
-
 async def calculate_household_benefit_quick(
     age_head: int,
     age_spouse: int | None,
     dependent_ages: list[int],
     income: int,
     reform_params: dict,
+    year: int = 2027,
 ) -> BenefitAtIncome:
     """
     Quick calculation of benefit at specific AGI level only (no income sweep).
@@ -90,24 +37,22 @@ async def calculate_household_benefit_quick(
 
     Args:
         income: Adjusted Gross Income (AGI) for the household
+        year: Tax year for the simulation (2026 or 2027)
     """
     # Build household situation WITHOUT axes (single income point)
     household = build_household_situation(
         age_head=age_head,
         age_spouse=age_spouse,
         dependent_ages=dependent_ages,
-        year=2026,
+        year=year,
         with_axes=False,  # No income sweep for quick calculation
     )
 
     # Set AGI on the tax unit level
-    household["tax_units"]["your tax unit"]["adjusted_gross_income"] = {"2026": income}
+    household["tax_units"]["your tax unit"]["adjusted_gross_income"] = {str(year): income}
 
-    # Calculate range-based rate if enabled
-    effective_params = calculate_range_based_rate(dependent_ages, reform_params)
-
-    # Create reform
-    reform = create_custom_reform(**effective_params)
+    # Create reform with year parameter
+    reform = create_custom_reform(**reform_params, year=year)
 
     # Create simulations (single point, no sweep)
     sim_baseline = Simulation(situation=household)
@@ -115,10 +60,10 @@ async def calculate_household_benefit_quick(
 
     # Calculate net income
     net_income_baseline = sim_baseline.calculate(
-        "household_net_income", map_to="household", period=2026
+        "household_net_income", map_to="household", period=year
     )[0]
     net_income_reform = sim_reform.calculate(
-        "household_net_income", map_to="household", period=2026
+        "household_net_income", map_to="household", period=year
     )[0]
 
     difference = float(net_income_reform - net_income_baseline)
@@ -137,10 +82,11 @@ async def calculate_household_benefit_quick(
             exemption_age_threshold=reform_params.get("exemption_age_threshold", 18),
             exemption_phaseout_rate=reform_params.get("exemption_phaseout_rate", 0),
             exemption_phaseout_thresholds=reform_params.get("exemption_phaseout_thresholds", None),
+            year=year,
         )
         sim_exemption_only = Simulation(situation=household, reform=exemption_only_reform)
         net_income_exemption_only = sim_exemption_only.calculate(
-            "household_net_income", map_to="household", period=2026
+            "household_net_income", map_to="household", period=year
         )[0]
 
         exemption_benefit = float(net_income_exemption_only - net_income_baseline)
@@ -161,6 +107,7 @@ async def calculate_household_impact(
     dependent_ages: list[int],
     income: int,
     reform_params: dict,
+    year: int = 2027,
 ) -> HouseholdImpactResponse:
     """
     Calculate household impact with income sweep.
@@ -169,21 +116,19 @@ async def calculate_household_impact(
 
     Args:
         income: Adjusted Gross Income (AGI) - used to identify the household's position on charts
+        year: Tax year for the simulation (2026 or 2027)
     """
     # Build household situation with axes for income sweep
     base_household = build_household_situation(
         age_head=age_head,
         age_spouse=age_spouse,
         dependent_ages=dependent_ages,
-        year=2026,
+        year=year,
         with_axes=True,
     )
 
-    # Calculate range-based rate if enabled
-    effective_params = calculate_range_based_rate(dependent_ages, reform_params)
-
-    # Create reform with custom parameters
-    reform = create_custom_reform(**effective_params)
+    # Create reform with custom parameters and year
+    reform = create_custom_reform(**reform_params, year=year)
 
     # Create simulations
     sim_baseline = Simulation(situation=base_household)
@@ -191,15 +136,15 @@ async def calculate_household_impact(
 
     # Get AGI range
     income_range = sim_baseline.calculate(
-        "adjusted_gross_income", map_to="tax_unit", period=2026
+        "adjusted_gross_income", map_to="tax_unit", period=year
     )
 
     # Calculate net income for both scenarios
     net_income_baseline = sim_baseline.calculate(
-        "household_net_income", map_to="household", period=2026
+        "household_net_income", map_to="household", period=year
     )
     net_income_reform = sim_reform.calculate(
-        "household_net_income", map_to="household", period=2026
+        "household_net_income", map_to="household", period=year
     )
 
     # Calculate benefits
@@ -217,10 +162,11 @@ async def calculate_household_impact(
             exemption_age_threshold=reform_params.get("exemption_age_threshold", 18),
             exemption_phaseout_rate=reform_params.get("exemption_phaseout_rate", 0),
             exemption_phaseout_thresholds=reform_params.get("exemption_phaseout_thresholds", None),
+            year=year,
         )
         sim_exemption_only = Simulation(situation=base_household, reform=exemption_only_reform)
         net_income_exemption_only = sim_exemption_only.calculate(
-            "household_net_income", map_to="household", period=2026
+            "household_net_income", map_to="household", period=year
         )
 
         # Isolate components
@@ -259,14 +205,18 @@ async def calculate_household_impact(
     )
 
 
-async def calculate_aggregate(reform_params: dict) -> AggregateImpactResponse:
+async def calculate_aggregate(reform_params: dict, year: int = 2027) -> AggregateImpactResponse:
     """
     Calculate aggregate/statewide impact using microsimulation.
 
     This wraps the existing calculate_aggregate_impact() function.
+
+    Args:
+        reform_params: Reform parameters
+        year: Tax year for the simulation (2026 or 2027)
     """
-    reform = create_custom_reform(**reform_params)
-    impact = calculate_aggregate_impact(reform)
+    reform = create_custom_reform(**reform_params, year=year)
+    impact = calculate_aggregate_impact(reform, year=year)
 
     return AggregateImpactResponse(**impact)
 

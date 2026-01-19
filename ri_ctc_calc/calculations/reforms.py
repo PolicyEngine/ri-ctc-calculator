@@ -226,6 +226,11 @@ def create_custom_reform(
     ctc_refundability_cap: float = 0,
     ctc_phaseout_rate: float = 0,
     ctc_phaseout_thresholds: Optional[Dict[str, float]] = None,
+    # Stepped phaseout parameters (Governor's proposal style)
+    ctc_stepped_phaseout: bool = False,
+    ctc_stepped_phaseout_threshold: float = 0,
+    ctc_stepped_phaseout_increment: float = 0,
+    ctc_stepped_phaseout_rate_per_step: float = 0,
     ctc_young_child_boost_amount: float = 0,
     ctc_young_child_boost_age_limit: int = 6,
     # Dependent exemption parameters
@@ -235,6 +240,8 @@ def create_custom_reform(
     exemption_age_threshold: int = 18,
     exemption_phaseout_rate: float = 0,
     exemption_phaseout_thresholds: Optional[Dict[str, float]] = None,
+    # Year parameter
+    year: int = 2027,
 ):
     """Create a custom reform with user-specified parameters.
 
@@ -242,8 +249,12 @@ def create_custom_reform(
         ctc_amount: CTC amount per eligible child
         ctc_age_limit: Maximum age for CTC eligibility
         ctc_refundability_cap: Refundability cap (0=non-refundable, higher=more refundable)
-        ctc_phaseout_rate: CTC phase-out rate (0=no phaseout)
-        ctc_phaseout_thresholds: Dict of phase-out thresholds by filing status
+        ctc_phaseout_rate: CTC phase-out rate (0=no phaseout) - for rate-based phaseout
+        ctc_phaseout_thresholds: Dict of phase-out thresholds by filing status - for rate-based phaseout
+        ctc_stepped_phaseout: Use stepped phaseout (Governor's proposal style)
+        ctc_stepped_phaseout_threshold: AGI threshold where stepped phaseout begins
+        ctc_stepped_phaseout_increment: Income increment per step
+        ctc_stepped_phaseout_rate_per_step: Percentage point reduction per step
         ctc_young_child_boost_amount: Additional boost amount per young child
         ctc_young_child_boost_age_limit: Maximum age for young child boost eligibility
         enable_exemption_reform: Whether to enable dependent exemption reform
@@ -252,6 +263,7 @@ def create_custom_reform(
         exemption_age_threshold: Age threshold for exemptions
         exemption_phaseout_rate: Exemption phase-out rate
         exemption_phaseout_thresholds: Dict of exemption phase-out thresholds by filing status
+        year: Tax year for the reform (2026 or 2027)
 
     Returns:
         Reform: PolicyEngine reform object with custom parameters
@@ -275,48 +287,64 @@ def create_custom_reform(
             "SEPARATE": 0,
         }
 
+    # Build date range string based on year
+    date_range = f"{year}-01-01.2100-12-31"
+
     reform_dict = {
         # ===== RI CTC Parameters =====
         "gov.contrib.states.ri.ctc.in_effect": {
-            "2026-01-01.2100-12-31": True
+            date_range: True
         },
         "gov.contrib.states.ri.ctc.amount": {
-            "2026-01-01.2100-12-31": ctc_amount
+            date_range: ctc_amount
         },
         "gov.contrib.states.ri.ctc.age_limit": {
-            "2026-01-01.2100-12-31": ctc_age_limit
+            date_range: ctc_age_limit
         },
         "gov.contrib.states.ri.ctc.refundability.cap": {
-            "2026-01-01.2100-12-31": ctc_refundability_cap
+            date_range: ctc_refundability_cap
         },
         "gov.contrib.states.ri.ctc.young_child_boost.amount": {
-            "2026-01-01.2100-12-31": ctc_young_child_boost_amount
+            date_range: ctc_young_child_boost_amount
         },
         "gov.contrib.states.ri.ctc.young_child_boost.age_limit": {
-            "2026-01-01.2100-12-31": ctc_young_child_boost_age_limit
+            date_range: ctc_young_child_boost_age_limit
         },
     }
 
-    # Only add CTC phase-out if user has enabled it (rate > 0 or thresholds > 0)
-    if ctc_phaseout_rate > 0 or any(v > 0 for v in ctc_phaseout_thresholds.values()):
+    # Add stepped phaseout parameters if enabled (Governor's proposal style)
+    if ctc_stepped_phaseout and ctc_stepped_phaseout_increment > 0:
+        reform_dict.update({
+            "gov.contrib.states.ri.ctc.stepped_phaseout.threshold": {
+                date_range: ctc_stepped_phaseout_threshold
+            },
+            "gov.contrib.states.ri.ctc.stepped_phaseout.increment": {
+                date_range: ctc_stepped_phaseout_increment
+            },
+            "gov.contrib.states.ri.ctc.stepped_phaseout.rate_per_step": {
+                date_range: ctc_stepped_phaseout_rate_per_step
+            },
+        })
+    # Only add rate-based CTC phase-out if stepped phaseout is not enabled and rate > 0 or thresholds > 0
+    elif ctc_phaseout_rate > 0 or any(v > 0 for v in ctc_phaseout_thresholds.values()):
         reform_dict.update({
             "gov.contrib.states.ri.ctc.phaseout.rate": {
-                "2026-01-01.2100-12-31": ctc_phaseout_rate
+                date_range: ctc_phaseout_rate
             },
             "gov.contrib.states.ri.ctc.phaseout.threshold.SINGLE": {
-                "2026-01-01.2100-12-31": ctc_phaseout_thresholds["SINGLE"]
+                date_range: ctc_phaseout_thresholds["SINGLE"]
             },
             "gov.contrib.states.ri.ctc.phaseout.threshold.JOINT": {
-                "2026-01-01.2100-12-31": ctc_phaseout_thresholds["JOINT"]
+                date_range: ctc_phaseout_thresholds["JOINT"]
             },
             "gov.contrib.states.ri.ctc.phaseout.threshold.HEAD_OF_HOUSEHOLD": {
-                "2026-01-01.2100-12-31": ctc_phaseout_thresholds["HEAD_OF_HOUSEHOLD"]
+                date_range: ctc_phaseout_thresholds["HEAD_OF_HOUSEHOLD"]
             },
             "gov.contrib.states.ri.ctc.phaseout.threshold.SURVIVING_SPOUSE": {
-                "2026-01-01.2100-12-31": ctc_phaseout_thresholds["SURVIVING_SPOUSE"]
+                date_range: ctc_phaseout_thresholds["SURVIVING_SPOUSE"]
             },
             "gov.contrib.states.ri.ctc.phaseout.threshold.SEPARATE": {
-                "2026-01-01.2100-12-31": ctc_phaseout_thresholds["SEPARATE"]
+                date_range: ctc_phaseout_thresholds["SEPARATE"]
             },
         })
 
@@ -324,16 +352,16 @@ def create_custom_reform(
     if enable_exemption_reform:
         exemption_params = {
             "gov.contrib.states.ri.dependent_exemption.in_effect": {
-                "2026-01-01.2100-12-31": True
+                date_range: True
             },
             "gov.contrib.states.ri.dependent_exemption.amount": {
-                "2026-01-01.2100-12-31": exemption_amount
+                date_range: exemption_amount
             },
             "gov.contrib.states.ri.dependent_exemption.age_limit.in_effect": {
-                "2026-01-01.2100-12-31": exemption_age_limit_enabled
+                date_range: exemption_age_limit_enabled
             },
             "gov.contrib.states.ri.dependent_exemption.age_limit.threshold": {
-                "2026-01-01.2100-12-31": exemption_age_threshold
+                date_range: exemption_age_threshold
             },
         }
 
@@ -341,22 +369,22 @@ def create_custom_reform(
         # Setting to 0 means "no phase-out", not setting means "use baseline rules"
         exemption_params.update({
             "gov.contrib.states.ri.dependent_exemption.phaseout.rate": {
-                "2026-01-01.2100-12-31": exemption_phaseout_rate
+                date_range: exemption_phaseout_rate
             },
             "gov.contrib.states.ri.dependent_exemption.phaseout.threshold.SINGLE": {
-                "2026-01-01.2100-12-31": exemption_phaseout_thresholds["SINGLE"]
+                date_range: exemption_phaseout_thresholds["SINGLE"]
             },
             "gov.contrib.states.ri.dependent_exemption.phaseout.threshold.JOINT": {
-                "2026-01-01.2100-12-31": exemption_phaseout_thresholds["JOINT"]
+                date_range: exemption_phaseout_thresholds["JOINT"]
             },
             "gov.contrib.states.ri.dependent_exemption.phaseout.threshold.HEAD_OF_HOUSEHOLD": {
-                "2026-01-01.2100-12-31": exemption_phaseout_thresholds["HEAD_OF_HOUSEHOLD"]
+                date_range: exemption_phaseout_thresholds["HEAD_OF_HOUSEHOLD"]
             },
             "gov.contrib.states.ri.dependent_exemption.phaseout.threshold.SURVIVING_SPOUSE": {
-                "2026-01-01.2100-12-31": exemption_phaseout_thresholds["SURVIVING_SPOUSE"]
+                date_range: exemption_phaseout_thresholds["SURVIVING_SPOUSE"]
             },
             "gov.contrib.states.ri.dependent_exemption.phaseout.threshold.SEPARATE": {
-                "2026-01-01.2100-12-31": exemption_phaseout_thresholds["SEPARATE"]
+                date_range: exemption_phaseout_thresholds["SEPARATE"]
             },
         })
 

@@ -16,6 +16,7 @@ export default function Home() {
   const [married, setMarried] = useState(false);
   const [dependentAges, setDependentAges] = useState<number[]>([5]);
   const [income, setIncome] = useState(50000);
+  const [year, setYear] = useState(2027);
 
   // Reform parameters with defaults
   const [reformParams, setReformParams] = useState<ReformParams>({
@@ -30,8 +31,11 @@ export default function Home() {
       SURVIVING_SPOUSE: 0,
       SEPARATE: 0,
     },
-    ctc_phaseout_range_based: false,
-    ctc_phaseout_end: 0,
+    // Stepped phaseout parameters (Governor's proposal style)
+    ctc_stepped_phaseout: false,
+    ctc_stepped_phaseout_threshold: 0,
+    ctc_stepped_phaseout_increment: 0,
+    ctc_stepped_phaseout_rate_per_step: 0,
     ctc_young_child_boost_amount: 0,
     ctc_young_child_boost_age_limit: 6,
     enable_exemption_reform: false,
@@ -54,6 +58,7 @@ export default function Home() {
   const [calculatedMarried, setCalculatedMarried] = useState(false);
   const [calculatedDependentAges, setCalculatedDependentAges] = useState<number[]>([5]);
   const [calculatedIncome, setCalculatedIncome] = useState(50000);
+  const [calculatedYear, setCalculatedYear] = useState(2027);
   const [calculatedReformParams, setCalculatedReformParams] = useState<ReformParams>(reformParams);
 
   // Check if anything has changed since last calculation
@@ -63,6 +68,7 @@ export default function Home() {
     married !== calculatedMarried ||
     JSON.stringify(dependentAges) !== JSON.stringify(calculatedDependentAges) ||
     income !== calculatedIncome ||
+    year !== calculatedYear ||
     JSON.stringify(reformParams) !== JSON.stringify(calculatedReformParams);
 
   const handleCalculate = () => {
@@ -72,6 +78,7 @@ export default function Home() {
     setCalculatedMarried(married);
     setCalculatedDependentAges(dependentAges);
     setCalculatedIncome(income);
+    setCalculatedYear(year);
     setCalculatedReformParams(reformParams);
   };
 
@@ -104,6 +111,8 @@ export default function Home() {
               setDependentAges={setDependentAges}
               income={income}
               setIncome={setIncome}
+              year={year}
+              setYear={setYear}
               reformParams={reformParams}
               setReformParams={setReformParams}
               onCalculate={handleCalculate}
@@ -162,10 +171,11 @@ export default function Home() {
                       ageSpouse={calculatedMarried ? calculatedAgeSpouse : null}
                       dependentAges={calculatedDependentAges}
                       income={calculatedIncome}
+                      year={calculatedYear}
                       reformParams={calculatedReformParams}
                     />
                   ) : (
-                    <AggregateImpact reformParams={calculatedReformParams} />
+                    <AggregateImpact year={calculatedYear} reformParams={calculatedReformParams} />
                   )}
                 </div>
               </>

@@ -15,13 +15,14 @@ import {
 } from 'recharts';
 
 interface Props {
+  year: number;
   reformParams: ReformParams;
 }
 
-export default function AggregateImpact({ reformParams }: Props) {
-  console.log('[AggregateImpact] Component rendered with reformParams:', reformParams);
+export default function AggregateImpact({ year, reformParams }: Props) {
+  console.log('[AggregateImpact] Component rendered with reformParams:', reformParams, 'year:', year);
 
-  const { data, isLoading, error } = useAggregateImpact(reformParams);
+  const { data, isLoading, error } = useAggregateImpact(reformParams, year);
 
   console.log('[AggregateImpact] Query state:', {
     hasData: !!data,

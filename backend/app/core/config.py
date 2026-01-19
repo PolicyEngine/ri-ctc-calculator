@@ -23,7 +23,7 @@ class Settings(BaseSettings):
 
     # Server settings
     host: str = "0.0.0.0"
-    port: int = 8080
+    port: int = 8000
 
     # Logging
     log_level: str = "INFO"

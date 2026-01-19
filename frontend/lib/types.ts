@@ -24,8 +24,11 @@ export interface ReformParams {
   ctc_refundability_cap: number;
   ctc_phaseout_rate: number;
   ctc_phaseout_thresholds: PhaseoutThresholds;
-  ctc_phaseout_range_based: boolean;  // true = range-based, false = rate-based
-  ctc_phaseout_end: number;           // end point for range-based phaseout
+  // Stepped phaseout parameters (Governor's proposal style)
+  ctc_stepped_phaseout: boolean;
+  ctc_stepped_phaseout_threshold: number;
+  ctc_stepped_phaseout_increment: number;
+  ctc_stepped_phaseout_rate_per_step: number;
   ctc_young_child_boost_amount: number;
   ctc_young_child_boost_age_limit: number;
 
@@ -46,6 +49,7 @@ export interface HouseholdRequest {
   age_spouse: number | null;
   dependent_ages: number[];
   income: number;
+  year: number;
   reform_params: ReformParams;
 }
 
@@ -53,6 +57,7 @@ export interface HouseholdRequest {
  * Request for aggregate/statewide impact calculation.
  */
 export interface AggregateImpactRequest {
+  year: number;
   reform_params: ReformParams;
 }
 

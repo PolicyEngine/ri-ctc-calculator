@@ -14,6 +14,8 @@ interface Props {
   setDependentAges: (ages: number[]) => void;
   income: number;
   setIncome: (income: number) => void;
+  year: number;
+  setYear: (year: number) => void;
   reformParams: ReformParams;
   setReformParams: (params: ReformParams) => void;
   onCalculate: () => void;
@@ -32,6 +34,8 @@ export default function HouseholdForm({
   setDependentAges,
   income,
   setIncome,
+  year,
+  setYear,
   reformParams,
   setReformParams,
   onCalculate,
@@ -137,6 +141,24 @@ export default function HouseholdForm({
         />
         {expandedStep === 1 && (
           <div className="mt-4 space-y-4 pl-2">
+            {/* Year Selection */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Tax Year
+              </label>
+              <select
+                value={year}
+                onChange={(e) => setYear(Number(e.target.value))}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
+              >
+                <option value={2026}>2026</option>
+                <option value={2027}>2027 (Governor&apos;s Proposal Effective)</option>
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                The Governor&apos;s proposal takes effect January 1, 2027
+              </p>
+            </div>
+
             {/* Income */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -279,52 +301,6 @@ export default function HouseholdForm({
 
 {showCTCCustomization && (
                 <div className="mt-4 space-y-4 pl-4">
-                  {/* Governor's Proposal Button */}
-                  <div className="mb-4">
-                    <button
-                      onClick={() => {
-                        setReformParams({
-                          ...reformParams,
-                          ctc_amount: 325,
-                          ctc_age_limit: 19,
-                          ctc_refundability_cap: 100000,
-                          ctc_phaseout_range_based: true,
-                          ctc_phaseout_rate: 0,
-                          ctc_phaseout_thresholds: {
-                            SINGLE: 261000,
-                            JOINT: 261000,
-                            HEAD_OF_HOUSEHOLD: 261000,
-                            SURVIVING_SPOUSE: 261000,
-                            SEPARATE: 261000,
-                          },
-                          ctc_phaseout_end: 300000,
-                          ctc_young_child_boost_amount: 0,
-                          ctc_young_child_boost_age_limit: 6,
-                          enable_exemption_reform: true,
-                          exemption_amount: 0,
-                          exemption_age_limit_enabled: true,
-                          exemption_age_threshold: 19,
-                          exemption_phaseout_rate: 0,
-                          exemption_phaseout_thresholds: {
-                            SINGLE: 0,
-                            JOINT: 0,
-                            HEAD_OF_HOUSEHOLD: 0,
-                            SURVIVING_SPOUSE: 0,
-                            SEPARATE: 0,
-                          },
-                        });
-                      }}
-                      className="w-full px-4 py-3 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors font-semibold text-sm"
-                    >
-                      Apply Governor&apos;s Proposal
-                    </button>
-                    <p className="text-xs text-gray-500 mt-2">
-                      $325/child, fully refundable, ages 0-18, phaseout $261k-$300k, dependent exemption set to $0 for children
-                    </p>
-                  </div>
-
-                  <hr className="border-gray-200" />
-
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       CTC Amount per Child
@@ -427,85 +403,101 @@ export default function HouseholdForm({
                   <div>
                     <h4 className="text-sm font-bold text-gray-800 mb-3 mt-2">Phaseout</h4>
 
-                    {/* Range-based toggle */}
+                    {/* Stepped phaseout toggle */}
                     <div className="mb-4">
                       <label className="flex items-start space-x-2 cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={reformParams.ctc_phaseout_range_based}
+                          checked={reformParams.ctc_stepped_phaseout}
                           onChange={(e) =>
                             setReformParams({
                               ...reformParams,
-                              ctc_phaseout_range_based: e.target.checked,
+                              ctc_stepped_phaseout: e.target.checked,
                             })
                           }
                           className="mt-1 h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary"
                         />
                         <div>
                           <span className="text-sm font-semibold text-gray-700">
-                            Use Range-Based Phaseout
+                            Use Stepped Phaseout (Governor&apos;s Proposal)
                           </span>
                           <p className="text-xs text-gray-500 mt-1">
-                            With range-based phaseout, the credit phases out completely between the start and end income levels. Households with more children will see a faster phaseout per dollar of income since their total credit is larger but the phaseout range is fixed.
+                            With stepped phaseout, the credit reduces by a percentage for each income increment above the threshold. For example, 20% reduction per $7,450 over $261k.
                           </p>
                         </div>
                       </label>
                     </div>
 
-                    {reformParams.ctc_phaseout_range_based ? (
-                      /* Range-based phaseout inputs */
+                    {reformParams.ctc_stepped_phaseout ? (
+                      /* Stepped phaseout inputs */
                       <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            Phaseout Start (All Filing Statuses)
+                            Phaseout Threshold
                           </label>
                           <input
                             type="text"
-                            value={formatNumber(reformParams.ctc_phaseout_thresholds.SINGLE)}
-                            onChange={(e) => {
-                              const value = parseNumber(e.target.value);
-                              setReformParams({
-                                ...reformParams,
-                                ctc_phaseout_thresholds: {
-                                  SINGLE: value,
-                                  JOINT: value,
-                                  HEAD_OF_HOUSEHOLD: value,
-                                  SURVIVING_SPOUSE: value,
-                                  SEPARATE: value,
-                                },
-                              });
-                            }}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                            placeholder="0"
-                          />
-                          <p className="text-xs text-gray-500 mt-1">
-                            AGI level where the credit begins to phase out
-                          </p>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            Phaseout End
-                          </label>
-                          <input
-                            type="text"
-                            value={formatNumber(reformParams.ctc_phaseout_end)}
+                            value={formatNumber(reformParams.ctc_stepped_phaseout_threshold)}
                             onChange={(e) =>
                               setReformParams({
                                 ...reformParams,
-                                ctc_phaseout_end: parseNumber(e.target.value),
+                                ctc_stepped_phaseout_threshold: parseNumber(e.target.value),
                               })
                             }
                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
                             placeholder="0"
                           />
                           <p className="text-xs text-gray-500 mt-1">
-                            AGI level where the credit is fully phased out
+                            AGI level where the stepped phaseout begins (e.g., $261,000)
+                          </p>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Income Increment per Step
+                          </label>
+                          <input
+                            type="text"
+                            value={formatNumber(reformParams.ctc_stepped_phaseout_increment)}
+                            onChange={(e) =>
+                              setReformParams({
+                                ...reformParams,
+                                ctc_stepped_phaseout_increment: parseNumber(e.target.value),
+                              })
+                            }
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                            placeholder="0"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Income increment for each reduction step (e.g., $7,450)
+                          </p>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Reduction Rate per Step
+                          </label>
+                          <input
+                            type="number"
+                            value={reformParams.ctc_stepped_phaseout_rate_per_step}
+                            onChange={(e) =>
+                              setReformParams({
+                                ...reformParams,
+                                ctc_stepped_phaseout_rate_per_step: Number(e.target.value),
+                              })
+                            }
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Percentage point reduction per step (e.g., 0.20 = 20% per step)
                           </p>
                         </div>
                       </div>
                     ) : (
-                      /* Rate-based phaseout inputs (existing) */
+                      /* Rate-based phaseout inputs */
                       <>
                         <div>
                           <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -526,7 +518,7 @@ export default function HouseholdForm({
                             step="0.01"
                           />
                           <p className="text-xs text-gray-500 mt-1">
-                            Rate at which benefit phases out (0 = no phaseout, 1 = 100% phaseout)
+                            Rate at which benefit phases out per dollar over threshold (0 = no phaseout)
                           </p>
                         </div>
 
@@ -913,6 +905,55 @@ export default function HouseholdForm({
             </div>
           </div>
         )}
+      </div>
+
+      {/* Governor's Proposal Button */}
+      <div className="mb-4">
+        <button
+          onClick={() => {
+            setReformParams({
+              ...reformParams,
+              ctc_amount: 325,
+              ctc_age_limit: 19,
+              ctc_refundability_cap: 100000,
+              ctc_phaseout_rate: 0,
+              ctc_phaseout_thresholds: {
+                SINGLE: 0,
+                JOINT: 0,
+                HEAD_OF_HOUSEHOLD: 0,
+                SURVIVING_SPOUSE: 0,
+                SEPARATE: 0,
+              },
+              // Stepped phaseout: 20% reduction per $7,450 over $261k
+              ctc_stepped_phaseout: true,
+              ctc_stepped_phaseout_threshold: 261000,
+              ctc_stepped_phaseout_increment: 7450,
+              ctc_stepped_phaseout_rate_per_step: 0.20,
+              ctc_young_child_boost_amount: 0,
+              ctc_young_child_boost_age_limit: 6,
+              enable_exemption_reform: true,
+              exemption_amount: 0,
+              exemption_age_limit_enabled: true,
+              exemption_age_threshold: 19,
+              exemption_phaseout_rate: 0,
+              exemption_phaseout_thresholds: {
+                SINGLE: 0,
+                JOINT: 0,
+                HEAD_OF_HOUSEHOLD: 0,
+                SURVIVING_SPOUSE: 0,
+                SEPARATE: 0,
+              },
+            });
+            // Set year to 2027 (effective date)
+            setYear(2027);
+          }}
+          className="w-full px-4 py-3 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors font-semibold text-sm border-2 border-teal-700"
+        >
+          Apply Governor&apos;s Proposal
+        </button>
+        <p className="text-xs text-gray-500 mt-2 text-center">
+          $325/child (2027), fully refundable, ages 0-18, stepped phaseout (20% per $7,450 over $261k), zeroes dependent exemption for children
+        </p>
       </div>
 
       {/* Calculate Button */}

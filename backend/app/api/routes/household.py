@@ -38,6 +38,7 @@ async def household_impact(request: HouseholdRequest):
             dependent_ages=request.dependent_ages,
             income=request.income,
             reform_params=request.reform_params.model_dump(),
+            year=request.year,
         )
 
         logger.info("✓ Household impact calculated successfully")
@@ -76,6 +77,7 @@ async def household_benefit_quick(request: HouseholdRequest):
             dependent_ages=request.dependent_ages,
             income=request.income,
             reform_params=request.reform_params.model_dump(),
+            year=request.year,
         )
 
         logger.info("✓ Quick benefit calculated successfully")
