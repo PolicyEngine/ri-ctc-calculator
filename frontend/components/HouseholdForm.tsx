@@ -289,6 +289,55 @@ export default function HouseholdForm({
         {expandedStep === 2 && (
           <div className="mt-4 space-y-4 pl-2">
 
+            {/* Governor's Proposal Button */}
+            <div className="mb-2">
+              <button
+                onClick={() => {
+                  setReformParams({
+                    ...reformParams,
+                    ctc_amount: 325,
+                    ctc_age_limit: 19,
+                    ctc_refundability_cap: 100000,
+                    ctc_phaseout_rate: 0,
+                    ctc_phaseout_thresholds: {
+                      SINGLE: 0,
+                      JOINT: 0,
+                      HEAD_OF_HOUSEHOLD: 0,
+                      SURVIVING_SPOUSE: 0,
+                      SEPARATE: 0,
+                    },
+                    // Stepped phaseout: 20% reduction per $7,450 over $261k
+                    ctc_stepped_phaseout: true,
+                    ctc_stepped_phaseout_threshold: 261000,
+                    ctc_stepped_phaseout_increment: 7450,
+                    ctc_stepped_phaseout_rate_per_step: 0.20,
+                    ctc_young_child_boost_amount: 0,
+                    ctc_young_child_boost_age_limit: 6,
+                    enable_exemption_reform: true,
+                    exemption_amount: 0,
+                    exemption_age_limit_enabled: true,
+                    exemption_age_threshold: 19,
+                    exemption_phaseout_rate: 0,
+                    exemption_phaseout_thresholds: {
+                      SINGLE: 0,
+                      JOINT: 0,
+                      HEAD_OF_HOUSEHOLD: 0,
+                      SURVIVING_SPOUSE: 0,
+                      SEPARATE: 0,
+                    },
+                  });
+                  // Set year to 2027 (effective date)
+                  setYear(2027);
+                }}
+                className="w-full px-4 py-3 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors font-semibold text-sm border-2 border-teal-700"
+              >
+                Apply Governor&apos;s Proposal
+              </button>
+              <p className="text-xs text-gray-500 mt-2 text-center">
+                $325/child (2027), fully refundable, ages 0-18, stepped phaseout (20% per $7,450 over $261k), zeroes dependent exemption for children
+              </p>
+            </div>
+
             {/* CTC Customization */}
             <div>
               <button
@@ -905,55 +954,6 @@ export default function HouseholdForm({
             </div>
           </div>
         )}
-      </div>
-
-      {/* Governor's Proposal Button */}
-      <div className="mb-4">
-        <button
-          onClick={() => {
-            setReformParams({
-              ...reformParams,
-              ctc_amount: 325,
-              ctc_age_limit: 19,
-              ctc_refundability_cap: 100000,
-              ctc_phaseout_rate: 0,
-              ctc_phaseout_thresholds: {
-                SINGLE: 0,
-                JOINT: 0,
-                HEAD_OF_HOUSEHOLD: 0,
-                SURVIVING_SPOUSE: 0,
-                SEPARATE: 0,
-              },
-              // Stepped phaseout: 20% reduction per $7,450 over $261k
-              ctc_stepped_phaseout: true,
-              ctc_stepped_phaseout_threshold: 261000,
-              ctc_stepped_phaseout_increment: 7450,
-              ctc_stepped_phaseout_rate_per_step: 0.20,
-              ctc_young_child_boost_amount: 0,
-              ctc_young_child_boost_age_limit: 6,
-              enable_exemption_reform: true,
-              exemption_amount: 0,
-              exemption_age_limit_enabled: true,
-              exemption_age_threshold: 19,
-              exemption_phaseout_rate: 0,
-              exemption_phaseout_thresholds: {
-                SINGLE: 0,
-                JOINT: 0,
-                HEAD_OF_HOUSEHOLD: 0,
-                SURVIVING_SPOUSE: 0,
-                SEPARATE: 0,
-              },
-            });
-            // Set year to 2027 (effective date)
-            setYear(2027);
-          }}
-          className="w-full px-4 py-3 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors font-semibold text-sm border-2 border-teal-700"
-        >
-          Apply Governor&apos;s Proposal
-        </button>
-        <p className="text-xs text-gray-500 mt-2 text-center">
-          $325/child (2027), fully refundable, ages 0-18, stepped phaseout (20% per $7,450 over $261k), zeroes dependent exemption for children
-        </p>
       </div>
 
       {/* Calculate Button */}

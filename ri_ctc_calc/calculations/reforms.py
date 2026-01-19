@@ -348,7 +348,8 @@ def create_custom_reform(
             },
         })
 
-    # Add dependent exemption parameters if enabled
+    # Add exemption reform if enabled
+    # Uses contrib parameters for dependent exemption modification
     if enable_exemption_reform:
         exemption_params = {
             "gov.contrib.states.ri.dependent_exemption.in_effect": {
@@ -363,11 +364,6 @@ def create_custom_reform(
             "gov.contrib.states.ri.dependent_exemption.age_limit.threshold": {
                 date_range: exemption_age_threshold
             },
-        }
-
-        # Always set phase-out parameters explicitly to ensure proper behavior
-        # Setting to 0 means "no phase-out", not setting means "use baseline rules"
-        exemption_params.update({
             "gov.contrib.states.ri.dependent_exemption.phaseout.rate": {
                 date_range: exemption_phaseout_rate
             },
@@ -386,8 +382,7 @@ def create_custom_reform(
             "gov.contrib.states.ri.dependent_exemption.phaseout.threshold.SEPARATE": {
                 date_range: exemption_phaseout_thresholds["SEPARATE"]
             },
-        })
-
+        }
         reform_dict.update(exemption_params)
 
     return Reform.from_dict(reform_dict, country_id="us")
