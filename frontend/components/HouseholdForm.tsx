@@ -46,6 +46,7 @@ export default function HouseholdForm({
   const [expandedStep, setExpandedStep] = useState<number>(1);
   const [showCTCCustomization, setShowCTCCustomization] = useState(false);
   const [showExemptionCustomization, setShowExemptionCustomization] = useState(false);
+  const [showExemptionPhaseout, setShowExemptionPhaseout] = useState(false);
 
   const handleMarriedChange = (value: boolean) => {
     setMarried(value);
@@ -306,10 +307,10 @@ export default function HouseholdForm({
                       SURVIVING_SPOUSE: 0,
                       SEPARATE: 0,
                     },
-                    // Stepped phaseout: 20% reduction per $7,450 over $261k
+                    // Stepped phaseout: 20% reduction per $7,590 over $265,965 (2027 inflation-adjusted)
                     ctc_stepped_phaseout: true,
-                    ctc_stepped_phaseout_threshold: 261000,
-                    ctc_stepped_phaseout_increment: 7450,
+                    ctc_stepped_phaseout_threshold: 265965,
+                    ctc_stepped_phaseout_increment: 7590,
                     ctc_stepped_phaseout_rate_per_step: 0.20,
                     ctc_young_child_boost_amount: 0,
                     ctc_young_child_boost_age_limit: 6,
@@ -334,7 +335,7 @@ export default function HouseholdForm({
                 Apply Governor&apos;s Proposal
               </button>
               <p className="text-xs text-gray-500 mt-2 text-center">
-                $325/child (2027), fully refundable, ages 0-18, stepped phaseout (20% per $7,450 over $261k), zeroes dependent exemption for children
+                $325/child (2027), fully refundable, ages 0-18, stepped phaseout (20% per $7,590 over $265,965), zeroes dependent exemption for children
               </p>
             </div>
 
@@ -427,29 +428,6 @@ export default function HouseholdForm({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Refundability Cap
-                    </label>
-                    <input
-                      type="number"
-                      value={reformParams.ctc_refundability_cap}
-                      onChange={(e) =>
-                        setReformParams({
-                          ...reformParams,
-                          ctc_refundability_cap: Number(e.target.value),
-                        })
-                      }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                      min="0"
-                      max="999999"
-                      step="100"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Maximum refundable amount per household (0 = non-refundable, set high to make fully refundable for all families)
-                    </p>
-                  </div>
-
-                  <div>
                     <h4 className="text-sm font-bold text-gray-800 mb-3 mt-2">Phaseout</h4>
 
                     {/* Stepped phaseout toggle */}
@@ -471,7 +449,7 @@ export default function HouseholdForm({
                             Use Stepped Phaseout (Governor&apos;s Proposal)
                           </span>
                           <p className="text-xs text-gray-500 mt-1">
-                            With stepped phaseout, the credit reduces by a percentage for each income increment above the threshold. For example, 20% reduction per $7,450 over $261k.
+                            With stepped phaseout, the credit reduces by a percentage for each income increment above the threshold. For example, 20% reduction per $7,590 over $265,965.
                           </p>
                         </div>
                       </label>
@@ -497,7 +475,7 @@ export default function HouseholdForm({
                             placeholder="0"
                           />
                           <p className="text-xs text-gray-500 mt-1">
-                            AGI level where the stepped phaseout begins (e.g., $261,000)
+                            AGI level where the stepped phaseout begins (e.g., $265,965)
                           </p>
                         </div>
 
@@ -518,7 +496,7 @@ export default function HouseholdForm({
                             placeholder="0"
                           />
                           <p className="text-xs text-gray-500 mt-1">
-                            Income increment for each reduction step (e.g., $7,450)
+                            Income increment for each reduction step (e.g., $7,590)
                           </p>
                         </div>
 
@@ -782,8 +760,28 @@ export default function HouseholdForm({
                         </div>
                       )}
 
-                      <div>
-                        <h4 className="text-sm font-bold text-gray-800 mb-3 mt-2">Phaseout</h4>
+                      <div className="mt-4">
+                        <label className="flex items-start space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={showExemptionPhaseout}
+                            onChange={(e) => setShowExemptionPhaseout(e.target.checked)}
+                            className="mt-1 h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary"
+                          />
+                          <div>
+                            <span className="text-sm font-semibold text-gray-700">
+                              Configure Exemption Phaseout
+                            </span>
+                            <p className="text-xs text-gray-500 mt-1">
+                              Without phaseout, the exemption applies universally to all income levels (no income-based reduction like baseline RI personal exemption).
+                            </p>
+                          </div>
+                        </label>
+                      </div>
+
+                      {showExemptionPhaseout && (
+                      <div className="mt-4 pl-2 border-l-2 border-gray-200">
+                        <h4 className="text-sm font-bold text-gray-800 mb-3">Phaseout Settings</h4>
 
                         <div>
                           <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -947,6 +945,7 @@ export default function HouseholdForm({
                           </div>
                         </div>
                       </div>
+                      )}
                     </>
                   )}
                 </div>
