@@ -50,26 +50,32 @@ def calculate_aggregate_impact(reform, year=2027):
     # Calculate eligible children counts (map to household for consistency)
     eligible_children = sim_reform.calculate("ri_ctc_eligible_children", period=year, map_to="household")
 
+    # IMPORTANT: Extract raw weights as numpy array for household counting
+    # MicroSeries.sum() does weighted_sum(value * weight), which double-weights when value IS the weight
+    # For counting households, we need sum(weight), not sum(weight * weight)
+    raw_weights = np.array(household_weight)
+
     # Aggregate statistics
-    total_cost = ctc_change.sum()
-    # Count all households with any impact (positive or negative)
-    affected_households = (np.abs(ctc_change) > 1).sum()
-    beneficiaries_mask = ctc_change > 0
-    beneficiaries = beneficiaries_mask.sum()
+    total_cost = ctc_change.sum()  # MicroSeries weighted sum - correct for dollar amounts
+    # Count all households with any impact (positive or negative) - use weighted counts
+    affected_mask = np.array(np.abs(ctc_change) > 1)
+    affected_households = raw_weights[affected_mask].sum()  # Weighted count
+    beneficiaries_mask = np.array(ctc_change > 0)
+    beneficiaries = raw_weights[beneficiaries_mask].sum()  # Weighted count of beneficiary households
     # Calculate average impact across ALL affected households (not just beneficiaries)
-    avg_benefit = ctc_change[np.abs(ctc_change) > 1].mean() if affected_households > 0 else 0
+    avg_benefit = ctc_change[affected_mask].mean() if affected_households > 0 else 0
     children_affected = eligible_children[beneficiaries_mask].sum() if beneficiaries > 0 else 0
 
     # Get total population counts for rate calculations
     total_population = sim_baseline.calculate("person_count", period=year).sum()
-    total_households = household_weight.sum()  # Weighted sum = total RI households
+    total_households = raw_weights.sum()  # Sum of raw weights = total RI households
 
     # Winners/losers analysis (at household level)
-    # Use household weights to get population-level counts
-    winners_mask = ctc_change > 1
-    losers_mask = ctc_change < -1
-    winners = household_weight[winners_mask].sum()  # Weighted count of winner households
-    losers = household_weight[losers_mask].sum()  # Weighted count of loser households
+    # Use raw weights to get population-level counts
+    winners_mask = np.array(ctc_change > 1)
+    losers_mask = np.array(ctc_change < -1)
+    winners = raw_weights[winners_mask].sum()  # Weighted count of winner households
+    losers = raw_weights[losers_mask].sum()  # Weighted count of loser households
     winners_rate = (winners / total_households * 100) if total_households > 0 else 0
     losers_rate = (losers / total_households * 100) if total_households > 0 else 0
 
@@ -106,13 +112,18 @@ def calculate_aggregate_impact(reform, year=2027):
         (200000, float('inf'), "Over $200k")
     ]
 
+    # Convert agi to numpy array for consistent masking
+    agi_arr = np.array(agi)
+    ctc_arr = np.array(ctc_change)
+
     by_income_bracket = []
     for min_income, max_income, label in income_brackets:
         # Include ALL households affected (positive or negative impact)
-        mask = (agi >= min_income) & (agi < max_income) & (np.abs(ctc_change) > 1)
-        bracket_affected = mask.sum()
-        bracket_cost = ctc_change[mask].sum()
-        bracket_avg = ctc_change[mask].mean() if bracket_affected > 0 else 0
+        mask = (agi_arr >= min_income) & (agi_arr < max_income) & (np.abs(ctc_arr) > 1)
+        # Use raw weights for household counts, MicroSeries for weighted sums
+        bracket_affected = raw_weights[mask].sum()  # Weighted count of households
+        bracket_cost = ctc_change[mask].sum()  # MicroSeries weighted sum (correct)
+        bracket_avg = ctc_change[mask].mean() if bracket_affected > 0 else 0  # Weighted mean
 
         by_income_bracket.append({
             "bracket": label,

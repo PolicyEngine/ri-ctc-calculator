@@ -5,6 +5,9 @@ from policyengine_us import Microsimulation
 
 logger = logging.getLogger(__name__)
 
+# Dataset path - change this to switch datasets (should match microsimulation.py)
+RI_DATASET_PATH = "hf://policyengine/test/RI-1.h5"
+
 
 class DatasetManager:
     """Manages the RI dataset in memory for fast access."""
@@ -19,14 +22,19 @@ class DatasetManager:
             logger.info("Dataset already loaded, skipping")
             return
 
-        logger.info("Loading RI microsimulation dataset...")
+        logger.info(f"Loading RI microsimulation dataset from: {RI_DATASET_PATH}")
         try:
             # Load RI-specific dataset from HuggingFace
             self.baseline_sim = Microsimulation(
-                dataset="hf://policyengine/test/RI-1.h5"
+                dataset=RI_DATASET_PATH
             )
             self._is_loaded = True
-            logger.info("✓ RI dataset loaded successfully")
+            # Debug: verify dataset loaded correctly
+            # Use household_count.sum() for RI-calibrated total (not household_weight.sum() which double-weights)
+            import numpy as np
+            raw_weights = np.array(self.baseline_sim.calculate("household_weight", period=2027))
+            total_hh = raw_weights.sum()  # Sum of raw weights = RI total households
+            logger.info(f"✓ RI dataset loaded successfully - Total households (RI): {total_hh:,.0f}")
         except Exception as e:
             logger.error(f"Failed to load RI dataset: {e}")
             raise
