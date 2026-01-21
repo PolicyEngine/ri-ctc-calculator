@@ -92,6 +92,7 @@ export const api = {
    */
   async calculateAggregateImpact(
     reformParams: ReformParams,
+    year: number = 2027,
   ): Promise<AggregateImpactResponse> {
     const response = await fetchWithTimeout(
       `${API_BASE_URL}/api/aggregate-impact`,
@@ -100,7 +101,7 @@ export const api = {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ reform_params: reformParams }),
+        body: JSON.stringify({ year: year, reform_params: reformParams }),
       },
       DEFAULT_TIMEOUT,
     );

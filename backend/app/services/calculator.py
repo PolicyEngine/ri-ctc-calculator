@@ -29,6 +29,7 @@ async def calculate_household_benefit_quick(
     dependent_ages: list[int],
     income: int,
     reform_params: dict,
+    year: int = 2027,
 ) -> BenefitAtIncome:
     """
     Quick calculation of benefit at specific AGI level only (no income sweep).
@@ -36,21 +37,22 @@ async def calculate_household_benefit_quick(
 
     Args:
         income: Adjusted Gross Income (AGI) for the household
+        year: Tax year for the simulation (2026 or 2027)
     """
     # Build household situation WITHOUT axes (single income point)
     household = build_household_situation(
         age_head=age_head,
         age_spouse=age_spouse,
         dependent_ages=dependent_ages,
-        year=2026,
+        year=year,
         with_axes=False,  # No income sweep for quick calculation
     )
 
     # Set AGI on the tax unit level
-    household["tax_units"]["your tax unit"]["adjusted_gross_income"] = {"2026": income}
+    household["tax_units"]["your tax unit"]["adjusted_gross_income"] = {str(year): income}
 
-    # Create reform
-    reform = create_custom_reform(**reform_params)
+    # Create reform with year parameter
+    reform = create_custom_reform(**reform_params, year=year)
 
     # Create simulations (single point, no sweep)
     sim_baseline = Simulation(situation=household)
@@ -58,10 +60,10 @@ async def calculate_household_benefit_quick(
 
     # Calculate net income
     net_income_baseline = sim_baseline.calculate(
-        "household_net_income", map_to="household", period=2026
+        "household_net_income", map_to="household", period=year
     )[0]
     net_income_reform = sim_reform.calculate(
-        "household_net_income", map_to="household", period=2026
+        "household_net_income", map_to="household", period=year
     )[0]
 
     difference = float(net_income_reform - net_income_baseline)
@@ -80,10 +82,11 @@ async def calculate_household_benefit_quick(
             exemption_age_threshold=reform_params.get("exemption_age_threshold", 18),
             exemption_phaseout_rate=reform_params.get("exemption_phaseout_rate", 0),
             exemption_phaseout_thresholds=reform_params.get("exemption_phaseout_thresholds", None),
+            year=year,
         )
         sim_exemption_only = Simulation(situation=household, reform=exemption_only_reform)
         net_income_exemption_only = sim_exemption_only.calculate(
-            "household_net_income", map_to="household", period=2026
+            "household_net_income", map_to="household", period=year
         )[0]
 
         exemption_benefit = float(net_income_exemption_only - net_income_baseline)
@@ -104,6 +107,7 @@ async def calculate_household_impact(
     dependent_ages: list[int],
     income: int,
     reform_params: dict,
+    year: int = 2027,
 ) -> HouseholdImpactResponse:
     """
     Calculate household impact with income sweep.
@@ -112,18 +116,19 @@ async def calculate_household_impact(
 
     Args:
         income: Adjusted Gross Income (AGI) - used to identify the household's position on charts
+        year: Tax year for the simulation (2026 or 2027)
     """
     # Build household situation with axes for income sweep
     base_household = build_household_situation(
         age_head=age_head,
         age_spouse=age_spouse,
         dependent_ages=dependent_ages,
-        year=2026,
+        year=year,
         with_axes=True,
     )
 
-    # Create reform with custom parameters
-    reform = create_custom_reform(**reform_params)
+    # Create reform with custom parameters and year
+    reform = create_custom_reform(**reform_params, year=year)
 
     # Create simulations
     sim_baseline = Simulation(situation=base_household)
@@ -131,15 +136,15 @@ async def calculate_household_impact(
 
     # Get AGI range
     income_range = sim_baseline.calculate(
-        "adjusted_gross_income", map_to="tax_unit", period=2026
+        "adjusted_gross_income", map_to="tax_unit", period=year
     )
 
     # Calculate net income for both scenarios
     net_income_baseline = sim_baseline.calculate(
-        "household_net_income", map_to="household", period=2026
+        "household_net_income", map_to="household", period=year
     )
     net_income_reform = sim_reform.calculate(
-        "household_net_income", map_to="household", period=2026
+        "household_net_income", map_to="household", period=year
     )
 
     # Calculate benefits
@@ -157,10 +162,11 @@ async def calculate_household_impact(
             exemption_age_threshold=reform_params.get("exemption_age_threshold", 18),
             exemption_phaseout_rate=reform_params.get("exemption_phaseout_rate", 0),
             exemption_phaseout_thresholds=reform_params.get("exemption_phaseout_thresholds", None),
+            year=year,
         )
         sim_exemption_only = Simulation(situation=base_household, reform=exemption_only_reform)
         net_income_exemption_only = sim_exemption_only.calculate(
-            "household_net_income", map_to="household", period=2026
+            "household_net_income", map_to="household", period=year
         )
 
         # Isolate components
@@ -171,16 +177,8 @@ async def calculate_household_impact(
         exemption_tax_benefit = np.zeros(len(income_range))
         ctc_component = ctc_range_reform
 
-    # Find x-axis max - where benefit drops to near zero
-    max_income_with_ctc = 200000  # Default minimum
-    for i in range(len(ctc_range_reform) - 1, -1, -1):
-        if ctc_range_reform[i] > 1:  # More than $1 benefit
-            max_income_with_ctc = income_range[i]
-            break
-
-    # Add 20% breathing room and round to nearest 50k
-    x_axis_max = max_income_with_ctc * 1.2
-    x_axis_max = max(200000, min(600000, round(x_axis_max / 50000) * 50000))
+    # Fixed x-axis max at $500k for household calculator
+    x_axis_max = 500000
 
     # Interpolate values at user's income
     # With 10,001 points, interpolation is highly accurate (~$100 step size)
@@ -207,14 +205,18 @@ async def calculate_household_impact(
     )
 
 
-async def calculate_aggregate(reform_params: dict) -> AggregateImpactResponse:
+async def calculate_aggregate(reform_params: dict, year: int = 2027) -> AggregateImpactResponse:
     """
     Calculate aggregate/statewide impact using microsimulation.
 
     This wraps the existing calculate_aggregate_impact() function.
+
+    Args:
+        reform_params: Reform parameters
+        year: Tax year for the simulation (2026 or 2027)
     """
-    reform = create_custom_reform(**reform_params)
-    impact = calculate_aggregate_impact(reform)
+    reform = create_custom_reform(**reform_params, year=year)
+    impact = calculate_aggregate_impact(reform, year=year)
 
     return AggregateImpactResponse(**impact)
 

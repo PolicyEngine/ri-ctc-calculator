@@ -31,7 +31,7 @@ async def aggregate_impact(request: AggregateImpactRequest):
     try:
         logger.info("Calculating aggregate impact...")
 
-        result = await calculate_aggregate(reform_params=request.reform_params.model_dump())
+        result = await calculate_aggregate(reform_params=request.reform_params.model_dump(), year=request.year)
 
         logger.info(f"✓ Aggregate impact calculated: {result.beneficiaries:,.0f} households, "
                    f"${result.total_cost:,.0f} total cost")
