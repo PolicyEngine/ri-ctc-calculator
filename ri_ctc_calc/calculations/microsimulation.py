@@ -24,8 +24,8 @@ def calculate_aggregate_impact(reform, year=2027):
     """
     # Load baseline and reform simulations
     # We need to look at NET INCOME change to capture both CTC and exemption effects
-    sim_baseline = Microsimulation(dataset="hf://policyengine/policyengine-us-data/states/RI.h5")
-    sim_reform = Microsimulation(dataset="hf://policyengine/policyengine-us-data/states/RI.h5", reform=reform)
+    sim_baseline = Microsimulation(dataset="hf://policyengine/test/RI-1.h5")
+    sim_reform = Microsimulation(dataset="hf://policyengine/test/RI-1.h5", reform=reform)
 
     # Calculate household net income for both scenarios
     # This captures the total impact: CTC + tax savings from exemption changes
@@ -151,7 +151,7 @@ def get_dataset_summary():
     Returns:
         dict: Dataset summary including household counts, children counts, etc.
     """
-    sim = Microsimulation(dataset="hf://policyengine/policyengine-us-data/states/RI.h5")
+    sim = Microsimulation(dataset="hf://policyengine/test/RI-1.h5")
 
     # Calculate basic counts
     household_count = sim.calculate("household_count", period=2026, map_to="household").sum()
@@ -203,8 +203,8 @@ def calculate_impact_by_household_type(reform):
         dict: Impact statistics by household type
     """
     # Load baseline and reform simulations
-    sim_baseline = Microsimulation(dataset="hf://policyengine/policyengine-us-data/states/RI.h5")
-    sim_reform = Microsimulation(dataset="hf://policyengine/policyengine-us-data/states/RI.h5", reform=reform)
+    sim_baseline = Microsimulation(dataset="hf://policyengine/test/RI-1.h5")
+    sim_reform = Microsimulation(dataset="hf://policyengine/test/RI-1.h5", reform=reform)
 
     # Calculate household net income change (captures CTC + exemption effects)
     net_income_baseline = sim_baseline.calculate("household_net_income", period=2026, map_to="household")

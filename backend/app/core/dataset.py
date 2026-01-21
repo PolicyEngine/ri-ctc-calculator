@@ -23,7 +23,7 @@ class DatasetManager:
         try:
             # Load RI-specific dataset from HuggingFace
             self.baseline_sim = Microsimulation(
-                dataset="hf://policyengine/policyengine-us-data/states/RI.h5"
+                dataset="hf://policyengine/test/RI-1.h5"
             )
             self._is_loaded = True
             logger.info("✓ RI dataset loaded successfully")
