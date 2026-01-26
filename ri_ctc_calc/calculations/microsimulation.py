@@ -79,9 +79,9 @@ def calculate_aggregate_impact(reform, year=2027):
     winners_rate = (winners / total_households * 100) if total_households > 0 else 0
     losers_rate = (losers / total_households * 100) if total_households > 0 else 0
 
-    # Poverty impact (using person_in_poverty variable at person level)
-    person_in_poverty_baseline = sim_baseline.calculate("person_in_poverty", period=year)
-    person_in_poverty_reform = sim_reform.calculate("person_in_poverty", period=year)
+    # Poverty impact (using in_poverty variable directly, mapped to person level)
+    person_in_poverty_baseline = sim_baseline.calculate("in_poverty", period=year, map_to="person")
+    person_in_poverty_reform = sim_reform.calculate("in_poverty", period=year, map_to="person")
 
     poverty_baseline_count = person_in_poverty_baseline.sum()
     poverty_reform_count = person_in_poverty_reform.sum()
@@ -103,15 +103,9 @@ def calculate_aggregate_impact(reform, year=2027):
     # Calculate percent difference (relative change): ((new - old) / old) * 100
     child_poverty_percent_change = ((child_poverty_reform_rate - child_poverty_baseline_rate) / child_poverty_baseline_rate * 100) if child_poverty_baseline_rate > 0 else 0
 
-    # Deep poverty impact (below 50% of poverty line)
-    # Calculate using SPM resources vs 50% of SPM threshold
-    spm_resources_baseline = sim_baseline.calculate("spm_unit_net_income", period=year, map_to="person")
-    spm_resources_reform = sim_reform.calculate("spm_unit_net_income", period=year, map_to="person")
-    spm_threshold = sim_baseline.calculate("spm_unit_spm_threshold", period=year, map_to="person")
-
-    # Deep poverty = income below 50% of poverty threshold
-    person_in_deep_poverty_baseline = spm_resources_baseline < (0.5 * spm_threshold)
-    person_in_deep_poverty_reform = spm_resources_reform < (0.5 * spm_threshold)
+    # Deep poverty impact (using in_deep_poverty variable directly, mapped to person level)
+    person_in_deep_poverty_baseline = sim_baseline.calculate("in_deep_poverty", period=year, map_to="person")
+    person_in_deep_poverty_reform = sim_reform.calculate("in_deep_poverty", period=year, map_to="person")
 
     deep_poverty_baseline_count = person_in_deep_poverty_baseline.sum()
     deep_poverty_reform_count = person_in_deep_poverty_reform.sum()
