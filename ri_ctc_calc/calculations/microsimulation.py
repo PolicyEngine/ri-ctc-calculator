@@ -79,9 +79,9 @@ def calculate_aggregate_impact(reform, year=2027):
     winners_rate = (winners / total_households * 100) if total_households > 0 else 0
     losers_rate = (losers / total_households * 100) if total_households > 0 else 0
 
-    # Poverty impact (using person_in_poverty variable at person level)
-    person_in_poverty_baseline = sim_baseline.calculate("person_in_poverty", period=year)
-    person_in_poverty_reform = sim_reform.calculate("person_in_poverty", period=year)
+    # Poverty impact (using in_poverty variable directly, mapped to person level)
+    person_in_poverty_baseline = sim_baseline.calculate("in_poverty", period=year, map_to="person")
+    person_in_poverty_reform = sim_reform.calculate("in_poverty", period=year, map_to="person")
 
     poverty_baseline_count = person_in_poverty_baseline.sum()
     poverty_reform_count = person_in_poverty_reform.sum()
@@ -102,6 +102,25 @@ def calculate_aggregate_impact(reform, year=2027):
     child_poverty_rate_change = child_poverty_reform_rate - child_poverty_baseline_rate  # Percentage point change
     # Calculate percent difference (relative change): ((new - old) / old) * 100
     child_poverty_percent_change = ((child_poverty_reform_rate - child_poverty_baseline_rate) / child_poverty_baseline_rate * 100) if child_poverty_baseline_rate > 0 else 0
+
+    # Deep poverty impact (using in_deep_poverty variable directly, mapped to person level)
+    person_in_deep_poverty_baseline = sim_baseline.calculate("in_deep_poverty", period=year, map_to="person")
+    person_in_deep_poverty_reform = sim_reform.calculate("in_deep_poverty", period=year, map_to="person")
+
+    deep_poverty_baseline_count = person_in_deep_poverty_baseline.sum()
+    deep_poverty_reform_count = person_in_deep_poverty_reform.sum()
+    deep_poverty_baseline_rate = (deep_poverty_baseline_count / total_population * 100) if total_population > 0 else 0
+    deep_poverty_reform_rate = (deep_poverty_reform_count / total_population * 100) if total_population > 0 else 0
+    deep_poverty_rate_change = deep_poverty_reform_rate - deep_poverty_baseline_rate  # Percentage point change
+    deep_poverty_percent_change = ((deep_poverty_reform_rate - deep_poverty_baseline_rate) / deep_poverty_baseline_rate * 100) if deep_poverty_baseline_rate > 0 else 0
+
+    # Deep child poverty impact (filter deep poverty to children only)
+    deep_child_poverty_baseline_count = (person_in_deep_poverty_baseline & is_child).sum()
+    deep_child_poverty_reform_count = (person_in_deep_poverty_reform & is_child).sum()
+    deep_child_poverty_baseline_rate = (deep_child_poverty_baseline_count / total_children * 100) if total_children > 0 else 0
+    deep_child_poverty_reform_rate = (deep_child_poverty_reform_count / total_children * 100) if total_children > 0 else 0
+    deep_child_poverty_rate_change = deep_child_poverty_reform_rate - deep_child_poverty_baseline_rate  # Percentage point change
+    deep_child_poverty_percent_change = ((deep_child_poverty_reform_rate - deep_child_poverty_baseline_rate) / deep_child_poverty_baseline_rate * 100) if deep_child_poverty_baseline_rate > 0 else 0
 
     # Income bracket analysis
     income_brackets = [
@@ -152,6 +171,16 @@ def calculate_aggregate_impact(reform, year=2027):
         "child_poverty_reform_rate": float(child_poverty_reform_rate),
         "child_poverty_rate_change": float(child_poverty_rate_change),
         "child_poverty_percent_change": float(child_poverty_percent_change),
+        # Deep poverty rates
+        "deep_poverty_baseline_rate": float(deep_poverty_baseline_rate),
+        "deep_poverty_reform_rate": float(deep_poverty_reform_rate),
+        "deep_poverty_rate_change": float(deep_poverty_rate_change),
+        "deep_poverty_percent_change": float(deep_poverty_percent_change),
+        # Deep child poverty rates
+        "deep_child_poverty_baseline_rate": float(deep_child_poverty_baseline_rate),
+        "deep_child_poverty_reform_rate": float(deep_child_poverty_reform_rate),
+        "deep_child_poverty_rate_change": float(deep_child_poverty_rate_change),
+        "deep_child_poverty_percent_change": float(deep_child_poverty_percent_change),
         "by_income_bracket": by_income_bracket
     }
 

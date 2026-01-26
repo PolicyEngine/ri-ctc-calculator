@@ -132,6 +132,17 @@ export interface AggregateImpactResponse {
   child_poverty_rate_change: number;
   child_poverty_percent_change: number;
 
+  // Deep poverty impacts (below 50% of poverty line)
+  deep_poverty_baseline_rate: number;
+  deep_poverty_reform_rate: number;
+  deep_poverty_rate_change: number;
+  deep_poverty_percent_change: number;
+
+  deep_child_poverty_baseline_rate: number;
+  deep_child_poverty_reform_rate: number;
+  deep_child_poverty_rate_change: number;
+  deep_child_poverty_percent_change: number;
+
   // Income bracket breakdown
   by_income_bracket: IncomeBracket[];
 }

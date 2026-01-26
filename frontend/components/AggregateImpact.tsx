@@ -115,6 +115,12 @@ export default function AggregateImpact({ year, reformParams }: Props) {
           <p className={`text-3xl font-bold ${data.poverty_percent_change <= 0 ? 'text-green-700' : 'text-gray-600'}`} style={data.poverty_percent_change > 0 ? { color: '#64748B' } : {}}>
             {data.poverty_percent_change >= 0 ? '+' : ''}{data.poverty_percent_change.toFixed(2)}%
           </p>
+          <div className="mt-3 pt-3 border-t border-gray-200">
+            <p className="text-xs text-gray-500 mb-1">Deep Poverty</p>
+            <p className={`text-lg font-semibold ${data.deep_poverty_percent_change <= 0 ? 'text-green-600' : 'text-gray-500'}`} style={data.deep_poverty_percent_change > 0 ? { color: '#64748B' } : {}}>
+              {data.deep_poverty_percent_change >= 0 ? '+' : ''}{data.deep_poverty_percent_change.toFixed(2)}%
+            </p>
+          </div>
         </div>
 
         <div className="bg-yellow-50 rounded-lg p-6 border border-yellow-500">
@@ -122,6 +128,12 @@ export default function AggregateImpact({ year, reformParams }: Props) {
           <p className={`text-3xl font-bold ${data.child_poverty_percent_change <= 0 ? 'text-green-700' : 'text-gray-600'}`} style={data.child_poverty_percent_change > 0 ? { color: '#64748B' } : {}}>
             {data.child_poverty_percent_change >= 0 ? '+' : ''}{data.child_poverty_percent_change.toFixed(2)}%
           </p>
+          <div className="mt-3 pt-3 border-t border-yellow-200">
+            <p className="text-xs text-gray-500 mb-1">Deep Child Poverty</p>
+            <p className={`text-lg font-semibold ${data.deep_child_poverty_percent_change <= 0 ? 'text-green-600' : 'text-gray-500'}`} style={data.deep_child_poverty_percent_change > 0 ? { color: '#64748B' } : {}}>
+              {data.deep_child_poverty_percent_change >= 0 ? '+' : ''}{data.deep_child_poverty_percent_change.toFixed(2)}%
+            </p>
+          </div>
         </div>
 
         <div className="bg-indigo-50 rounded-lg p-6 border border-indigo-500">
