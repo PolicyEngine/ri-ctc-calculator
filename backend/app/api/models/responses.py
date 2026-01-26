@@ -71,6 +71,17 @@ class AggregateImpactResponse(BaseModel):
     child_poverty_rate_change: float = Field(..., description="Child poverty rate change (pp)")
     child_poverty_percent_change: float = Field(..., description="Child poverty percent change (relative)")
 
+    # Deep poverty impacts (below 50% of poverty line)
+    deep_poverty_baseline_rate: float = Field(..., description="Baseline deep poverty rate (%)")
+    deep_poverty_reform_rate: float = Field(..., description="Reform deep poverty rate (%)")
+    deep_poverty_rate_change: float = Field(..., description="Deep poverty rate change (pp)")
+    deep_poverty_percent_change: float = Field(..., description="Deep poverty percent change (relative)")
+
+    deep_child_poverty_baseline_rate: float = Field(..., description="Baseline deep child poverty rate (%)")
+    deep_child_poverty_reform_rate: float = Field(..., description="Reform deep child poverty rate (%)")
+    deep_child_poverty_rate_change: float = Field(..., description="Deep child poverty rate change (pp)")
+    deep_child_poverty_percent_change: float = Field(..., description="Deep child poverty percent change (relative)")
+
     # Income bracket breakdown
     by_income_bracket: List[IncomeBracket] = Field(..., description="Impact by income bracket")
 
