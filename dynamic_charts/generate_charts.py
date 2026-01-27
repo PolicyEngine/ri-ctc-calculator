@@ -119,11 +119,15 @@ def generate_household_impact_chart():
             mode="lines",
             name="Change in Net Income",
             line=dict(color=TEAL, width=3, shape="spline"),
-            # Tooltip matches calculator: label "Income: $X.XX", value "$X.XX"
             hovertemplate=(
-                "Income: $%{x:,.2f}<br>"
-                "Change in Net Income : $%{y:,.2f}"
+                "<span style='color:#666666'>Income: $%{x:,.2f}</span><br>"
+                "<span style='color:#319795'>Change in Net Income : $%{y:,.2f}</span>"
                 "<extra></extra>"
+            ),
+            hoverlabel=dict(
+                bgcolor=WHITE,
+                bordercolor="#ccc",
+                font=dict(family=FONT_FAMILY, size=14),
             ),
         )
     )
@@ -176,7 +180,7 @@ def generate_household_impact_chart():
             x=0.5,
             font=dict(color=TEAL),
         ),
-        hovermode="x unified",
+        hovermode="closest",
     )
 
     output_path = Path(__file__).parent / "household_impact_chart.html"
