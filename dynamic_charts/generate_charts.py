@@ -28,6 +28,7 @@ GRID_COLOR = "#e0e0e0"
 AXIS_COLOR = "#666"
 REFERENCE_LINE_COLOR = "#666"
 WHITE = "#ffffff"
+FONT_FAMILY = "Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif"
 
 # Governor's Proposal reform parameters
 GOVERNOR_REFORM_PARAMS = dict(
@@ -109,17 +110,20 @@ def generate_household_impact_chart():
         line_width=2,
     )
 
-    # Benefit line
+    # Benefit line — matches calculator: type="monotone", strokeWidth={3},
+    # stroke="#319795", dot={false}, name="Change in Net Income"
     fig.add_trace(
         go.Scatter(
             x=x,
             y=y,
             mode="lines",
-            name="Change in net income",
-            line=dict(color=TEAL, width=3),
+            name="Change in Net Income",
+            line=dict(color=TEAL, width=3, shape="spline"),
+            # Tooltip matches calculator: label "Income: $X.XX", value "$X.XX"
             hovertemplate=(
-                "Income: $%{x:,.0f}<br>"
-                "Change in Net Income: $%{y:,.2f}<extra></extra>"
+                "Income: $%{x:,.2f}<br>"
+                "Change in Net Income : $%{y:,.2f}"
+                "<extra></extra>"
             ),
         )
     )
@@ -130,25 +134,28 @@ def generate_household_impact_chart():
                 f"<b>Change in Net Income from RI CTC Reform"
                 f" by Adjusted Gross Income ({YEAR})</b>"
             ),
-            font=dict(size=16, color="#1f2937"),
+            font=dict(size=18, color="#1f2937", family=FONT_FAMILY),
         ),
+        font=dict(family=FONT_FAMILY),
         xaxis=dict(
             title="",
-            tickformat="$,.0f",
-            tickprefix="",
             range=[0, X_AXIS_MAX],
+            # Match calculator: tickFormatter={formatIncome} → "$Xk"
+            tickvals=[150_000, 300_000, 500_000],
+            ticktext=["$150k", "$300k", "$500k"],
+            # Grid: strokeDasharray="3 3" stroke="#e0e0e0"
             gridcolor=GRID_COLOR,
-            griddash="dot",
+            griddash="3px,3px",
             linecolor=AXIS_COLOR,
             tickcolor=AXIS_COLOR,
             tickfont=dict(color=AXIS_COLOR),
-            tickvals=[150_000, 300_000, 500_000],
         ),
         yaxis=dict(
             title="",
-            tickformat="$,.0f",
+            # Match calculator: formatCurrency → "$X.XX" (2 decimal places)
+            tickformat="$,.2f",
             gridcolor=GRID_COLOR,
-            griddash="dot",
+            griddash="3px,3px",
             linecolor=AXIS_COLOR,
             tickcolor=AXIS_COLOR,
             tickfont=dict(color=AXIS_COLOR),
@@ -157,8 +164,9 @@ def generate_household_impact_chart():
         ),
         plot_bgcolor=WHITE,
         paper_bgcolor=WHITE,
+        # Match calculator: height={400}, margin={{ left: 20, right: 20, top: 5, bottom: 5 }}
         margin=dict(l=80, r=20, t=60, b=60),
-        height=450,
+        height=400,
         showlegend=True,
         legend=dict(
             orientation="h",
@@ -191,17 +199,19 @@ def generate_income_range_chart():
     avg_benefits = [b["avg_benefit"] for b in brackets]
 
     # Color bars: teal for positive, gray for negative
+    # Matches calculator: fill={entry.avg_benefit >= 0 ? '#319795' : '#64748B'}
     colors = [TEAL if v >= 0 else GRAY for v in avg_benefits]
 
     fig = go.Figure()
 
-    # Reference line at y=0
+    # Reference line at y=0 — matches calculator: stroke="#666" strokeWidth={2}
     fig.add_hline(
         y=0,
         line_color=REFERENCE_LINE_COLOR,
         line_width=2,
     )
 
+    # Tooltip matches calculator: formatCurrencyWithSign → "+$X.XX" / "-$X.XX"
     fig.add_trace(
         go.Bar(
             x=labels,
@@ -210,7 +220,8 @@ def generate_income_range_chart():
             name="Average Impact",
             hovertemplate=(
                 "%{x}<br>"
-                "Average Impact: %{customdata}<extra></extra>"
+                "Average Impact : %{customdata}"
+                "<extra></extra>"
             ),
             customdata=[
                 f"+${v:,.2f}" if v >= 0 else f"-${abs(v):,.2f}"
@@ -222,19 +233,24 @@ def generate_income_range_chart():
     fig.update_layout(
         title=dict(
             text="<b>Impact by Income Bracket</b>",
-            font=dict(size=16, color="#1f2937"),
+            font=dict(size=20, color="#1f2937", family=FONT_FAMILY),
         ),
+        font=dict(family=FONT_FAMILY),
         xaxis=dict(
             title="",
+            # Grid: strokeDasharray="3 3" stroke="#e0e0e0"
+            gridcolor=GRID_COLOR,
+            griddash="3px,3px",
             linecolor=AXIS_COLOR,
             tickcolor=AXIS_COLOR,
             tickfont=dict(color=AXIS_COLOR),
         ),
         yaxis=dict(
             title="",
-            tickformat="$,.0f",
+            # Match calculator: formatCurrencyWithSign → "+$X.XX" / "-$X.XX"
+            tickformat="+$,.2f",
             gridcolor=GRID_COLOR,
-            griddash="dot",
+            griddash="3px,3px",
             linecolor=AXIS_COLOR,
             tickcolor=AXIS_COLOR,
             tickfont=dict(color=AXIS_COLOR),
@@ -244,7 +260,7 @@ def generate_income_range_chart():
         plot_bgcolor=WHITE,
         paper_bgcolor=WHITE,
         margin=dict(l=80, r=20, t=60, b=60),
-        height=450,
+        height=400,
         showlegend=False,
         hovermode="x",
     )
