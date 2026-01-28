@@ -135,7 +135,7 @@ def generate_household_impact_chart():
     fig.update_layout(
         title=dict(
             text=(
-                f"<b>Change in Net Income from RI CTC Reform"
+                f"<b>Figure 1: Change in Net Income from RI CTC Reform"
                 f" by Adjusted Gross Income ({YEAR})</b>"
             ),
             font=dict(size=18, color="#1f2937", family=FONT_FAMILY),
@@ -156,7 +156,8 @@ def generate_household_impact_chart():
         ),
         yaxis=dict(
             title="",
-            tickformat="$,.0f",
+            tickprefix="$",
+            tickformat=",.0f",
             gridcolor=GRID_COLOR,
             griddash="3px,3px",
             linecolor=AXIS_COLOR,
@@ -235,7 +236,7 @@ def generate_income_range_chart():
 
     fig.update_layout(
         title=dict(
-            text="<b>Impact by Income Bracket</b>",
+            text="<b>Figure 2: Impact by Income Bracket</b>",
             font=dict(size=20, color="#1f2937", family=FONT_FAMILY),
         ),
         font=dict(family=FONT_FAMILY),
