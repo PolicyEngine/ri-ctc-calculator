@@ -156,8 +156,7 @@ def generate_household_impact_chart():
         ),
         yaxis=dict(
             title="",
-            # Match calculator: formatCurrency → "$X.XX" (2 decimal places)
-            tickformat="$,.2f",
+            tickformat="$,.0f",
             gridcolor=GRID_COLOR,
             griddash="3px,3px",
             linecolor=AXIS_COLOR,
@@ -248,6 +247,7 @@ def generate_income_range_chart():
             linecolor=AXIS_COLOR,
             tickcolor=AXIS_COLOR,
             tickfont=dict(color=AXIS_COLOR),
+            showspikes=False,
         ),
         yaxis=dict(
             title="",
@@ -266,7 +266,7 @@ def generate_income_range_chart():
         margin=dict(l=80, r=20, t=60, b=60),
         height=400,
         showlegend=False,
-        hovermode="x",
+        hovermode="closest",
     )
 
     output_path = Path(__file__).parent / "income_range_chart.html"
