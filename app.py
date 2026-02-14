@@ -69,7 +69,7 @@ def main():
         f"""
         <style>
         .stApp {{
-            font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            font-family: 'Inter', 'Helvetica', 'Arial', sans-serif;
         }}
         h1 {{
             color: {COLORS["primary"]};
@@ -939,7 +939,7 @@ def create_chart(
             ),
             plot_bgcolor="white",
             paper_bgcolor="white",
-            font=dict(family="Roboto, sans-serif"),
+            font=dict(family="Inter, sans-serif"),
             legend=dict(
                 orientation="h", yanchor="bottom", y=0.98, xanchor="right", x=1
             ),
@@ -1008,7 +1008,7 @@ def create_chart(
             ),
             plot_bgcolor="white",
             paper_bgcolor="white",
-            font=dict(family="Roboto, sans-serif"),
+            font=dict(family="Inter, sans-serif"),
             showlegend=False,
             margin=dict(l=80, r=40, t=60, b=80),
         )
