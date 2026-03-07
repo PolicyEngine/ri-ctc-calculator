@@ -2,6 +2,7 @@
 
 import { useAggregateImpact } from '@/hooks/useAggregateImpact';
 import type { ReformParams } from '@/lib/types';
+import { colors } from '@policyengine/design-system/tokens/colors';
 import {
   BarChart,
   Bar,
@@ -101,7 +102,7 @@ export default function AggregateImpact({ year, reformParams }: Props) {
 
         <div className={`rounded-lg p-6 border ${data.avg_benefit >= 0 ? 'bg-blue-50 border-blue-500' : 'bg-gray-100 border-gray-400'}`}>
           <p className="text-sm text-gray-700 mb-2">Average Impact</p>
-          <p className={`text-3xl font-bold ${data.avg_benefit >= 0 ? 'text-blue-600' : 'text-gray-600'}`} style={data.avg_benefit < 0 ? { color: '#64748B' } : {}}>
+          <p className={`text-3xl font-bold ${data.avg_benefit >= 0 ? 'text-blue-600' : 'text-gray-600'}`} style={data.avg_benefit < 0 ? { color: colors.secondary[500] } : {}}>
             {formatCurrencyWithSign(data.avg_benefit)}
           </p>
           <p className="text-xs text-gray-600 mt-1">Average annual impact per household</p>
@@ -112,12 +113,12 @@ export default function AggregateImpact({ year, reformParams }: Props) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-gray-50 rounded-lg p-6 border border-gray-300">
           <p className="text-sm text-gray-600 mb-2">Poverty Rate Change</p>
-          <p className={`text-3xl font-bold ${data.poverty_percent_change <= 0 ? 'text-green-700' : 'text-gray-600'}`} style={data.poverty_percent_change > 0 ? { color: '#64748B' } : {}}>
+          <p className={`text-3xl font-bold ${data.poverty_percent_change <= 0 ? 'text-green-700' : 'text-gray-600'}`} style={data.poverty_percent_change > 0 ? { color: colors.secondary[500] } : {}}>
             {data.poverty_percent_change >= 0 ? '+' : ''}{data.poverty_percent_change.toFixed(2)}%
           </p>
           <div className="mt-3 pt-3 border-t border-gray-200">
             <p className="text-xs text-gray-500 mb-1">Deep Poverty</p>
-            <p className={`text-lg font-semibold ${data.deep_poverty_percent_change <= 0 ? 'text-green-600' : 'text-gray-500'}`} style={data.deep_poverty_percent_change > 0 ? { color: '#64748B' } : {}}>
+            <p className={`text-lg font-semibold ${data.deep_poverty_percent_change <= 0 ? 'text-green-600' : 'text-gray-500'}`} style={data.deep_poverty_percent_change > 0 ? { color: colors.secondary[500] } : {}}>
               {data.deep_poverty_percent_change >= 0 ? '+' : ''}{data.deep_poverty_percent_change.toFixed(2)}%
             </p>
           </div>
@@ -125,12 +126,12 @@ export default function AggregateImpact({ year, reformParams }: Props) {
 
         <div className="bg-yellow-50 rounded-lg p-6 border border-yellow-500">
           <p className="text-sm text-gray-600 mb-2">Child Poverty Rate Change</p>
-          <p className={`text-3xl font-bold ${data.child_poverty_percent_change <= 0 ? 'text-green-700' : 'text-gray-600'}`} style={data.child_poverty_percent_change > 0 ? { color: '#64748B' } : {}}>
+          <p className={`text-3xl font-bold ${data.child_poverty_percent_change <= 0 ? 'text-green-700' : 'text-gray-600'}`} style={data.child_poverty_percent_change > 0 ? { color: colors.secondary[500] } : {}}>
             {data.child_poverty_percent_change >= 0 ? '+' : ''}{data.child_poverty_percent_change.toFixed(2)}%
           </p>
           <div className="mt-3 pt-3 border-t border-yellow-200">
             <p className="text-xs text-gray-500 mb-1">Deep Child Poverty</p>
-            <p className={`text-lg font-semibold ${data.deep_child_poverty_percent_change <= 0 ? 'text-green-600' : 'text-gray-500'}`} style={data.deep_child_poverty_percent_change > 0 ? { color: '#64748B' } : {}}>
+            <p className={`text-lg font-semibold ${data.deep_child_poverty_percent_change <= 0 ? 'text-green-600' : 'text-gray-500'}`} style={data.deep_child_poverty_percent_change > 0 ? { color: colors.secondary[500] } : {}}>
               {data.deep_child_poverty_percent_change >= 0 ? '+' : ''}{data.deep_child_poverty_percent_change.toFixed(2)}%
             </p>
           </div>
@@ -154,14 +155,14 @@ export default function AggregateImpact({ year, reformParams }: Props) {
         <div className="bg-white border rounded-lg p-6">
           <ResponsiveContainer width="100%" height={400}>
             <BarChart data={data.by_income_bracket}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-              <XAxis dataKey="bracket" stroke="#666" />
-              <YAxis tickFormatter={formatCurrencyWithSign} stroke="#666" width={80} />
+              <CartesianGrid strokeDasharray="3 3" stroke={colors.gray[200]} />
+              <XAxis dataKey="bracket" stroke={colors.gray[500]} />
+              <YAxis tickFormatter={formatCurrencyWithSign} stroke={colors.gray[500]} width={80} />
               <Tooltip formatter={(value: number) => formatCurrencyWithSign(value)} />
-              <ReferenceLine y={0} stroke="#666" strokeWidth={2} />
+              <ReferenceLine y={0} stroke={colors.gray[500]} strokeWidth={2} />
               <Bar dataKey="avg_benefit" name="Average Impact">
                 {data.by_income_bracket.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.avg_benefit >= 0 ? '#319795' : '#64748B'} />
+                  <Cell key={`cell-${index}`} fill={entry.avg_benefit >= 0 ? colors.primary[500] : colors.secondary[500]} />
                 ))}
               </Bar>
             </BarChart>
@@ -199,10 +200,10 @@ export default function AggregateImpact({ year, reformParams }: Props) {
                       <td className="px-4 py-3 text-sm text-gray-900">
                         {Math.round(bracket.beneficiaries).toLocaleString()}
                       </td>
-                      <td className={`px-4 py-3 text-sm font-semibold ${bracket.total_cost >= 0 ? 'text-green-600' : ''}`} style={bracket.total_cost < 0 ? { color: '#64748B' } : {}}>
+                      <td className={`px-4 py-3 text-sm font-semibold ${bracket.total_cost >= 0 ? 'text-green-600' : ''}`} style={bracket.total_cost < 0 ? { color: colors.secondary[500] } : {}}>
                         {formatCurrencyWithSign(bracket.total_cost)}
                       </td>
-                      <td className={`px-4 py-3 text-sm font-semibold ${bracket.avg_benefit >= 0 ? 'text-green-600' : ''}`} style={bracket.avg_benefit < 0 ? { color: '#64748B' } : {}}>
+                      <td className={`px-4 py-3 text-sm font-semibold ${bracket.avg_benefit >= 0 ? 'text-green-600' : ''}`} style={bracket.avg_benefit < 0 ? { color: colors.secondary[500] } : {}}>
                         {formatCurrencyWithSign(bracket.avg_benefit)}
                       </td>
                     </tr>
