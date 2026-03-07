@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useHouseholdImpact } from '@/hooks/useHouseholdImpact';
 import type { ReformParams } from '@/lib/types';
+import { colors } from '@policyengine/design-system/tokens/colors';
 import {
   LineChart,
   Line,
@@ -154,18 +155,18 @@ export default function ImpactAnalysis({
         </h3>
         <ResponsiveContainer width="100%" height={400}>
           <LineChart data={chartData} margin={{ left: 20, right: 20, top: 5, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+            <CartesianGrid strokeDasharray="3 3" stroke={colors.gray[200]} />
             <XAxis
               dataKey="income"
               type="number"
               tickFormatter={formatIncome}
-              stroke="#666"
+              stroke={colors.gray[500]}
               domain={[0, data.x_axis_max]}
               allowDataOverflow={false}
             />
             <YAxis
               tickFormatter={formatCurrency}
-              stroke="#666"
+              stroke={colors.gray[500]}
               width={80}
             />
             <Tooltip
@@ -173,11 +174,11 @@ export default function ImpactAnalysis({
               labelFormatter={(value: number) => `Income: ${formatCurrency(value)}`}
             />
             <Legend />
-            <ReferenceLine y={0} stroke="#666" strokeWidth={2} />
+            <ReferenceLine y={0} stroke={colors.gray[500]} strokeWidth={2} />
             <Line
               type="monotone"
               dataKey="benefit"
-              stroke="#319795"
+              stroke={colors.primary[500]}
               strokeWidth={3}
               name="Change in Net Income"
               dot={false}

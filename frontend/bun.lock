@@ -4,6 +4,7 @@
     "": {
       "name": "ri-ctc-calculator-frontend",
       "dependencies": {
+        "@policyengine/design-system": "^0.3.0",
         "@tanstack/react-query": "^5.17.19",
         "axios": "^1.6.5",
         "next": "^16",
@@ -128,6 +129,8 @@
     "@nolyfill/is-core-module": ["@nolyfill/is-core-module@1.0.39", "", {}, "sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA=="],
 
     "@pkgjs/parseargs": ["@pkgjs/parseargs@0.11.0", "", {}, "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg=="],
+
+    "@policyengine/design-system": ["@policyengine/design-system@0.3.0", "", { "peerDependencies": { "react": ">=18.0.0", "react-dom": ">=18.0.0" }, "optionalPeers": ["react", "react-dom"] }, "sha512-XgyXMr5SIEFRuqeCNTfmP42EorA3N/5+8Vfnu475l0rg7f0zIRMEjHjaiXPCPcWrH4NfRyRJfzIKYDg5TxQEgg=="],
 
     "@rtsao/scc": ["@rtsao/scc@1.1.0", "", {}, "sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g=="],
 
