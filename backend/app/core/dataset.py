@@ -6,7 +6,7 @@ from policyengine_us import Microsimulation
 logger = logging.getLogger(__name__)
 
 # Dataset path - change this to switch datasets (should match microsimulation.py)
-RI_DATASET_PATH = "hf://policyengine/test/RI-1.h5"
+RI_DATASET_PATH = "hf://policyengine/policyengine-us-data/states/RI.h5"
 
 
 class DatasetManager:
