@@ -47,3 +47,4 @@ Thumbs.db
 # Streamlit
 .streamlit/
 settings.local.json
+.vercel/
