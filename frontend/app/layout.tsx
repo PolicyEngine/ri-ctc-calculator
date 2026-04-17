@@ -5,7 +5,7 @@ import Script from 'next/script';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 
-const GA_ID = 'G-91M4529HE7';
+const GA_ID = 'G-2YHG89FY0N';
 const TOOL_NAME = 'ri-ctc-calculator';
 
 export default function RootLayout({
