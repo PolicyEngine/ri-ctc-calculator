@@ -1,25 +1,91 @@
-'use client';
-
+import type { Metadata } from 'next';
 import './globals.css';
 import Script from 'next/script';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState } from 'react';
+import Providers from '@/components/Providers';
 
 const GA_ID = 'G-2YHG89FY0N';
 const TOOL_NAME = 'ri-ctc-calculator';
+
+const SITE_URL = 'https://ri-ctc-calculator.policyengine.org';
+const TITLE = 'Rhode Island Child Tax Credit Calculator | PolicyEngine';
+const DESCRIPTION =
+  'Calculate the impact of Rhode Island\'s Child Tax Credit on your household and the state. Design a RI child tax credit, see your household benefit, and explore statewide fiscal impact.';
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  metadataBase: new URL(SITE_URL),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: SITE_URL,
+    siteName: 'PolicyEngine',
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: TITLE,
+    description: DESCRIPTION,
+    site: '@ThePolicyEngine',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-snippet': -1,
+      'max-image-preview': 'large',
+      'max-video-preview': -1,
+    },
+  },
+  other: {
+    'theme-color': '#319795',
+  },
+};
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [queryClient] = useState(() => new QueryClient());
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Rhode Island Child Tax Credit Calculator',
+    description: DESCRIPTION,
+    url: SITE_URL,
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: 'All',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    creator: {
+      '@type': 'Organization',
+      name: 'PolicyEngine',
+      url: 'https://policyengine.org',
+    },
+  };
 
   return (
     <html lang="en">
       <head>
-        <title>Rhode Island Child Tax Credit Calculator</title>
-        <meta name="description" content="Calculate the impact of Rhode Island's Child Tax Credit" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono&display=swap"
+          rel="stylesheet"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
           strategy="afterInteractive"
@@ -78,9 +144,9 @@ export default function RootLayout({
         </Script>
       </head>
       <body>
-        <QueryClientProvider client={queryClient}>
+        <Providers>
           {children}
-        </QueryClientProvider>
+        </Providers>
       </body>
     </html>
   );
