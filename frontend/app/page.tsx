@@ -85,7 +85,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-primary-500 text-white py-8 px-4 shadow-md">
+      <header className="bg-primary-500 text-white py-8 px-4 shadow-md">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-4xl font-bold mb-2">
             Rhode Island Child Tax Credit Calculator
@@ -94,12 +94,12 @@ export default function Home() {
             Design a Rhode Island child tax credit and see how it would affect your household and the state
           </p>
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Left Sidebar: Configuration Form */}
-          <div className="lg:col-span-1">
+          <aside className="lg:col-span-1" aria-label="Household configuration">
             <HouseholdForm
               ageHead={ageHead}
               setAgeHead={setAgeHead}
@@ -119,10 +119,10 @@ export default function Home() {
               calculationTriggered={calculationTriggered}
               hasChanges={hasChanges}
             />
-          </div>
+          </aside>
 
           {/* Main Content Area */}
-          <div className="lg:col-span-3">
+          <section className="lg:col-span-3" aria-label="Results">
             {!calculationTriggered ? (
               <div className="bg-white rounded-lg shadow-md p-8">
                 <h2 className="text-2xl font-bold text-primary mb-4">Get Started</h2>
@@ -140,8 +140,11 @@ export default function Home() {
             ) : (
               <>
                 {/* Tabs */}
-                <div className="flex space-x-1 mb-4">
+                <nav aria-label="Results tabs" className="flex space-x-1 mb-4" role="tablist">
                   <button
+                    role="tab"
+                    aria-selected={activeTab === 'impact'}
+                    aria-controls="panel-impact"
                     onClick={() => setActiveTab('impact')}
                     className={`px-6 py-3 rounded-t-lg font-semibold transition-colors ${
                       activeTab === 'impact'
@@ -152,6 +155,9 @@ export default function Home() {
                     Impact Analysis
                   </button>
                   <button
+                    role="tab"
+                    aria-selected={activeTab === 'aggregate'}
+                    aria-controls="panel-aggregate"
                     onClick={() => setActiveTab('aggregate')}
                     className={`px-6 py-3 rounded-t-lg font-semibold transition-colors ${
                       activeTab === 'aggregate'
@@ -161,28 +167,32 @@ export default function Home() {
                   >
                     Statewide Impact
                   </button>
-                </div>
+                </nav>
 
                 {/* Tab Content */}
                 <div className="bg-white rounded-lg shadow-md p-6">
                   {activeTab === 'impact' ? (
-                    <ImpactAnalysis
-                      ageHead={calculatedAgeHead}
-                      ageSpouse={calculatedMarried ? calculatedAgeSpouse : null}
-                      dependentAges={calculatedDependentAges}
-                      income={calculatedIncome}
-                      year={calculatedYear}
-                      reformParams={calculatedReformParams}
-                    />
+                    <div id="panel-impact" role="tabpanel" aria-label="Impact Analysis">
+                      <ImpactAnalysis
+                        ageHead={calculatedAgeHead}
+                        ageSpouse={calculatedMarried ? calculatedAgeSpouse : null}
+                        dependentAges={calculatedDependentAges}
+                        income={calculatedIncome}
+                        year={calculatedYear}
+                        reformParams={calculatedReformParams}
+                      />
+                    </div>
                   ) : (
-                    <AggregateImpact year={calculatedYear} reformParams={calculatedReformParams} />
+                    <div id="panel-aggregate" role="tabpanel" aria-label="Statewide Impact">
+                      <AggregateImpact year={calculatedYear} reformParams={calculatedReformParams} />
+                    </div>
                   )}
                 </div>
               </>
             )}
-          </div>
+          </section>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

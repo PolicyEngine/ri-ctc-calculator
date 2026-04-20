@@ -2,8 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import PolicyEngine fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono&display=swap');
+/* PolicyEngine fonts are loaded via <link> tags in layout.tsx for better performance */
 
 :root {
   /* PolicyEngine brand colors */
