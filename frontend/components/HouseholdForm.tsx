@@ -23,6 +23,43 @@ interface Props {
   hasChanges: boolean;
 }
 
+function StepHeader({
+  stepNumber,
+  title,
+  isExpanded,
+  onClick,
+}: {
+  stepNumber: number;
+  title: string;
+  isExpanded: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
+        isExpanded
+          ? 'bg-primary-50 border-2 border-primary-500'
+          : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent'
+      }`}
+    >
+      <div className="flex items-center space-x-3">
+        <div className={`w-8 h-8 flex-shrink-0 rounded-full flex items-center justify-center font-semibold ${
+          isExpanded
+            ? 'bg-primary-500 text-white'
+            : 'bg-gray-300 text-gray-600'
+        }`}>
+          {stepNumber}
+        </div>
+        <span className={`font-semibold ${isExpanded ? 'text-primary-600' : 'text-gray-700'}`}>
+          {title}
+        </span>
+      </div>
+      <span className="text-gray-400">{isExpanded ? '▼' : '▶'}</span>
+    </button>
+  );
+}
+
 export default function HouseholdForm({
   ageHead,
   setAgeHead,
@@ -93,39 +130,6 @@ export default function HouseholdForm({
     return isNaN(num) ? 0 : num;
   };
 
-  const StepHeader = ({
-    stepNumber,
-    title,
-    isExpanded
-  }: {
-    stepNumber: number;
-    title: string;
-    isExpanded: boolean;
-  }) => (
-    <button
-      onClick={() => toggleStep(stepNumber)}
-      className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
-        isExpanded
-          ? 'bg-primary-50 border-2 border-primary-500'
-          : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent'
-      }`}
-    >
-      <div className="flex items-center space-x-3">
-        <div className={`w-8 h-8 flex-shrink-0 rounded-full flex items-center justify-center font-semibold ${
-          isExpanded
-            ? 'bg-primary-500 text-white'
-            : 'bg-gray-300 text-gray-600'
-        }`}>
-          {stepNumber}
-        </div>
-        <span className={`font-semibold ${isExpanded ? 'text-primary-600' : 'text-gray-700'}`}>
-          {title}
-        </span>
-      </div>
-      <span className="text-gray-400">{isExpanded ? '▼' : '▶'}</span>
-    </button>
-  );
-
   return (
     <div className="bg-white rounded-lg shadow-md p-6 space-y-4 sticky top-4">
       <div className="mb-6">
@@ -139,6 +143,7 @@ export default function HouseholdForm({
           stepNumber={1}
           title="Household & Dependents"
           isExpanded={expandedStep === 1}
+          onClick={() => toggleStep(1)}
         />
         {expandedStep === 1 && (
           <div className="mt-4 space-y-4 pl-2">
@@ -286,6 +291,7 @@ export default function HouseholdForm({
           stepNumber={2}
           title="Reform Options"
           isExpanded={expandedStep === 2}
+          onClick={() => toggleStep(2)}
         />
         {expandedStep === 2 && (
           <div className="mt-4 space-y-4 pl-2">

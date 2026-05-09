@@ -1,36 +1,92 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "@policyengine/ui-kit/theme.css";
 
-/* PolicyEngine fonts are loaded via <link> tags in layout.tsx for better performance */
+/* Tailwind v4 theme tokens — preserved from the legacy `tailwind.config.js`
+   theme.extend block so utility classes (font-sans, gray-*, primary-*) keep the
+   PolicyEngine palette and Inter font. */
+@theme {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  --font-secondary: "Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  --font-body: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", Consolas, monospace;
+
+  --color-primary-50: #e6fffa;
+  --color-primary-100: #b2f5ea;
+  --color-primary-200: #81e6d9;
+  --color-primary-300: #4fd1c5;
+  --color-primary-400: #38b2ac;
+  --color-primary-500: #319795;
+  --color-primary-600: #2c7a7b;
+  --color-primary-700: #285e61;
+  --color-primary-800: #234e52;
+  --color-primary-900: #1d4044;
+
+  --color-secondary-50: #f0f9ff;
+  --color-secondary-100: #f2f4f7;
+  --color-secondary-200: #e2e8f0;
+  --color-secondary-300: #cbd5e1;
+  --color-secondary-400: #94a3b8;
+  --color-secondary-500: #64748b;
+  --color-secondary-600: #475569;
+  --color-secondary-700: #344054;
+  --color-secondary-800: #1e293b;
+  --color-secondary-900: #101828;
+
+  --color-blue-50: #f0f9ff;
+  --color-blue-100: #e0f2fe;
+  --color-blue-200: #bae6fd;
+  --color-blue-300: #7dd3fc;
+  --color-blue-400: #38bdf8;
+  --color-blue-500: #0ea5e9;
+  --color-blue-600: #0284c7;
+  --color-blue-700: #026aa2;
+  --color-blue-800: #075985;
+  --color-blue-900: #0c4a6e;
+
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f2f4f7;
+  --color-gray-200: #e2e8f0;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #344054;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #101828;
+
+  --color-success: #22c55e;
+  --color-warning: #fec601;
+  --color-error: #ef4444;
+  --color-info: #1890ff;
+}
 
 :root {
-  /* PolicyEngine brand colors */
   --primary: #319795;
-  --secondary: #64748B;
-  --success: #22C55E;
-  --warning: #FEC601;
-  --error: #EF4444;
-  --info: #1890FF;
+  --secondary: #64748b;
+  --success: #22c55e;
+  --warning: #fec601;
+  --error: #ef4444;
+  --info: #1890ff;
 
-  /* Background colors */
-  --bg-primary: #FFFFFF;
-  --bg-secondary: #F5F9FF;
-  --bg-tertiary: #F1F5F9;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f9ff;
+  --bg-tertiary: #f1f5f9;
 
-  /* Text colors */
   --text-primary: #000000;
-  --text-secondary: #5A5A5A;
-  --text-tertiary: #9CA3AF;
+  --text-secondary: #5a5a5a;
+  --text-tertiary: #9ca3af;
 
-  /* Border colors */
-  --border-light: #E2E8F0;
-  --border-medium: #CBD5E1;
-  --border-dark: #94A3B8;
+  --border-light: #e2e8f0;
+  --border-medium: #cbd5e1;
+  --border-dark: #94a3b8;
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    sans-serif;
   color: var(--text-primary);
   background-color: var(--bg-secondary);
 }
@@ -40,12 +96,13 @@ body {
     text-wrap: balance;
   }
 
-  /* PolicyEngine utility classes */
   .font-body {
-    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI",
+      sans-serif;
   }
 
   .font-secondary {
-    font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: "Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+      sans-serif;
   }
 }
