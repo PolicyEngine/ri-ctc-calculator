@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Script from 'next/script';
 import Providers from '@/components/Providers';
+import PolicyEngineHeader from '@/components/PolicyEngineHeader';
 
 const GA_ID = 'G-2YHG89FY0N';
 const TOOL_NAME = 'ri-ctc-calculator';
@@ -144,6 +145,7 @@ export default function RootLayout({
         </Script>
       </head>
       <body>
+        <PolicyEngineHeader />
         <Providers>
           {children}
         </Providers>
