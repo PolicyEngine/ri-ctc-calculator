@@ -1,3 +1,6 @@
+import { PolicyEngineShell } from "@policyengine/ui-kit/layout";
+import "@policyengine/ui-kit/styles.css";
+
 import type { Metadata } from 'next';
 import './globals.css';
 import Script from 'next/script';
@@ -144,9 +147,11 @@ export default function RootLayout({
         </Script>
       </head>
       <body>
+        <PolicyEngineShell country="us">
         <Providers>
           {children}
         </Providers>
+              </PolicyEngineShell>
       </body>
     </html>
   );
