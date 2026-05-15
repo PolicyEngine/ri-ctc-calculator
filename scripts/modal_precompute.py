@@ -35,9 +35,6 @@ image = (
 )
 
 hf_cache = modal.Volume.from_name("ri-ctc-hf-cache", create_if_missing=True)
-hf_secret = modal.Secret.from_name(
-    "huggingface", required_keys=[], environment_name=None
-)
 
 app = modal.App("ri-ctc-precompute")
 
@@ -48,7 +45,6 @@ app = modal.App("ri-ctc-precompute")
     cpu=2.0,
     timeout=3600,
     volumes={"/root/.cache/huggingface": hf_cache},
-    secrets=[hf_secret],
 )
 def precompute() -> dict[str, str]:
     """Run the precompute and return the two JSON payloads keyed by preset_id."""

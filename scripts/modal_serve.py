@@ -52,12 +52,6 @@ image = (
 # re-download on every cold start.
 hf_cache = modal.Volume.from_name("ri-ctc-hf-cache", create_if_missing=True)
 
-# Optional HF token in case the dataset becomes gated; safe no-op if absent.
-hf_secret = modal.Secret.from_name(
-    "huggingface", required_keys=[], environment_name=None
-)
-
-
 app = modal.App("ri-ctc-api")
 
 
@@ -67,7 +61,6 @@ app = modal.App("ri-ctc-api")
     cpu=2.0,
     timeout=600,
     volumes={"/root/.cache/huggingface": hf_cache},
-    secrets=[hf_secret],
     scaledown_window=600,  # 10 min idle before scale-to-zero
     min_containers=0,
 )
