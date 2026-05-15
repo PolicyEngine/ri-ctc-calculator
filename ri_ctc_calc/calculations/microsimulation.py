@@ -5,7 +5,10 @@ import pandas as pd
 import numpy as np
 
 
-def calculate_aggregate_impact(reform, year=2027):
+RI_DATASET_PATH = "hf://policyengine/policyengine-us-data/states/RI.h5"
+
+
+def calculate_aggregate_impact(reform, year=2027, baseline_sim=None):
     """Calculate aggregate impact of RI CTC reform on Rhode Island population.
 
     Uses the Rhode Island microsimulation dataset to estimate statewide impact.
@@ -13,6 +16,10 @@ def calculate_aggregate_impact(reform, year=2027):
     Args:
         reform: PolicyEngine reform object
         year: Tax year for the simulation (2026 or 2027)
+        baseline_sim: Optional pre-loaded baseline ``Microsimulation``. Pass
+            this in to skip the (~30 s) RI.h5 load when running multiple
+            reforms back-to-back (e.g., the precompute pipeline). When
+            ``None`` a fresh baseline is loaded.
 
     Returns:
         dict: Aggregate impact statistics including:
@@ -24,8 +31,11 @@ def calculate_aggregate_impact(reform, year=2027):
     """
     # Load baseline and reform simulations
     # We need to look at NET INCOME change to capture both CTC and exemption effects
-    sim_baseline = Microsimulation(dataset="hf://policyengine/policyengine-us-data/states/RI.h5")
-    sim_reform = Microsimulation(dataset="hf://policyengine/policyengine-us-data/states/RI.h5", reform=reform)
+    if baseline_sim is None:
+        sim_baseline = Microsimulation(dataset=RI_DATASET_PATH)
+    else:
+        sim_baseline = baseline_sim
+    sim_reform = Microsimulation(dataset=RI_DATASET_PATH, reform=reform)
 
     # Calculate household net income for both scenarios
     # This captures the total impact: CTC + tax savings from exemption changes

@@ -1,25 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import HouseholdForm from '@/components/HouseholdForm';
 import ImpactAnalysis from '@/components/ImpactAnalysis';
 import AggregateImpact from '@/components/AggregateImpact';
+import SampleFamilyImpacts from '@/components/SampleFamilyImpacts';
 import type { ReformParams } from '@/lib/types';
+import {
+  PRESET_YEAR,
+  presetReformParams,
+  type PresetId,
+} from '@/lib/presets';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'impact' | 'aggregate'>('impact');
   const [calculationTriggered, setCalculationTriggered] = useState(false);
 
   // Household configuration (current form values)
-  const [ageHead, setAgeHead] = useState(35);
-  const [ageSpouse, setAgeSpouse] = useState<number | null>(null);
-  const [married, setMarried] = useState(false);
-  const [dependentAges, setDependentAges] = useState<number[]>([5]);
-  const [income, setIncome] = useState(50000);
-  const [year, setYear] = useState(2027);
+  const [ageHead, _setAgeHead] = useState(35);
+  const [ageSpouse, _setAgeSpouse] = useState<number | null>(null);
+  const [married, _setMarried] = useState(false);
+  const [dependentAges, _setDependentAges] = useState<number[]>([5]);
+  const [income, _setIncome] = useState(50000);
+  const [year, _setYear] = useState(2027);
 
   // Reform parameters with defaults
-  const [reformParams, setReformParams] = useState<ReformParams>({
+  const [reformParams, _setReformParams] = useState<ReformParams>({
     ctc_amount: 1000,
     ctc_age_limit: 18,
     ctc_refundability_cap: 0,
@@ -31,7 +37,6 @@ export default function Home() {
       SURVIVING_SPOUSE: 0,
       SEPARATE: 0,
     },
-    // Stepped phaseout parameters (Governor's proposal style)
     ctc_stepped_phaseout: false,
     ctc_stepped_phaseout_threshold: 0,
     ctc_stepped_phaseout_increment: 0,
@@ -52,6 +57,58 @@ export default function Home() {
     },
   });
 
+  // Which Governor's-proposal preset, if any, is currently active. Any
+  // user edit to a reform or household field clears this back to null so
+  // we fall through to the live calculator instead of the precomputed JSON.
+  const [activePresetId, setActivePresetId] = useState<PresetId | null>(null);
+
+  // Wrapped setters that clear the preset selection on any manual edit.
+  const setAgeHead = useCallback((v: number) => {
+    setActivePresetId(null);
+    _setAgeHead(v);
+  }, []);
+  const setAgeSpouse = useCallback((v: number | null) => {
+    setActivePresetId(null);
+    _setAgeSpouse(v);
+  }, []);
+  const setMarried = useCallback((v: boolean) => {
+    setActivePresetId(null);
+    _setMarried(v);
+  }, []);
+  const setDependentAges = useCallback((v: number[]) => {
+    setActivePresetId(null);
+    _setDependentAges(v);
+  }, []);
+  const setIncome = useCallback((v: number) => {
+    setActivePresetId(null);
+    _setIncome(v);
+  }, []);
+  const setYear = useCallback((v: number) => {
+    setActivePresetId(null);
+    _setYear(v);
+  }, []);
+  const setReformParams = useCallback((v: ReformParams) => {
+    setActivePresetId(null);
+    _setReformParams(v);
+  }, []);
+
+  const applyPreset = useCallback((id: PresetId) => {
+    // GA4 parity (PR #36).
+    if (
+      typeof window !== 'undefined' &&
+      (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag
+    ) {
+      (window as unknown as { gtag: (...args: unknown[]) => void }).gtag(
+        'event',
+        'preset_applied',
+        { preset_id: id },
+      );
+    }
+    _setReformParams(presetReformParams(id));
+    _setYear(PRESET_YEAR);
+    setActivePresetId(id);
+  }, []);
+
   // Last calculated params (the ones actually used for calculation)
   const [calculatedAgeHead, setCalculatedAgeHead] = useState(35);
   const [calculatedAgeSpouse, setCalculatedAgeSpouse] = useState<number | null>(null);
@@ -60,6 +117,7 @@ export default function Home() {
   const [calculatedIncome, setCalculatedIncome] = useState(50000);
   const [calculatedYear, setCalculatedYear] = useState(2027);
   const [calculatedReformParams, setCalculatedReformParams] = useState<ReformParams>(reformParams);
+  const [calculatedPresetId, setCalculatedPresetId] = useState<PresetId | null>(null);
 
   // Check if anything has changed since last calculation
   const hasChanges =
@@ -69,7 +127,8 @@ export default function Home() {
     JSON.stringify(dependentAges) !== JSON.stringify(calculatedDependentAges) ||
     income !== calculatedIncome ||
     year !== calculatedYear ||
-    JSON.stringify(reformParams) !== JSON.stringify(calculatedReformParams);
+    JSON.stringify(reformParams) !== JSON.stringify(calculatedReformParams) ||
+    activePresetId !== calculatedPresetId;
 
   const handleCalculate = () => {
     setCalculationTriggered(true);
@@ -80,6 +139,7 @@ export default function Home() {
     setCalculatedIncome(income);
     setCalculatedYear(year);
     setCalculatedReformParams(reformParams);
+    setCalculatedPresetId(activePresetId);
   };
 
   return (
@@ -115,6 +175,8 @@ export default function Home() {
               setYear={setYear}
               reformParams={reformParams}
               setReformParams={setReformParams}
+              onApplyPreset={applyPreset}
+              activePresetId={activePresetId}
               onCalculate={handleCalculate}
               calculationTriggered={calculationTriggered}
               hasChanges={hasChanges}
@@ -180,11 +242,19 @@ export default function Home() {
                         income={calculatedIncome}
                         year={calculatedYear}
                         reformParams={calculatedReformParams}
+                        presetId={calculatedPresetId}
                       />
+                      {calculatedPresetId && (
+                        <SampleFamilyImpacts presetId={calculatedPresetId} />
+                      )}
                     </div>
                   ) : (
                     <div id="panel-aggregate" role="tabpanel" aria-label="Statewide Impact">
-                      <AggregateImpact year={calculatedYear} reformParams={calculatedReformParams} />
+                      <AggregateImpact
+                        year={calculatedYear}
+                        reformParams={calculatedReformParams}
+                        presetId={calculatedPresetId}
+                      />
                     </div>
                   )}
                 </div>
