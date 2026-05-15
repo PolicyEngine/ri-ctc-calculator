@@ -16,9 +16,11 @@ import type { PresetId, PresetPayload } from "./presets";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 // Multi-zone basePath prefix. When the calculator is embedded under
-// /us/rhode-island-ctc-calculator, static fetches must include this
-// prefix or they 404 in production.
-const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
+// /us/rhode-island-ctc-calculator (the default in next.config.js),
+// static fetches must include this prefix or they 404. Mirror the
+// next.config.js default so this works in dev without env wiring.
+const BASE_PATH =
+  process.env.NEXT_PUBLIC_BASE_PATH ?? "/us/rhode-island-ctc-calculator";
 
 // Timeout for API requests (2 minutes for aggregate calculations)
 const DEFAULT_TIMEOUT = 120000;
