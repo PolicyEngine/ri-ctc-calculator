@@ -15,12 +15,21 @@ import type { PresetId, PresetPayload } from "./presets";
 // API base URL from environment variable, defaults to localhost:8080
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
-// Multi-zone basePath prefix. When the calculator is embedded under
-// /us/rhode-island-ctc-calculator (the default in next.config.js),
-// static fetches must include this prefix or they 404. Mirror the
-// next.config.js default so this works in dev without env wiring.
-const BASE_PATH =
-  process.env.NEXT_PUBLIC_BASE_PATH || "/us/rhode-island-ctc-calculator";
+// Multi-zone basePath prefix. The calculator embeds under
+// /us/rhode-island-ctc-calculator; static fetches must include this
+// prefix or they 404. The env-block injection from next.config.js
+// proved unreliable across Turbopack rebuilds, so derive from
+// window.location at runtime with a hard-coded fallback for SSR.
+const FALLBACK_BASE_PATH = "/us/rhode-island-ctc-calculator";
+
+function getBasePath(): string {
+  if (typeof window !== "undefined") {
+    const path = window.location.pathname;
+    const idx = path.indexOf(FALLBACK_BASE_PATH);
+    if (idx !== -1) return path.slice(0, idx + FALLBACK_BASE_PATH.length);
+  }
+  return process.env.NEXT_PUBLIC_BASE_PATH || FALLBACK_BASE_PATH;
+}
 
 // Timeout for API requests (2 minutes for aggregate calculations)
 const DEFAULT_TIMEOUT = 120000;
@@ -69,7 +78,7 @@ async function fetchWithTimeout(
 export async function fetchPresetPayload(
   presetId: PresetId,
 ): Promise<PresetPayload> {
-  const url = `${BASE_PATH}/data/presets/${presetId}.json`;
+  const url = `${getBasePath()}/data/presets/${presetId}.json`;
   const response = await fetch(url, { cache: "force-cache" });
   if (!response.ok) {
     throw new ApiError(
