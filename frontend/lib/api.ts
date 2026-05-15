@@ -79,7 +79,9 @@ export async function fetchPresetPayload(
   presetId: PresetId,
 ): Promise<PresetPayload> {
   const url = `${getBasePath()}/data/presets/${presetId}.json`;
-  const response = await fetch(url, { cache: "force-cache" });
+  console.log("[preset] fetching", url);
+  const response = await fetch(url, { cache: "no-store" });
+  console.log("[preset] response", response.status, response.url);
   if (!response.ok) {
     throw new ApiError(
       `Failed to load preset ${presetId}: HTTP ${response.status}`,
