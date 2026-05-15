@@ -7,8 +7,10 @@ import AggregateImpact from '@/components/AggregateImpact';
 import SampleFamilyImpacts from '@/components/SampleFamilyImpacts';
 import type { ReformParams } from '@/lib/types';
 import {
+  EXAMPLE_PROFILES,
   PRESET_YEAR,
   presetReformParams,
+  type ExampleProfile,
   type PresetId,
 } from '@/lib/presets';
 
@@ -107,6 +109,18 @@ export default function Home() {
     _setReformParams(presetReformParams(id));
     _setYear(PRESET_YEAR);
     setActivePresetId(id);
+  }, []);
+
+  // Apply one of the precomputed example profiles to the household form
+  // WITHOUT clearing the active preset (raw setters skip the dirty trigger).
+  // The household chart below will then hydrate from the preset JSON via
+  // useHouseholdImpact's matchingExampleId branch.
+  const applyExample = useCallback((profile: ExampleProfile) => {
+    _setAgeHead(profile.age_head);
+    _setMarried(profile.married);
+    _setAgeSpouse(profile.married ? profile.age_spouse : null);
+    _setDependentAges([...profile.dependent_ages]);
+    _setIncome(profile.income);
   }, []);
 
   // Last calculated params (the ones actually used for calculation)
@@ -234,7 +248,50 @@ export default function Home() {
                 {/* Tab Content */}
                 <div className="bg-white rounded-lg shadow-md p-6">
                   {activeTab === 'impact' ? (
-                    <div id="panel-impact" role="tabpanel" aria-label="Impact Analysis">
+                    <div
+                      id="panel-impact"
+                      role="tabpanel"
+                      aria-label="Impact Analysis"
+                      className="space-y-6"
+                    >
+                      {calculatedPresetId && (
+                        <SampleFamilyImpacts
+                          presetId={calculatedPresetId}
+                          activeExampleId={
+                            EXAMPLE_PROFILES.find(
+                              (p) =>
+                                p.age_head === calculatedAgeHead &&
+                                p.married === calculatedMarried &&
+                                p.income === calculatedIncome &&
+                                p.dependent_ages.length ===
+                                  calculatedDependentAges.length &&
+                                p.dependent_ages.every(
+                                  (a, i) => a === calculatedDependentAges[i],
+                                ),
+                            )?.id ?? null
+                          }
+                          onSelectExample={(profile) => {
+                            applyExample(profile);
+                            // Re-run the calculation against the new profile so
+                            // the chart hydrates from the precomputed JSON.
+                            setCalculationTriggered(true);
+                            setCalculatedAgeHead(profile.age_head);
+                            setCalculatedAgeSpouse(
+                              profile.married ? profile.age_spouse : null,
+                            );
+                            setCalculatedMarried(profile.married);
+                            setCalculatedDependentAges([
+                              ...profile.dependent_ages,
+                            ]);
+                            setCalculatedIncome(profile.income);
+                            setCalculatedYear(PRESET_YEAR);
+                            setCalculatedReformParams(
+                              presetReformParams(calculatedPresetId),
+                            );
+                            setCalculatedPresetId(calculatedPresetId);
+                          }}
+                        />
+                      )}
                       <ImpactAnalysis
                         ageHead={calculatedAgeHead}
                         ageSpouse={calculatedMarried ? calculatedAgeSpouse : null}
@@ -244,9 +301,6 @@ export default function Home() {
                         reformParams={calculatedReformParams}
                         presetId={calculatedPresetId}
                       />
-                      {calculatedPresetId && (
-                        <SampleFamilyImpacts presetId={calculatedPresetId} />
-                      )}
                     </div>
                   ) : (
                     <div id="panel-aggregate" role="tabpanel" aria-label="Statewide Impact">

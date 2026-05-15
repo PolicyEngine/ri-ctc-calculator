@@ -3,18 +3,26 @@
 import { useEffect, useState } from 'react';
 import { fetchPresetPayload } from '@/lib/api';
 import {
+  EXAMPLE_PROFILES,
   PRESETS,
+  type ExampleProfile,
   type PresetId,
   type PresetPayload,
 } from '@/lib/presets';
 
 interface Props {
   presetId: PresetId;
+  /** Currently-selected example profile id (so the matching card is highlighted). */
+  activeExampleId?: string | null;
+  /** Called when the user clicks a sample-family card. The parent should
+   * apply the profile to the household form so the impact chart below
+   * hydrates from the precomputed JSON. */
+  onSelectExample?: (profile: ExampleProfile) => void;
 }
 
 function formatUsd(value: number): string {
   const abs = Math.abs(value);
-  const sign = value < 0 ? '−' : '';
+  const sign = value < 0 ? '\u2212' : '';
   if (abs >= 1000) {
     return `${sign}$${Math.round(abs).toLocaleString('en-US')}`;
   }
@@ -22,11 +30,17 @@ function formatUsd(value: number): string {
 }
 
 /**
- * Three illustrative household outcomes rendered alongside the active
- * preset's impact analysis. Data is read from the precomputed preset
- * JSON so it appears instantly with no API call.
+ * Three illustrative household outcomes rendered above the household
+ * net-income chart. Data is read from the precomputed preset JSON so it
+ * appears instantly with no API call. Clicking a card applies that
+ * profile to the household form — the chart then hydrates from the
+ * same precomputed JSON.
  */
-export default function SampleFamilyImpacts({ presetId }: Props) {
+export default function SampleFamilyImpacts({
+  presetId,
+  activeExampleId,
+  onSelectExample,
+}: Props) {
   const [payload, setPayload] = useState<PresetPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const preset = PRESETS[presetId];
@@ -51,7 +65,7 @@ export default function SampleFamilyImpacts({ presetId }: Props) {
 
   if (error) {
     return (
-      <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
         Could not load the sample-family impacts ({error}).
       </div>
     );
@@ -59,29 +73,40 @@ export default function SampleFamilyImpacts({ presetId }: Props) {
 
   if (!payload) {
     return (
-      <div className="mt-6 bg-white border border-gray-200 rounded-lg p-4 text-sm text-gray-500">
-        Loading sample-family impacts…
+      <div className="bg-white border border-gray-200 rounded-lg p-4 text-sm text-gray-500">
+        Loading sample-family impacts&hellip;
       </div>
     );
   }
 
   return (
-    <section className="mt-6 bg-white border border-gray-200 rounded-lg p-5">
+    <section className="bg-white border border-gray-200 rounded-lg p-5">
       <h3 className="text-lg font-semibold text-gray-800 mb-1">
         Sample family impacts
       </h3>
       <p className="text-sm text-gray-500 mb-4">
         How {preset.label.replace(/'/g, '\u2019')} ($
         {preset.ctcAmount}/child) would affect three representative Rhode
-        Island households in {payload.year}.
+        Island households in {payload.year}. Click a card to load its
+        net-income chart below.
       </p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {payload.examples.map((ex) => {
+          const profile =
+            EXAMPLE_PROFILES.find((p) => p.id === ex.profile.id) ?? ex.profile;
           const change = ex.household.benefit_at_income.difference;
+          const isActive = activeExampleId === ex.profile.id;
           return (
-            <div
+            <button
               key={ex.profile.id}
-              className="rounded-lg border border-gray-200 p-4 bg-gray-50"
+              type="button"
+              onClick={() => onSelectExample?.(profile)}
+              aria-pressed={isActive}
+              className={`text-left rounded-lg border p-4 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 ${
+                isActive
+                  ? 'border-primary-500 bg-primary-50 shadow-sm'
+                  : 'border-gray-200 bg-gray-50 hover:bg-white hover:border-primary-300'
+              }`}
             >
               <p className="text-sm font-medium text-gray-800 mb-2">
                 {ex.profile.label}
@@ -101,7 +126,7 @@ export default function SampleFamilyImpacts({ presetId }: Props) {
               <p className="text-xs text-gray-500 mt-1">
                 Annual change in net income
               </p>
-            </div>
+            </button>
           );
         })}
       </div>
