@@ -67,13 +67,13 @@ EXAMPLE_PROFILES = [
         "income": 50000,
     },
     {
-        "id": "married-2kid-100k",
-        "label": "Married couple, two children, $100k income",
+        "id": "married-2kid-150k",
+        "label": "Married couple, two children, $150k income",
         "age_head": 35,
         "age_spouse": 35,
         "married": True,
         "dependent_ages": [5, 8],
-        "income": 100000,
+        "income": 150000,
     },
 ]
 
