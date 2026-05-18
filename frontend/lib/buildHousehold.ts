@@ -26,10 +26,6 @@ interface PEPerson {
 interface PETaxUnit {
   members: string[];
   filing_status?: Record<string, string>;
-  premium_tax_credit?: Record<string, number | null>;
-  // Output variables requested back from the simulation:
-  ri_ctc?: Record<string, number | null>;
-  ri_total_dependent_exemptions?: Record<string, number | null>;
 }
 
 interface PEHousehold {
@@ -91,9 +87,6 @@ export function buildHouseholdSituation(req: HouseholdRequest): PESituation {
       'your tax unit': {
         members: taxUnitMembers,
         filing_status: { [year]: filingStatus },
-        // Output variables we want back:
-        ri_ctc: { [year]: null },
-        ri_total_dependent_exemptions: { [year]: null },
       },
     },
     households: {
