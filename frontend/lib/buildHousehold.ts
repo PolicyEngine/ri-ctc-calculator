@@ -38,7 +38,16 @@ export interface PESituation {
   people: Record<string, PEPerson>;
   tax_units: Record<string, PETaxUnit>;
   households: Record<string, PEHousehold>;
-  axes?: Array<Array<{ name: string; period: number; min: number; max: number; count: number }>>;
+  axes?: Array<
+    Array<{
+      name: string;
+      period: string;
+      min: number;
+      max: number;
+      count: number;
+      target?: string;
+    }>
+  >;
 }
 
 /**
@@ -100,10 +109,11 @@ export function buildHouseholdSituation(req: HouseholdRequest): PESituation {
       [
         {
           name: 'employment_income',
-          period: req.year,
+          period: year,
           min: 0,
           max: SWEEP_MAX,
           count: SWEEP_POINTS,
+          target: 'person',
         },
       ],
     ],
