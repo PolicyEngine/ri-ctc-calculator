@@ -30,7 +30,11 @@ export default function Home() {
   const [reformParams, _setReformParams] = useState<ReformParams>({
     ctc_amount: 1000,
     ctc_age_limit: 18,
-    ctc_refundability_cap: 0,
+    // Fully refundable by default: the refundability cap is set high
+    // enough to cover any realistic per-tax-unit credit amount. The
+    // user-facing toggle was intentionally removed — every custom
+    // reform inherits the same fully-refundable behavior the presets use.
+    ctc_refundability_cap: 100000,
     ctc_phaseout_rate: 0,
     ctc_phaseout_thresholds: {
       SINGLE: 0,
