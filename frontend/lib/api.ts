@@ -380,8 +380,15 @@ export const api = {
       peCalculate(household, reform),
     ]);
 
-    const incomeRange =
-      baselineRes.result.people['you']['employment_income'][yearStr];
+    // PolicyEngine /us/calculate runs the axis sweep but echoes the
+    // swept INPUT variable back at its original scalar (only the output
+    // variables come back as N-point vectors). Synthesize the income
+    // range from the axis spec instead.
+    const incomeRange: number[] = Array.from(
+      { length: HOUSEHOLD_SWEEP_POINTS },
+      (_, i) =>
+        (HOUSEHOLD_SWEEP_MAX * i) / (HOUSEHOLD_SWEEP_POINTS - 1),
+    );
     const baselineNet =
       baselineRes.result.households['your household']['household_net_income'][
         yearStr
