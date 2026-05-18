@@ -249,72 +249,77 @@ export default function Home() {
                   </button>
                 </nav>
 
-                {/* Tab Content */}
+                {/* Tab Content. Both panels are mounted at once so both
+                    queries fire on Calculate; the inactive panel is hidden
+                    via the HTML `hidden` attribute. This avoids the
+                    "click the Statewide tab to start the calculation"
+                    wait. */}
                 <div className="bg-white rounded-lg shadow-md p-6">
-                  {activeTab === 'impact' ? (
-                    <div
-                      id="panel-impact"
-                      role="tabpanel"
-                      aria-label="Impact Analysis"
-                      className="space-y-6"
-                    >
-                      {calculatedPresetId && (
-                        <SampleFamilyImpacts
-                          presetId={calculatedPresetId}
-                          activeExampleId={
-                            EXAMPLE_PROFILES.find(
-                              (p) =>
-                                p.age_head === calculatedAgeHead &&
-                                p.married === calculatedMarried &&
-                                p.income === calculatedIncome &&
-                                p.dependent_ages.length ===
-                                  calculatedDependentAges.length &&
-                                p.dependent_ages.every(
-                                  (a, i) => a === calculatedDependentAges[i],
-                                ),
-                            )?.id ?? null
-                          }
-                          onSelectExample={(profile) => {
-                            applyExample(profile);
-                            // Re-run the calculation against the new profile so
-                            // the chart hydrates from the precomputed JSON.
-                            setCalculationTriggered(true);
-                            setCalculatedAgeHead(profile.age_head);
-                            setCalculatedAgeSpouse(
-                              profile.married ? profile.age_spouse : null,
-                            );
-                            setCalculatedMarried(profile.married);
-                            setCalculatedDependentAges([
-                              ...profile.dependent_ages,
-                            ]);
-                            setCalculatedIncome(profile.income);
-                            setCalculatedYear(PRESET_YEAR);
-                            setCalculatedReformParams(
-                              presetReformParams(calculatedPresetId),
-                            );
-                            setCalculatedPresetId(calculatedPresetId);
-                          }}
-                        />
-                      )}
-                      <ImpactAnalysis
-                        ageHead={calculatedAgeHead}
-                        ageSpouse={calculatedMarried ? calculatedAgeSpouse : null}
-                        dependentAges={calculatedDependentAges}
-                        income={calculatedIncome}
-                        year={calculatedYear}
-                        reformParams={calculatedReformParams}
+                  <div
+                    id="panel-impact"
+                    role="tabpanel"
+                    aria-label="Impact Analysis"
+                    hidden={activeTab !== 'impact'}
+                    className="space-y-6"
+                  >
+                    {calculatedPresetId && (
+                      <SampleFamilyImpacts
                         presetId={calculatedPresetId}
+                        activeExampleId={
+                          EXAMPLE_PROFILES.find(
+                            (p) =>
+                              p.age_head === calculatedAgeHead &&
+                              p.married === calculatedMarried &&
+                              p.income === calculatedIncome &&
+                              p.dependent_ages.length ===
+                                calculatedDependentAges.length &&
+                              p.dependent_ages.every(
+                                (a, i) => a === calculatedDependentAges[i],
+                              ),
+                          )?.id ?? null
+                        }
+                        onSelectExample={(profile) => {
+                          applyExample(profile);
+                          setCalculationTriggered(true);
+                          setCalculatedAgeHead(profile.age_head);
+                          setCalculatedAgeSpouse(
+                            profile.married ? profile.age_spouse : null,
+                          );
+                          setCalculatedMarried(profile.married);
+                          setCalculatedDependentAges([
+                            ...profile.dependent_ages,
+                          ]);
+                          setCalculatedIncome(profile.income);
+                          setCalculatedYear(PRESET_YEAR);
+                          setCalculatedReformParams(
+                            presetReformParams(calculatedPresetId),
+                          );
+                          setCalculatedPresetId(calculatedPresetId);
+                        }}
                       />
-                    </div>
-                  ) : (
-                    <div id="panel-aggregate" role="tabpanel" aria-label="Statewide Impact">
-                      <AggregateImpact
-                        year={calculatedYear}
-                        reformParams={calculatedReformParams}
-                        presetId={calculatedPresetId}
-                      />
-                    </div>
-                  )}
+                    )}
+                    <ImpactAnalysis
+                      ageHead={calculatedAgeHead}
+                      ageSpouse={calculatedMarried ? calculatedAgeSpouse : null}
+                      dependentAges={calculatedDependentAges}
+                      income={calculatedIncome}
+                      year={calculatedYear}
+                      reformParams={calculatedReformParams}
+                      presetId={calculatedPresetId}
+                    />
+                  </div>
+                  <div
+                    id="panel-aggregate"
+                    role="tabpanel"
+                    aria-label="Statewide Impact"
+                    hidden={activeTab !== 'aggregate'}
+                  >
+                    <AggregateImpact
+                      year={calculatedYear}
+                      reformParams={calculatedReformParams}
+                      presetId={calculatedPresetId}
+                    />
+                  </div>
                 </div>
               </>
             )}
