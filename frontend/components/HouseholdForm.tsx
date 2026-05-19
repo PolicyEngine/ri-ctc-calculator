@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { ReformParams } from '@/lib/types';
+import { PRESETS, type PresetId } from '@/lib/presets';
 
 interface Props {
   ageHead: number;
@@ -18,6 +19,8 @@ interface Props {
   setYear: (year: number) => void;
   reformParams: ReformParams;
   setReformParams: (params: ReformParams) => void;
+  onApplyPreset: (id: PresetId) => void;
+  activePresetId: PresetId | null;
   onCalculate: () => void;
   calculationTriggered: boolean;
   hasChanges: boolean;
@@ -75,6 +78,8 @@ export default function HouseholdForm({
   setYear,
   reformParams,
   setReformParams,
+  onApplyPreset,
+  activePresetId,
   onCalculate,
   calculationTriggered,
   hasChanges,
@@ -296,53 +301,30 @@ export default function HouseholdForm({
         {expandedStep === 2 && (
           <div className="mt-4 space-y-4 pl-2">
 
-            {/* Governor's Proposal Button */}
-            <div className="mb-2">
-              <button
-                onClick={() => {
-                  setReformParams({
-                    ...reformParams,
-                    ctc_amount: 325,
-                    ctc_age_limit: 19,
-                    ctc_refundability_cap: 100000,
-                    ctc_phaseout_rate: 0,
-                    ctc_phaseout_thresholds: {
-                      SINGLE: 0,
-                      JOINT: 0,
-                      HEAD_OF_HOUSEHOLD: 0,
-                      SURVIVING_SPOUSE: 0,
-                      SEPARATE: 0,
-                    },
-                    // Stepped phaseout: 20% reduction per $7,590 over $265,965 (2027 inflation-adjusted)
-                    ctc_stepped_phaseout: true,
-                    ctc_stepped_phaseout_threshold: 265965,
-                    ctc_stepped_phaseout_increment: 7590,
-                    ctc_stepped_phaseout_rate_per_step: 0.20,
-                    ctc_young_child_boost_amount: 0,
-                    ctc_young_child_boost_age_limit: 6,
-                    enable_exemption_reform: true,
-                    exemption_amount: 0,
-                    exemption_age_limit_enabled: true,
-                    exemption_age_threshold: 19,
-                    exemption_phaseout_rate: 0,
-                    exemption_phaseout_thresholds: {
-                      SINGLE: 0,
-                      JOINT: 0,
-                      HEAD_OF_HOUSEHOLD: 0,
-                      SURVIVING_SPOUSE: 0,
-                      SEPARATE: 0,
-                    },
-                  });
-                  // Set year to 2027 (effective date)
-                  setYear(2027);
-                }}
-                className="w-full px-4 py-3 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors font-semibold text-sm border-2 border-teal-700"
-              >
-                Apply Governor&apos;s Proposal
-              </button>
-              <p className="text-xs text-gray-500 mt-2 text-center">
-                $325/child (2027), fully refundable, ages 0-18, stepped phaseout (20% per $7,590 over $265,965), zeroes dependent exemption for children
-              </p>
+            {/* Governor's proposal presets */}
+            <div className="mb-2 space-y-3">
+              {(['original', 'revised'] as const).map((id) => {
+                const preset = PRESETS[id];
+                const isActive = activePresetId === id;
+                return (
+                  <div key={id}>
+                    <button
+                      onClick={() => onApplyPreset(id)}
+                      aria-pressed={isActive}
+                      className={`w-full px-4 py-3 rounded-md transition-colors font-semibold text-sm border-2 ${
+                        isActive
+                          ? 'bg-teal-700 text-white border-teal-800 ring-2 ring-teal-300'
+                          : 'bg-teal-600 text-white border-teal-700 hover:bg-teal-700'
+                      }`}
+                    >
+                      Apply {preset.label}
+                    </button>
+                    <p className="text-xs text-gray-500 mt-2 text-center">
+                      {preset.description}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
 
             {/* CTC Customization */}

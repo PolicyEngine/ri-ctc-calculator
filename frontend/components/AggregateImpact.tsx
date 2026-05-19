@@ -2,6 +2,7 @@
 
 import { useAggregateImpact } from '@/hooks/useAggregateImpact';
 import type { ReformParams } from '@/lib/types';
+import type { PresetId } from '@/lib/presets';
 import {
   BarChart,
   Bar,
@@ -17,19 +18,16 @@ import {
 interface Props {
   year: number;
   reformParams: ReformParams;
+  presetId: PresetId | null;
 }
 
-export default function AggregateImpact({ year, reformParams }: Props) {
-  console.log('[AggregateImpact] Component rendered with reformParams:', reformParams, 'year:', year);
-
-  const { data, isLoading, error } = useAggregateImpact(reformParams, year);
-
-  console.log('[AggregateImpact] Query state:', {
-    hasData: !!data,
-    isLoading,
-    hasError: !!error,
-    error: error instanceof Error ? error.message : error
-  });
+export default function AggregateImpact({ year, reformParams, presetId }: Props) {
+  const { data, isLoading, error } = useAggregateImpact(
+    reformParams,
+    year,
+    true,
+    presetId,
+  );
 
   if (isLoading) {
     return (

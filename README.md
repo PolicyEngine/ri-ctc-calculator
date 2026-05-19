@@ -14,10 +14,27 @@ This calculator models the Rhode Island Child Tax Credit reform proposal, showin
 
 ## Architecture
 
-This project has two main components:
-- **Backend**: FastAPI REST API (Python)
-- **Frontend**: Next.js/React application (TypeScript)
-- **Legacy**: Streamlit app (still available but deprecated)
+This project has three main pieces:
+
+- **Backend**: FastAPI REST API (Python) hosted on **Modal** via
+  `scripts/modal_serve.py` (`@modal.asgi_app()`). Only the
+  custom-reform path hits this; the two Governor's-proposal presets
+  read precomputed JSON from `frontend/public/data/presets/`.
+- **Frontend**: Next.js 16 / Tailwind 4 / `@policyengine/ui-kit`
+  (TypeScript).
+- **Precompute pipeline**: `scripts/precompute_presets.py` writes the
+  Governor's-original and Governor's-revised statewide + sample-
+  household impacts to JSON. Run locally with Python 3.11 / 3.12 or
+  via Modal with `modal run scripts/modal_precompute.py::run`.
+
+## Deployment
+
+- **Backend** (Modal): `modal deploy scripts/modal_serve.py`. CI
+  triggers on `master` via `.github/workflows/deploy-modal.yml`.
+  Update `NEXT_PUBLIC_API_URL` in Vercel to the resulting
+  `*.modal.run` URL.
+- **Precompute presets**: `modal run scripts/modal_precompute.py::run`
+  whenever the preset parameters change. Commits the new JSON.
 
 ## Quick Start
 

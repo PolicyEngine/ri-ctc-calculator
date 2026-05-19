@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useHouseholdImpact } from '@/hooks/useHouseholdImpact';
 import type { ReformParams } from '@/lib/types';
+import type { PresetId } from '@/lib/presets';
 import {
   LineChart,
   Line,
@@ -22,6 +23,7 @@ interface Props {
   income: number;
   year: number;
   reformParams: ReformParams;
+  presetId: PresetId | null;
 }
 
 export default function ImpactAnalysis({
@@ -31,18 +33,23 @@ export default function ImpactAnalysis({
   income,
   year,
   reformParams,
+  presetId,
 }: Props) {
   const [breakdownExpanded, setBreakdownExpanded] = useState(false);
 
   // Load full impact data (includes chart and benefit at income)
-  const { data, isLoading, error } = useHouseholdImpact({
-    age_head: ageHead,
-    age_spouse: ageSpouse,
-    dependent_ages: dependentAges,
-    income: income,
-    year: year,
-    reform_params: reformParams,
-  });
+  const { data, isLoading, error } = useHouseholdImpact(
+    {
+      age_head: ageHead,
+      age_spouse: ageSpouse,
+      dependent_ages: dependentAges,
+      income: income,
+      year: year,
+      reform_params: reformParams,
+    },
+    true,
+    presetId,
+  );
 
   if (isLoading) {
     return (
