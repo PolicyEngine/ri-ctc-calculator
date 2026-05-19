@@ -48,3 +48,4 @@ Thumbs.db
 .streamlit/
 settings.local.json
 .vercel/
+.vercel

@@ -49,6 +49,9 @@ export const metadata: Metadata = {
   other: {
     'theme-color': '#319795',
   },
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({
