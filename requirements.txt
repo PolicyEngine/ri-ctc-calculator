@@ -1,5 +1,5 @@
 streamlit
-policyengine_us>=1.409.0
+policyengine-us==1.729.2
 numpy
 pandas
 plotly

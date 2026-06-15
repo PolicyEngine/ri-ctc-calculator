@@ -4,8 +4,8 @@
  * Two sources, switched by ``presetId``:
  *   - static ``presetId`` set  → fetch the precomputed JSON under
  *     ``/data/presets/{id}.json`` (no API call, instant).
- *   - custom/enacted reform → POST to the public PolicyEngine endpoint
- *     for a custom reform.
+ *   - custom/enacted reform -> POST to the pinned Modal backend for a
+ *     custom reform.
  */
 
 import { useQuery } from '@tanstack/react-query';

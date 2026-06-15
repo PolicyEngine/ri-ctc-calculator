@@ -2,8 +2,8 @@
  * React Query hook for household impact calculations.
  *
  * Presets can source household impacts from precomputed JSON or a local
- * law-specific calculator. Other requests fall through to the public
- * PolicyEngine API so custom households still work.
+ * law-specific calculator. Other requests fall through to the pinned
+ * Modal backend so custom households still work.
  */
 
 import { useQuery } from '@tanstack/react-query';
