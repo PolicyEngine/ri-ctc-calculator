@@ -3,7 +3,7 @@
  *
  * The two Governor's-proposal presets share every parameter except `ctc_amount`. The original
  * proposal sets the per-child credit at $325; the revised proposal raises it
- * to $650. The enacted budget preset reflects 2026 R.I. H 7127 Substitute A
+ * to $650. The enacted law preset reflects 2026 R.I. H 7127 Substitute A
  * as amended.
  *
  * The precompute pipeline (`scripts/precompute_presets.py`) writes the
@@ -15,12 +15,9 @@ import type { ReformParams } from './types';
 
 export type PresetId = 'original' | 'revised' | 'enacted';
 export type StaticPresetId = 'original' | 'revised';
+export type LocalHouseholdPresetId = 'enacted';
 
-const STATIC_PRESET_IDS = new Set<PresetId>(['original', 'revised']);
-
-export function hasStaticPresetPayload(id: PresetId): id is StaticPresetId {
-  return STATIC_PRESET_IDS.has(id);
-}
+export const PRESET_IDS: PresetId[] = ['original', 'revised', 'enacted'];
 
 export interface ExampleProfile {
   id: string;
@@ -176,6 +173,8 @@ export interface PresetMeta {
   shortLabel: string;
   description: string;
   ctcAmount: number;
+  aggregateSource: 'precomputed' | 'api';
+  householdSource: 'precomputed' | 'local';
 }
 
 export const PRESETS: Record<PresetId, PresetMeta> = {
@@ -186,6 +185,8 @@ export const PRESETS: Record<PresetId, PresetMeta> = {
     description:
       '$325 per child, fully refundable, ages 0–18, stepped phaseout (20% per $7,590 over $265,965), zeroes the dependent exemption for children.',
     ctcAmount: 325,
+    aggregateSource: 'precomputed',
+    householdSource: 'precomputed',
   },
   revised: {
     id: 'revised',
@@ -194,6 +195,8 @@ export const PRESETS: Record<PresetId, PresetMeta> = {
     description:
       '$650 per child, fully refundable, ages 0–18, stepped phaseout (20% per $7,590 over $265,965), zeroes the dependent exemption for children.',
     ctcAmount: 650,
+    aggregateSource: 'precomputed',
+    householdSource: 'precomputed',
   },
   enacted: {
     id: 'enacted',
@@ -202,8 +205,23 @@ export const PRESETS: Record<PresetId, PresetMeta> = {
     description:
       '$330 per child, fully refundable, ages 0-18, phaseout starts at $88,500 ($110,640 joint), the dependent exemption stays in place, and the high-income surtax phases in above $1M.',
     ctcAmount: 330,
+    aggregateSource: 'api',
+    householdSource: 'local',
   },
 };
+
+export function hasStaticPresetPayload(id: PresetId): id is StaticPresetId {
+  return (
+    PRESETS[id].aggregateSource === 'precomputed' &&
+    PRESETS[id].householdSource === 'precomputed'
+  );
+}
+
+export function hasLocalHouseholdCalculator(
+  id: PresetId,
+): id is LocalHouseholdPresetId {
+  return PRESETS[id].householdSource === 'local';
+}
 
 /** Shape of `frontend/public/data/presets/{id}.json`. The aggregate +
  *  household-impact payloads are matched byte-for-byte to the backend's

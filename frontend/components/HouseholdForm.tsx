@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { ReformParams } from '@/lib/types';
-import { PRESETS, type PresetId } from '@/lib/presets';
+import { PRESET_IDS, PRESETS, type PresetId } from '@/lib/presets';
 
 interface Props {
   ageHead: number;
@@ -303,7 +303,7 @@ export default function HouseholdForm({
 
             {/* Policy presets */}
             <div className="mb-2 space-y-3">
-              {(['original', 'revised', 'enacted'] as const).map((id) => {
+              {PRESET_IDS.map((id) => {
                 const preset = PRESETS[id];
                 const isActive = activePresetId === id;
                 return (

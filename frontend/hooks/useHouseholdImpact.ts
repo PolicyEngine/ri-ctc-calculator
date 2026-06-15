@@ -1,20 +1,20 @@
 /**
  * React Query hook for household impact calculations.
  *
- * When ``presetId`` is set AND the request matches one of the three
- * preloaded example profiles, the hook returns the precomputed
- * household impact from the static preset JSON. Otherwise it falls
- * through to the live Modal endpoint so custom households still work.
+ * Presets can source household impacts from precomputed JSON or a local
+ * law-specific calculator. Other requests fall through to the public
+ * PolicyEngine API so custom households still work.
  */
 
 import { useQuery } from '@tanstack/react-query';
 import { api, fetchPresetPayload } from '@/lib/api';
 import {
   EXAMPLE_PROFILES,
+  hasLocalHouseholdCalculator,
   hasStaticPresetPayload,
   type PresetId,
 } from '@/lib/presets';
-import { calculateEnactedBudgetHouseholdImpact } from '@/lib/enactedBudget';
+import { calculateEnactedLawHouseholdImpact } from '@/lib/enactedLaw';
 import type { HouseholdRequest, HouseholdImpactResponse } from '@/lib/types';
 
 function matchingExampleId(request: HouseholdRequest): string | null {
@@ -39,19 +39,21 @@ export function useHouseholdImpact(
   enabled: boolean = true,
   presetId: PresetId | null = null,
 ) {
+  const usesLocalHouseholdCalculator =
+    presetId !== null && hasLocalHouseholdCalculator(presetId);
   const exampleId =
     presetId && hasStaticPresetPayload(presetId)
       ? matchingExampleId(request)
       : null;
   return useQuery<HouseholdImpactResponse>({
-    queryKey: presetId === 'enacted'
+    queryKey: usesLocalHouseholdCalculator
       ? ['household-impact', 'preset', presetId, request]
       : exampleId
       ? ['household-impact', 'preset', presetId, exampleId]
       : ['household-impact', 'custom', request],
     queryFn: async () => {
-      if (presetId === 'enacted') {
-        return calculateEnactedBudgetHouseholdImpact(request);
+      if (usesLocalHouseholdCalculator) {
+        return calculateEnactedLawHouseholdImpact(request);
       }
       if (presetId && hasStaticPresetPayload(presetId) && exampleId) {
         const payload = await fetchPresetPayload(presetId);

@@ -47,7 +47,7 @@ function highEarnerSurtaxForIncome(income: number, year: number): number {
   return Math.max(income - HIGH_EARNER_THRESHOLD, 0) * rate;
 }
 
-export function calculateEnactedBudgetHouseholdImpact(
+export function calculateEnactedLawHouseholdImpact(
   request: HouseholdRequest,
 ): HouseholdImpactResponse {
   const filingStatus = filingStatusForHousehold(request);

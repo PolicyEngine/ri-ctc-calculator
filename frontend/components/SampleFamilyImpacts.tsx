@@ -6,6 +6,7 @@ import {
   EXAMPLE_PROFILES,
   PRESET_YEAR,
   PRESETS,
+  hasLocalHouseholdCalculator,
   hasStaticPresetPayload,
   presetReformParams,
   type ExampleProfile,
@@ -13,7 +14,7 @@ import {
   type PrecomputedExample,
   type StaticPresetId,
 } from '@/lib/presets';
-import { calculateEnactedBudgetHouseholdImpact } from '@/lib/enactedBudget';
+import { calculateEnactedLawHouseholdImpact } from '@/lib/enactedLaw';
 
 interface Props {
   presetId: PresetId;
@@ -36,10 +37,9 @@ function formatUsd(value: number): string {
 
 /**
  * Three illustrative household outcomes rendered above the household
- * net-income chart. Data is read from the precomputed preset JSON so it
- * appears instantly with no API call. Clicking a card applies that
- * profile to the household form — the chart then hydrates from the
- * same precomputed JSON.
+ * net-income chart. Static presets use precomputed JSON; law presets
+ * with local household calculators are computed in the browser.
+ * Clicking a card applies that profile to the household form.
  */
 export default function SampleFamilyImpacts({
   presetId,
@@ -56,13 +56,13 @@ export default function SampleFamilyImpacts({
     message: string;
   } | null>(null);
   const preset = PRESETS[presetId];
-  const enactedExamples = useMemo(() => {
-    if (presetId !== 'enacted') return null;
+  const localExamples = useMemo(() => {
+    if (!hasLocalHouseholdCalculator(presetId)) return null;
 
     const reformParams = presetReformParams(presetId);
     return EXAMPLE_PROFILES.map((profile) => ({
       profile,
-      household: calculateEnactedBudgetHouseholdImpact({
+      household: calculateEnactedLawHouseholdImpact({
         age_head: profile.age_head,
         age_spouse: profile.married ? profile.age_spouse : null,
         dependent_ages: profile.dependent_ages,
@@ -104,9 +104,11 @@ export default function SampleFamilyImpacts({
   const staticPayloadForPreset =
     staticPayload?.presetId === presetId ? staticPayload : null;
   const examples =
-    presetId === 'enacted' ? enactedExamples : staticPayloadForPreset?.examples;
+    hasLocalHouseholdCalculator(presetId)
+      ? localExamples
+      : staticPayloadForPreset?.examples;
   const year =
-    presetId === 'enacted'
+    hasLocalHouseholdCalculator(presetId)
       ? PRESET_YEAR
       : staticPayloadForPreset?.year ?? PRESET_YEAR;
   const errorForPreset = error?.presetId === presetId ? error.message : null;

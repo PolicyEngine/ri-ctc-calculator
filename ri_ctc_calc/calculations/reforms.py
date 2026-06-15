@@ -342,6 +342,30 @@ def create_custom_reform(
                 date_range: ctc_stepped_phaseout_rate_per_step
             },
         })
+        # Preserve filing-status thresholds in the same namespace used by
+        # the earlier RI budget prototype; stepped_phaseout itself still
+        # uses scalar SINGLE defaults in the current contrib reform.
+        if ctc_stepped_phaseout_thresholds:
+            reform_dict.update({
+                "gov.contrib.states.ri.ctc.phaseout.rate": {
+                    date_range: 0
+                },
+                "gov.contrib.states.ri.ctc.phaseout.threshold.SINGLE": {
+                    date_range: ctc_stepped_phaseout_thresholds["SINGLE"]
+                },
+                "gov.contrib.states.ri.ctc.phaseout.threshold.JOINT": {
+                    date_range: ctc_stepped_phaseout_thresholds["JOINT"]
+                },
+                "gov.contrib.states.ri.ctc.phaseout.threshold.HEAD_OF_HOUSEHOLD": {
+                    date_range: ctc_stepped_phaseout_thresholds["HEAD_OF_HOUSEHOLD"]
+                },
+                "gov.contrib.states.ri.ctc.phaseout.threshold.SURVIVING_SPOUSE": {
+                    date_range: ctc_stepped_phaseout_thresholds["SURVIVING_SPOUSE"]
+                },
+                "gov.contrib.states.ri.ctc.phaseout.threshold.SEPARATE": {
+                    date_range: ctc_stepped_phaseout_thresholds["SEPARATE"]
+                },
+            })
     # Only add rate-based CTC phase-out if stepped phaseout is not enabled and rate > 0 or thresholds > 0
     elif ctc_phaseout_rate > 0 or any(v > 0 for v in ctc_phaseout_thresholds.values()):
         reform_dict.update({
