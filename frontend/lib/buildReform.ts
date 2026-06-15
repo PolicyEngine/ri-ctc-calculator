@@ -45,26 +45,18 @@ export function buildReform(params: ReformParams, year: number): ReformOverrides
     params.ctc_stepped_phaseout &&
     params.ctc_stepped_phaseout_increment > 0
   ) {
-    // Preserve filing-status thresholds in the same namespace used by
-    // the earlier RI budget prototype; stepped_phaseout itself still
-    // uses scalar SINGLE defaults in the current contrib reform.
-    if (params.ctc_stepped_phaseout_thresholds) {
-      reform['gov.contrib.states.ri.ctc.phaseout.rate'] = set(0);
-      for (const status of FILING_STATUSES) {
-        reform[`gov.contrib.states.ri.ctc.phaseout.threshold.${status}`] = set(
-          params.ctc_stepped_phaseout_thresholds[status],
+    for (const status of FILING_STATUSES) {
+      reform[`gov.contrib.states.ri.ctc.stepped_phaseout.threshold.${status}`] =
+        set(
+          params.ctc_stepped_phaseout_thresholds?.[status] ??
+            params.ctc_stepped_phaseout_threshold,
         );
-      }
+      reform[`gov.contrib.states.ri.ctc.stepped_phaseout.increment.${status}`] =
+        set(
+          params.ctc_stepped_phaseout_increments?.[status] ??
+            params.ctc_stepped_phaseout_increment,
+        );
     }
-
-    reform['gov.contrib.states.ri.ctc.stepped_phaseout.threshold'] = set(
-      params.ctc_stepped_phaseout_thresholds?.SINGLE ??
-        params.ctc_stepped_phaseout_threshold,
-    );
-    reform['gov.contrib.states.ri.ctc.stepped_phaseout.increment'] = set(
-      params.ctc_stepped_phaseout_increments?.SINGLE ??
-        params.ctc_stepped_phaseout_increment,
-    );
     reform['gov.contrib.states.ri.ctc.stepped_phaseout.rate_per_step'] = set(
       params.ctc_stepped_phaseout_rate_per_step,
     );

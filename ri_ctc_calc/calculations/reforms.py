@@ -4,6 +4,15 @@ from policyengine_core.reforms import Reform
 from typing import Optional, Dict
 
 
+FILING_STATUSES = (
+    "SINGLE",
+    "JOINT",
+    "HEAD_OF_HOUSEHOLD",
+    "SURVIVING_SPOUSE",
+    "SEPARATE",
+)
+
+
 def create_ri_ctc_reform():
     """Create reform enabling RI CTC.
 
@@ -325,45 +334,26 @@ def create_custom_reform(
 
     # Add stepped phaseout parameters if enabled (Governor's proposal style)
     if ctc_stepped_phaseout and ctc_stepped_phaseout_increment > 0:
-        stepped_threshold = (
-            ctc_stepped_phaseout_thresholds or {}
-        ).get("SINGLE", ctc_stepped_phaseout_threshold)
-        stepped_increment = (
-            ctc_stepped_phaseout_increments or {}
-        ).get("SINGLE", ctc_stepped_phaseout_increment)
         reform_dict.update({
-            "gov.contrib.states.ri.ctc.stepped_phaseout.threshold": {
-                date_range: stepped_threshold
-            },
-            "gov.contrib.states.ri.ctc.stepped_phaseout.increment": {
-                date_range: stepped_increment
-            },
             "gov.contrib.states.ri.ctc.stepped_phaseout.rate_per_step": {
                 date_range: ctc_stepped_phaseout_rate_per_step
             },
         })
-        # Preserve filing-status thresholds in the same namespace used by
-        # the earlier RI budget prototype; stepped_phaseout itself still
-        # uses scalar SINGLE defaults in the current contrib reform.
-        if ctc_stepped_phaseout_thresholds:
+        stepped_thresholds = ctc_stepped_phaseout_thresholds or {}
+        stepped_increments = ctc_stepped_phaseout_increments or {}
+        for filing_status in FILING_STATUSES:
             reform_dict.update({
-                "gov.contrib.states.ri.ctc.phaseout.rate": {
-                    date_range: 0
+                f"gov.contrib.states.ri.ctc.stepped_phaseout.threshold.{filing_status}": {
+                    date_range: stepped_thresholds.get(
+                        filing_status,
+                        ctc_stepped_phaseout_threshold,
+                    )
                 },
-                "gov.contrib.states.ri.ctc.phaseout.threshold.SINGLE": {
-                    date_range: ctc_stepped_phaseout_thresholds["SINGLE"]
-                },
-                "gov.contrib.states.ri.ctc.phaseout.threshold.JOINT": {
-                    date_range: ctc_stepped_phaseout_thresholds["JOINT"]
-                },
-                "gov.contrib.states.ri.ctc.phaseout.threshold.HEAD_OF_HOUSEHOLD": {
-                    date_range: ctc_stepped_phaseout_thresholds["HEAD_OF_HOUSEHOLD"]
-                },
-                "gov.contrib.states.ri.ctc.phaseout.threshold.SURVIVING_SPOUSE": {
-                    date_range: ctc_stepped_phaseout_thresholds["SURVIVING_SPOUSE"]
-                },
-                "gov.contrib.states.ri.ctc.phaseout.threshold.SEPARATE": {
-                    date_range: ctc_stepped_phaseout_thresholds["SEPARATE"]
+                f"gov.contrib.states.ri.ctc.stepped_phaseout.increment.{filing_status}": {
+                    date_range: stepped_increments.get(
+                        filing_status,
+                        ctc_stepped_phaseout_increment,
+                    )
                 },
             })
     # Only add rate-based CTC phase-out if stepped phaseout is not enabled and rate > 0 or thresholds > 0
