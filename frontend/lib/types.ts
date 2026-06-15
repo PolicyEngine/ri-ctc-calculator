@@ -42,10 +42,6 @@ export interface ReformParams {
   exemption_phaseout_rate: number;
   exemption_phaseout_thresholds: PhaseoutThresholds;
 
-  // Rhode Island high-income surtax parameters.
-  include_high_earner_tax: boolean;
-  high_earner_tax_threshold: number;
-  high_earner_tax_rates: Record<string, number>;
 }
 
 /**
@@ -77,7 +73,6 @@ export interface BenefitAtIncome {
   difference: number;
   ctc_component: number;
   exemption_tax_benefit: number;
-  high_earner_tax_change?: number;
 }
 
 /**

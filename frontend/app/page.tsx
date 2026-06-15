@@ -63,9 +63,6 @@ export default function Home() {
       SURVIVING_SPOUSE: 0,
       SEPARATE: 0,
     },
-    include_high_earner_tax: false,
-    high_earner_tax_threshold: 0,
-    high_earner_tax_rates: {},
   });
 
   // Which policy preset, if any, is currently active. Any

@@ -94,28 +94,6 @@ export function buildReform(params: ReformParams, year: number): ReformOverrides
     }
   }
 
-  if (params.include_high_earner_tax) {
-    reform['gov.contrib.states.ri.high_earner_tax.in_effect'] = set(true);
-    reform['gov.contrib.states.ri.high_earner_tax.brackets[1].threshold'] =
-      set(params.high_earner_tax_threshold);
-
-    const rates = Object.entries(params.high_earner_tax_rates)
-      .map(([yearKey, rate]) => [Number(yearKey), rate] as const)
-      .filter(([yearKey]) => Number.isFinite(yearKey))
-      .sort(([a], [b]) => a - b);
-
-    if (rates.length > 0) {
-      const rateSchedule: Periodised<number> = {};
-      rates.forEach(([startYear, rate], index) => {
-        const nextYear = rates[index + 1]?.[0];
-        const stop = nextYear ? `${nextYear - 1}-12-31` : '2100-12-31';
-        rateSchedule[`${startYear}-01-01.${stop}`] = rate;
-      });
-      reform['gov.contrib.states.ri.high_earner_tax.brackets[1].rate'] =
-        rateSchedule;
-    }
-  }
-
   return reform;
 }
 

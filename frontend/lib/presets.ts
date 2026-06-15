@@ -96,9 +96,6 @@ function baseReformParams(): Pick<
   | 'ctc_young_child_boost_age_limit'
   | 'exemption_phaseout_rate'
   | 'exemption_phaseout_thresholds'
-  | 'include_high_earner_tax'
-  | 'high_earner_tax_threshold'
-  | 'high_earner_tax_rates'
 > {
   return {
     ctc_phaseout_rate: 0,
@@ -109,9 +106,6 @@ function baseReformParams(): Pick<
     ctc_young_child_boost_age_limit: 6,
     exemption_phaseout_rate: 0,
     exemption_phaseout_thresholds: { ...EMPTY_THRESHOLDS },
-    include_high_earner_tax: false,
-    high_earner_tax_threshold: 0,
-    high_earner_tax_rates: {},
   };
 }
 

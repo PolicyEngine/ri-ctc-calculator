@@ -114,9 +114,6 @@ def preset_reform_params(preset_id: str) -> dict[str, Any]:
             "SURVIVING_SPOUSE": 0,
             "SEPARATE": 0,
         },
-        "include_high_earner_tax": False,
-        "high_earner_tax_threshold": 0,
-        "high_earner_tax_rates": {},
     }
 
 
