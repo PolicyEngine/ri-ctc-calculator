@@ -263,11 +263,11 @@ def create_custom_reform(
         ctc_phaseout_rate: CTC phase-out rate (0=no phaseout) - for rate-based phaseout
         ctc_phaseout_thresholds: Dict of phase-out thresholds by filing status - for rate-based phaseout
         ctc_stepped_phaseout: Use stepped phaseout (Governor's proposal style)
-        ctc_stepped_phaseout_threshold: AGI threshold where stepped phaseout begins
-        ctc_stepped_phaseout_increment: Income increment per step
+        ctc_stepped_phaseout_threshold: Legacy fallback AGI threshold where stepped phaseout begins
+        ctc_stepped_phaseout_increment: Legacy fallback income increment per step
         ctc_stepped_phaseout_rate_per_step: Percentage point reduction per step
-        ctc_stepped_phaseout_thresholds: Optional filing-status thresholds
-        ctc_stepped_phaseout_increments: Optional filing-status increments
+        ctc_stepped_phaseout_thresholds: Filing-status thresholds
+        ctc_stepped_phaseout_increments: Filing-status increments
         ctc_young_child_boost_amount: Additional boost amount per young child
         ctc_young_child_boost_age_limit: Maximum age for young child boost eligibility
         enable_exemption_reform: Whether to enable dependent exemption reform
@@ -325,28 +325,35 @@ def create_custom_reform(
         },
     }
 
+    stepped_thresholds = {
+        filing_status: ctc_stepped_phaseout_threshold
+        for filing_status in FILING_STATUSES
+    }
+    stepped_increments = {
+        filing_status: ctc_stepped_phaseout_increment
+        for filing_status in FILING_STATUSES
+    }
+    if ctc_stepped_phaseout_thresholds is not None:
+        stepped_thresholds.update(ctc_stepped_phaseout_thresholds)
+    if ctc_stepped_phaseout_increments is not None:
+        stepped_increments.update(ctc_stepped_phaseout_increments)
+
     # Add stepped phaseout parameters if enabled (Governor's proposal style)
-    if ctc_stepped_phaseout and ctc_stepped_phaseout_increment > 0:
+    if ctc_stepped_phaseout and any(
+        value > 0 for value in stepped_increments.values()
+    ):
         reform_dict.update({
             "gov.contrib.states.ri.ctc.stepped_phaseout.rate_per_step": {
                 date_range: ctc_stepped_phaseout_rate_per_step
             },
         })
-        stepped_thresholds = ctc_stepped_phaseout_thresholds or {}
-        stepped_increments = ctc_stepped_phaseout_increments or {}
         for filing_status in FILING_STATUSES:
             reform_dict.update({
                 f"gov.contrib.states.ri.ctc.stepped_phaseout.threshold.{filing_status}": {
-                    date_range: stepped_thresholds.get(
-                        filing_status,
-                        ctc_stepped_phaseout_threshold,
-                    )
+                    date_range: stepped_thresholds[filing_status]
                 },
                 f"gov.contrib.states.ri.ctc.stepped_phaseout.increment.{filing_status}": {
-                    date_range: stepped_increments.get(
-                        filing_status,
-                        ctc_stepped_phaseout_increment,
-                    )
+                    date_range: stepped_increments[filing_status]
                 },
             })
     # Only add rate-based CTC phase-out if stepped phaseout is not enabled and rate > 0 or thresholds > 0

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { ReformParams } from '@/lib/types';
+import type { FilingStatusKey, ReformParams } from '@/lib/types';
 import { PRESET_IDS, PRESETS, type PresetId } from '@/lib/presets';
 
 interface Props {
@@ -25,6 +25,14 @@ interface Props {
   calculationTriggered: boolean;
   hasChanges: boolean;
 }
+
+const FILING_STATUS_FIELDS: { key: FilingStatusKey; label: string }[] = [
+  { key: 'SINGLE', label: 'Single' },
+  { key: 'JOINT', label: 'Married filing jointly' },
+  { key: 'HEAD_OF_HOUSEHOLD', label: 'Head of household' },
+  { key: 'SURVIVING_SPOUSE', label: 'Surviving spouse' },
+  { key: 'SEPARATE', label: 'Married filing separately' },
+];
 
 function StepHeader({
   stepNumber,
@@ -446,46 +454,64 @@ export default function HouseholdForm({
                     {reformParams.ctc_stepped_phaseout ? (
                       /* Stepped phaseout inputs */
                       <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            Phaseout Threshold
-                          </label>
-                          <input
-                            type="text"
-                            value={formatNumber(reformParams.ctc_stepped_phaseout_threshold)}
-                            onChange={(e) =>
-                              setReformParams({
-                                ...reformParams,
-                                ctc_stepped_phaseout_threshold: parseNumber(e.target.value),
-                              })
-                            }
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                            placeholder="0"
-                          />
-                          <p className="text-xs text-gray-500 mt-1">
-                            AGI level where the stepped phaseout begins (e.g., $265,965)
-                          </p>
+                        <div className="space-y-3">
+                          <h5 className="text-sm font-semibold text-gray-700">
+                            Thresholds by Filing Status
+                          </h5>
+                          {FILING_STATUS_FIELDS.map(({ key, label }) => (
+                            <div key={`stepped-threshold-${key}`}>
+                              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                {label}
+                              </label>
+                              <input
+                                type="text"
+                                value={formatNumber(
+                                  reformParams.ctc_stepped_phaseout_thresholds[key],
+                                )}
+                                onChange={(e) =>
+                                  setReformParams({
+                                    ...reformParams,
+                                    ctc_stepped_phaseout_thresholds: {
+                                      ...reformParams.ctc_stepped_phaseout_thresholds,
+                                      [key]: parseNumber(e.target.value),
+                                    },
+                                  })
+                                }
+                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                                placeholder="0"
+                              />
+                            </div>
+                          ))}
                         </div>
 
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            Income Increment per Step
-                          </label>
-                          <input
-                            type="text"
-                            value={formatNumber(reformParams.ctc_stepped_phaseout_increment)}
-                            onChange={(e) =>
-                              setReformParams({
-                                ...reformParams,
-                                ctc_stepped_phaseout_increment: parseNumber(e.target.value),
-                              })
-                            }
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                            placeholder="0"
-                          />
-                          <p className="text-xs text-gray-500 mt-1">
-                            Income increment for each reduction step (e.g., $7,590)
-                          </p>
+                        <div className="space-y-3">
+                          <h5 className="text-sm font-semibold text-gray-700">
+                            Income Increments by Filing Status
+                          </h5>
+                          {FILING_STATUS_FIELDS.map(({ key, label }) => (
+                            <div key={`stepped-increment-${key}`}>
+                              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                {label}
+                              </label>
+                              <input
+                                type="text"
+                                value={formatNumber(
+                                  reformParams.ctc_stepped_phaseout_increments[key],
+                                )}
+                                onChange={(e) =>
+                                  setReformParams({
+                                    ...reformParams,
+                                    ctc_stepped_phaseout_increments: {
+                                      ...reformParams.ctc_stepped_phaseout_increments,
+                                      [key]: parseNumber(e.target.value),
+                                    },
+                                  })
+                                }
+                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                                placeholder="0"
+                              />
+                            </div>
+                          ))}
                         </div>
 
                         <div>
@@ -540,110 +566,28 @@ export default function HouseholdForm({
                         <h5 className="text-sm font-semibold text-gray-700 mb-3 mt-4">Thresholds by Filing Status</h5>
 
                         <div className="space-y-4">
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                              Single
-                            </label>
-                            <input
-                              type="text"
-                              value={formatNumber(reformParams.ctc_phaseout_thresholds.SINGLE)}
-                              onChange={(e) =>
-                                setReformParams({
-                                  ...reformParams,
-                                  ctc_phaseout_thresholds: {
-                                    ...reformParams.ctc_phaseout_thresholds,
-                                    SINGLE: parseNumber(e.target.value),
-                                  },
-                                })
-                              }
-                              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                              placeholder="0"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                              Married Filing Jointly
-                            </label>
-                            <input
-                              type="text"
-                              value={formatNumber(reformParams.ctc_phaseout_thresholds.JOINT)}
-                              onChange={(e) =>
-                                setReformParams({
-                                  ...reformParams,
-                                  ctc_phaseout_thresholds: {
-                                    ...reformParams.ctc_phaseout_thresholds,
-                                    JOINT: parseNumber(e.target.value),
-                                  },
-                                })
-                              }
-                              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                              placeholder="0"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                              Head of Household
-                            </label>
-                            <input
-                              type="text"
-                              value={formatNumber(reformParams.ctc_phaseout_thresholds.HEAD_OF_HOUSEHOLD)}
-                              onChange={(e) =>
-                                setReformParams({
-                                  ...reformParams,
-                                  ctc_phaseout_thresholds: {
-                                    ...reformParams.ctc_phaseout_thresholds,
-                                    HEAD_OF_HOUSEHOLD: parseNumber(e.target.value),
-                                  },
-                                })
-                              }
-                              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                              placeholder="0"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                              Surviving Spouse
-                            </label>
-                            <input
-                              type="text"
-                              value={formatNumber(reformParams.ctc_phaseout_thresholds.SURVIVING_SPOUSE)}
-                              onChange={(e) =>
-                                setReformParams({
-                                  ...reformParams,
-                                  ctc_phaseout_thresholds: {
-                                    ...reformParams.ctc_phaseout_thresholds,
-                                    SURVIVING_SPOUSE: parseNumber(e.target.value),
-                                  },
-                                })
-                              }
-                              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                              placeholder="0"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                              Married Filing Separately
-                            </label>
-                            <input
-                              type="text"
-                              value={formatNumber(reformParams.ctc_phaseout_thresholds.SEPARATE)}
-                              onChange={(e) =>
-                                setReformParams({
-                                  ...reformParams,
-                                  ctc_phaseout_thresholds: {
-                                    ...reformParams.ctc_phaseout_thresholds,
-                                    SEPARATE: parseNumber(e.target.value),
-                                  },
-                                })
-                              }
-                              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
-                              placeholder="0"
-                            />
-                          </div>
+                          {FILING_STATUS_FIELDS.map(({ key, label }) => (
+                            <div key={`linear-threshold-${key}`}>
+                              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                {label}
+                              </label>
+                              <input
+                                type="text"
+                                value={formatNumber(reformParams.ctc_phaseout_thresholds[key])}
+                                onChange={(e) =>
+                                  setReformParams({
+                                    ...reformParams,
+                                    ctc_phaseout_thresholds: {
+                                      ...reformParams.ctc_phaseout_thresholds,
+                                      [key]: parseNumber(e.target.value),
+                                    },
+                                  })
+                                }
+                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                                placeholder="0"
+                              />
+                            </div>
+                          ))}
                         </div>
                       </>
                     )}

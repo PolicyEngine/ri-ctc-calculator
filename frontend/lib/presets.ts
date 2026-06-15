@@ -100,8 +100,8 @@ function baseReformParams(): Pick<
   return {
     ctc_phaseout_rate: 0,
     ctc_phaseout_thresholds: { ...EMPTY_THRESHOLDS },
-    ctc_stepped_phaseout_thresholds: null,
-    ctc_stepped_phaseout_increments: null,
+    ctc_stepped_phaseout_thresholds: { ...EMPTY_THRESHOLDS },
+    ctc_stepped_phaseout_increments: { ...EMPTY_THRESHOLDS },
     ctc_young_child_boost_amount: 0,
     ctc_young_child_boost_age_limit: 6,
     exemption_phaseout_rate: 0,
@@ -120,8 +120,6 @@ export function presetReformParams(id: PresetId): ReformParams {
       ctc_age_limit: 19,
       ctc_refundability_cap: 100000,
       ctc_stepped_phaseout: true,
-      ctc_stepped_phaseout_threshold: ENACTED_CTC_PHASEOUT_THRESHOLDS.SINGLE,
-      ctc_stepped_phaseout_increment: ENACTED_CTC_PHASEOUT_INCREMENTS.SINGLE,
       ctc_stepped_phaseout_rate_per_step: 0.2,
       ctc_stepped_phaseout_thresholds: {
         ...ENACTED_CTC_PHASEOUT_THRESHOLDS,
@@ -144,9 +142,21 @@ export function presetReformParams(id: PresetId): ReformParams {
     ctc_refundability_cap: 100000,
     // Stepped phaseout: 20% reduction per $7,590 over $265,965 (2027 inflation-adjusted).
     ctc_stepped_phaseout: true,
-    ctc_stepped_phaseout_threshold: 265965,
-    ctc_stepped_phaseout_increment: 7590,
     ctc_stepped_phaseout_rate_per_step: 0.2,
+    ctc_stepped_phaseout_thresholds: {
+      SINGLE: 265965,
+      JOINT: 265965,
+      HEAD_OF_HOUSEHOLD: 265965,
+      SURVIVING_SPOUSE: 265965,
+      SEPARATE: 265965,
+    },
+    ctc_stepped_phaseout_increments: {
+      SINGLE: 7590,
+      JOINT: 7590,
+      HEAD_OF_HOUSEHOLD: 7590,
+      SURVIVING_SPOUSE: 7590,
+      SEPARATE: 7590,
+    },
     enable_exemption_reform: true,
     exemption_amount: 0,
     exemption_age_limit_enabled: true,
