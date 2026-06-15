@@ -139,13 +139,6 @@ export function presetReformParams(id: PresetId): ReformParams {
       exemption_amount: 5200,
       exemption_age_limit_enabled: true,
       exemption_age_threshold: 19,
-      include_high_earner_tax: true,
-      high_earner_tax_threshold: 1000000,
-      high_earner_tax_rates: {
-        2027: 0.01,
-        2028: 0.02,
-        2029: 0.03,
-      },
     };
   }
 
@@ -203,7 +196,7 @@ export const PRESETS: Record<PresetId, PresetMeta> = {
     label: 'Enacted 2027 law',
     shortLabel: 'Enacted',
     description:
-      '$330 per child, fully refundable, ages 0-18, phaseout starts at $88,500 ($110,640 joint), the dependent exemption stays in place, and the high-income surtax phases in above $1M.',
+      '$330 per child, fully refundable, ages 0-18, phaseout starts at $88,500 ($110,640 joint), and the dependent exemption stays in place.',
     ctcAmount: 330,
     aggregateSource: 'api',
     householdSource: 'local',

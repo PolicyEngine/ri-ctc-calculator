@@ -14,7 +14,6 @@ type FilingStatus = keyof PhaseoutThresholds;
 
 const CTC_AMOUNT = 330;
 const PHASEOUT_RATE_PER_STEP = 0.2;
-const HIGH_EARNER_THRESHOLD = 1_000_000;
 
 function filingStatusForHousehold(request: HouseholdRequest): FilingStatus {
   return request.age_spouse !== null ? 'JOINT' : 'SINGLE';
@@ -41,12 +40,6 @@ export function enactedCtcForIncome(
   return maximum * (1 - phaseoutRate);
 }
 
-function highEarnerSurtaxForIncome(income: number, year: number): number {
-  const rate =
-    year >= 2029 ? 0.03 : year === 2028 ? 0.02 : year === 2027 ? 0.01 : 0;
-  return Math.max(income - HIGH_EARNER_THRESHOLD, 0) * rate;
-}
-
 export function calculateEnactedLawHouseholdImpact(
   request: HouseholdRequest,
 ): HouseholdImpactResponse {
@@ -59,28 +52,21 @@ export function calculateEnactedLawHouseholdImpact(
   const ctcRange = incomeRange.map((income) =>
     enactedCtcForIncome(income, children, filingStatus),
   );
-  const surtaxRange = incomeRange.map((income) =>
-    highEarnerSurtaxForIncome(income, request.year),
-  );
-  const netRange = ctcRange.map((ctc, index) => ctc - surtaxRange[index]);
   const ctcAtIncome = enactedCtcForIncome(request.income, children, filingStatus);
-  const surtaxAtIncome = highEarnerSurtaxForIncome(request.income, request.year);
-  const netAtIncome = ctcAtIncome - surtaxAtIncome;
   const baselineAtIncome = request.income;
 
   const benefit_at_income: BenefitAtIncome = {
     baseline: baselineAtIncome,
-    reform: baselineAtIncome + netAtIncome,
-    difference: netAtIncome,
+    reform: baselineAtIncome + ctcAtIncome,
+    difference: ctcAtIncome,
     ctc_component: ctcAtIncome,
     exemption_tax_benefit: 0,
-    high_earner_tax_change: -surtaxAtIncome,
   };
 
   return {
     income_range: incomeRange,
     ctc_baseline_range: incomeRange.map(() => 0),
-    ctc_reform_range: netRange,
+    ctc_reform_range: ctcRange,
     ctc_component: ctcRange,
     exemption_tax_benefit: incomeRange.map(() => 0),
     benefit_at_income,
