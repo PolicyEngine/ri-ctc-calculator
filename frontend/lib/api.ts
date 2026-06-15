@@ -33,7 +33,7 @@ import type {
   IncomeBracket,
   ReformParams,
 } from './types';
-import type { PresetId, PresetPayload } from './presets';
+import type { PresetPayload, StaticPresetId } from './presets';
 
 const PE_API_URL = 'https://api.policyengine.org';
 
@@ -69,7 +69,7 @@ function getBasePath(): string {
 }
 
 export async function fetchPresetPayload(
-  presetId: PresetId,
+  presetId: StaticPresetId,
 ): Promise<PresetPayload> {
   const url = `${getBasePath()}/data/presets/${presetId}.json`;
   const response = await fetch(url, { cache: 'no-store' });

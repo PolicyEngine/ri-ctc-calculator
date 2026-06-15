@@ -166,7 +166,7 @@ export default function HouseholdForm({
                 <option value={2027}>2027</option>
               </select>
               <p className="text-xs text-gray-500 mt-1">
-                The Governor&apos;s proposal takes effect January 1, 2027
+                Policy presets are modeled from January 1, 2027 onward
               </p>
             </div>
 
@@ -301,9 +301,9 @@ export default function HouseholdForm({
         {expandedStep === 2 && (
           <div className="mt-4 space-y-4 pl-2">
 
-            {/* Governor's proposal presets */}
+            {/* Policy presets */}
             <div className="mb-2 space-y-3">
-              {(['original', 'revised'] as const).map((id) => {
+              {(['original', 'revised', 'enacted'] as const).map((id) => {
                 const preset = PRESETS[id];
                 const isActive = activePresetId === id;
                 return (
@@ -434,7 +434,7 @@ export default function HouseholdForm({
                         />
                         <div>
                           <span className="text-sm font-semibold text-gray-700">
-                            Use Stepped Phaseout (Governor&apos;s Proposal)
+                            Use stepped phaseout
                           </span>
                           <p className="text-xs text-gray-500 mt-1">
                             With stepped phaseout, the credit reduces by a percentage for each income increment above the threshold. For example, 20% reduction per $7,590 over $265,965.

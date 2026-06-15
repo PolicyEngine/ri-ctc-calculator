@@ -1,14 +1,19 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { fetchPresetPayload } from '@/lib/api';
 import {
   EXAMPLE_PROFILES,
+  PRESET_YEAR,
   PRESETS,
+  hasStaticPresetPayload,
+  presetReformParams,
   type ExampleProfile,
   type PresetId,
-  type PresetPayload,
+  type PrecomputedExample,
+  type StaticPresetId,
 } from '@/lib/presets';
+import { calculateEnactedBudgetHouseholdImpact } from '@/lib/enactedBudget';
 
 interface Props {
   presetId: PresetId;
@@ -41,21 +46,54 @@ export default function SampleFamilyImpacts({
   activeExampleId,
   onSelectExample,
 }: Props) {
-  const [payload, setPayload] = useState<PresetPayload | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [staticPayload, setStaticPayload] = useState<{
+    presetId: StaticPresetId;
+    examples: PrecomputedExample[];
+    year: number;
+  } | null>(null);
+  const [error, setError] = useState<{
+    presetId: PresetId;
+    message: string;
+  } | null>(null);
   const preset = PRESETS[presetId];
+  const enactedExamples = useMemo(() => {
+    if (presetId !== 'enacted') return null;
+
+    const reformParams = presetReformParams(presetId);
+    return EXAMPLE_PROFILES.map((profile) => ({
+      profile,
+      household: calculateEnactedBudgetHouseholdImpact({
+        age_head: profile.age_head,
+        age_spouse: profile.married ? profile.age_spouse : null,
+        dependent_ages: profile.dependent_ages,
+        income: profile.income,
+        year: PRESET_YEAR,
+        reform_params: reformParams,
+      }),
+    }));
+  }, [presetId]);
 
   useEffect(() => {
+    if (!hasStaticPresetPayload(presetId)) return undefined;
+
     let cancelled = false;
-    setPayload(null);
-    setError(null);
     fetchPresetPayload(presetId)
       .then((p) => {
-        if (!cancelled) setPayload(p);
+        if (!cancelled) {
+          setStaticPayload({
+            presetId,
+            examples: p.examples,
+            year: p.year,
+          });
+        }
       })
       .catch((e) => {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : 'Failed to load examples');
+          setError({
+            presetId,
+            message:
+              e instanceof Error ? e.message : 'Failed to load examples',
+          });
         }
       });
     return () => {
@@ -63,15 +101,25 @@ export default function SampleFamilyImpacts({
     };
   }, [presetId]);
 
-  if (error) {
+  const staticPayloadForPreset =
+    staticPayload?.presetId === presetId ? staticPayload : null;
+  const examples =
+    presetId === 'enacted' ? enactedExamples : staticPayloadForPreset?.examples;
+  const year =
+    presetId === 'enacted'
+      ? PRESET_YEAR
+      : staticPayloadForPreset?.year ?? PRESET_YEAR;
+  const errorForPreset = error?.presetId === presetId ? error.message : null;
+
+  if (errorForPreset) {
     return (
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
-        Could not load the sample-family impacts ({error}).
+        Could not load the sample-family impacts ({errorForPreset}).
       </div>
     );
   }
 
-  if (!payload) {
+  if (!examples) {
     return (
       <div className="bg-white border border-gray-200 rounded-lg p-4 text-sm text-gray-500">
         Loading sample-family impacts&hellip;
@@ -87,11 +135,11 @@ export default function SampleFamilyImpacts({
       <p className="text-sm text-gray-500 mb-4">
         How {preset.label.replace(/'/g, '\u2019')} ($
         {preset.ctcAmount}/child) would affect three representative Rhode
-        Island households in {payload.year}. Click a card to load its
+        Island households in {year}. Click a card to load its
         net-income chart below.
       </p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {payload.examples.map((ex) => {
+        {examples.map((ex) => {
           const profile =
             EXAMPLE_PROFILES.find((p) => p.id === ex.profile.id) ?? ex.profile;
           const change = ex.household.benefit_at_income.difference;

@@ -146,6 +146,18 @@ export default function ImpactAnalysis({
                     </span>
                   </div>
                 )}
+                {benefitData.high_earner_tax_change !== undefined &&
+                  benefitData.high_earner_tax_change !== 0 && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-700">
+                        • RI high-income surtax:
+                      </span>
+                      <span className="font-semibold text-gray-900">
+                        {benefitData.high_earner_tax_change > 0 ? '+' : ''}
+                        {formatCurrency(benefitData.high_earner_tax_change)}
+                      </span>
+                    </div>
+                  )}
               </div>
             </div>
           )}

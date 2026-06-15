@@ -46,10 +46,12 @@ export function buildReform(params: ReformParams, year: number): ReformOverrides
     params.ctc_stepped_phaseout_increment > 0
   ) {
     reform['gov.contrib.states.ri.ctc.stepped_phaseout.threshold'] = set(
-      params.ctc_stepped_phaseout_threshold,
+      params.ctc_stepped_phaseout_thresholds?.SINGLE ??
+        params.ctc_stepped_phaseout_threshold,
     );
     reform['gov.contrib.states.ri.ctc.stepped_phaseout.increment'] = set(
-      params.ctc_stepped_phaseout_increment,
+      params.ctc_stepped_phaseout_increments?.SINGLE ??
+        params.ctc_stepped_phaseout_increment,
     );
     reform['gov.contrib.states.ri.ctc.stepped_phaseout.rate_per_step'] = set(
       params.ctc_stepped_phaseout_rate_per_step,
@@ -85,6 +87,28 @@ export function buildReform(params: ReformParams, year: number): ReformOverrides
       reform[
         `gov.contrib.states.ri.dependent_exemption.phaseout.threshold.${status}`
       ] = set(params.exemption_phaseout_thresholds[status]);
+    }
+  }
+
+  if (params.include_high_earner_tax) {
+    reform['gov.contrib.states.ri.high_earner_tax.in_effect'] = set(true);
+    reform['gov.contrib.states.ri.high_earner_tax.brackets[1].threshold'] =
+      set(params.high_earner_tax_threshold);
+
+    const rates = Object.entries(params.high_earner_tax_rates)
+      .map(([yearKey, rate]) => [Number(yearKey), rate] as const)
+      .filter(([yearKey]) => Number.isFinite(yearKey))
+      .sort(([a], [b]) => a - b);
+
+    if (rates.length > 0) {
+      const rateSchedule: Periodised<number> = {};
+      rates.forEach(([startYear, rate], index) => {
+        const nextYear = rates[index + 1]?.[0];
+        const stop = nextYear ? `${nextYear - 1}-12-31` : '2100-12-31';
+        rateSchedule[`${startYear}-01-01.${stop}`] = rate;
+      });
+      reform['gov.contrib.states.ri.high_earner_tax.brackets[1].rate'] =
+        rateSchedule;
     }
   }
 

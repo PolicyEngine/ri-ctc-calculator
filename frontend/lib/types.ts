@@ -29,6 +29,8 @@ export interface ReformParams {
   ctc_stepped_phaseout_threshold: number;
   ctc_stepped_phaseout_increment: number;
   ctc_stepped_phaseout_rate_per_step: number;
+  ctc_stepped_phaseout_thresholds: PhaseoutThresholds | null;
+  ctc_stepped_phaseout_increments: PhaseoutThresholds | null;
   ctc_young_child_boost_amount: number;
   ctc_young_child_boost_age_limit: number;
 
@@ -39,6 +41,11 @@ export interface ReformParams {
   exemption_age_threshold: number;
   exemption_phaseout_rate: number;
   exemption_phaseout_thresholds: PhaseoutThresholds;
+
+  // Rhode Island high-income surtax parameters.
+  include_high_earner_tax: boolean;
+  high_earner_tax_threshold: number;
+  high_earner_tax_rates: Record<string, number>;
 }
 
 /**
@@ -70,6 +77,7 @@ export interface BenefitAtIncome {
   difference: number;
   ctc_component: number;
   exemption_tax_benefit: number;
+  high_earner_tax_change?: number;
 }
 
 /**

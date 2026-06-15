@@ -9,7 +9,12 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { api, fetchPresetPayload } from '@/lib/api';
-import { EXAMPLE_PROFILES, type PresetId } from '@/lib/presets';
+import {
+  EXAMPLE_PROFILES,
+  hasStaticPresetPayload,
+  type PresetId,
+} from '@/lib/presets';
+import { calculateEnactedBudgetHouseholdImpact } from '@/lib/enactedBudget';
 import type { HouseholdRequest, HouseholdImpactResponse } from '@/lib/types';
 
 function matchingExampleId(request: HouseholdRequest): string | null {
@@ -34,13 +39,21 @@ export function useHouseholdImpact(
   enabled: boolean = true,
   presetId: PresetId | null = null,
 ) {
-  const exampleId = presetId ? matchingExampleId(request) : null;
+  const exampleId =
+    presetId && hasStaticPresetPayload(presetId)
+      ? matchingExampleId(request)
+      : null;
   return useQuery<HouseholdImpactResponse>({
-    queryKey: exampleId
+    queryKey: presetId === 'enacted'
+      ? ['household-impact', 'preset', presetId, request]
+      : exampleId
       ? ['household-impact', 'preset', presetId, exampleId]
       : ['household-impact', 'custom', request],
     queryFn: async () => {
-      if (presetId && exampleId) {
+      if (presetId === 'enacted') {
+        return calculateEnactedBudgetHouseholdImpact(request);
+      }
+      if (presetId && hasStaticPresetPayload(presetId) && exampleId) {
         const payload = await fetchPresetPayload(presetId);
         const match = payload.examples.find((e) => e.profile.id === exampleId);
         if (match) return match.household;

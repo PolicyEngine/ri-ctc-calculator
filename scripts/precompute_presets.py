@@ -98,6 +98,8 @@ def preset_reform_params(preset_id: str) -> dict[str, Any]:
         "ctc_stepped_phaseout_threshold": 265965,
         "ctc_stepped_phaseout_increment": 7590,
         "ctc_stepped_phaseout_rate_per_step": 0.20,
+        "ctc_stepped_phaseout_thresholds": None,
+        "ctc_stepped_phaseout_increments": None,
         "ctc_young_child_boost_amount": 0,
         "ctc_young_child_boost_age_limit": 6,
         "enable_exemption_reform": True,
@@ -112,6 +114,9 @@ def preset_reform_params(preset_id: str) -> dict[str, Any]:
             "SURVIVING_SPOUSE": 0,
             "SEPARATE": 0,
         },
+        "include_high_earner_tax": False,
+        "high_earner_tax_threshold": 0,
+        "high_earner_tax_rates": {},
     }
 
 

@@ -231,6 +231,8 @@ def create_custom_reform(
     ctc_stepped_phaseout_threshold: float = 0,
     ctc_stepped_phaseout_increment: float = 0,
     ctc_stepped_phaseout_rate_per_step: float = 0,
+    ctc_stepped_phaseout_thresholds: Optional[Dict[str, float]] = None,
+    ctc_stepped_phaseout_increments: Optional[Dict[str, float]] = None,
     ctc_young_child_boost_amount: float = 0,
     ctc_young_child_boost_age_limit: int = 6,
     # Dependent exemption parameters
@@ -240,6 +242,10 @@ def create_custom_reform(
     exemption_age_threshold: int = 18,
     exemption_phaseout_rate: float = 0,
     exemption_phaseout_thresholds: Optional[Dict[str, float]] = None,
+    # High-income surtax parameters
+    include_high_earner_tax: bool = False,
+    high_earner_tax_threshold: float = 0,
+    high_earner_tax_rates: Optional[Dict[str, float]] = None,
     # Year parameter
     year: int = 2027,
 ):
@@ -255,6 +261,8 @@ def create_custom_reform(
         ctc_stepped_phaseout_threshold: AGI threshold where stepped phaseout begins
         ctc_stepped_phaseout_increment: Income increment per step
         ctc_stepped_phaseout_rate_per_step: Percentage point reduction per step
+        ctc_stepped_phaseout_thresholds: Optional filing-status thresholds
+        ctc_stepped_phaseout_increments: Optional filing-status increments
         ctc_young_child_boost_amount: Additional boost amount per young child
         ctc_young_child_boost_age_limit: Maximum age for young child boost eligibility
         enable_exemption_reform: Whether to enable dependent exemption reform
@@ -263,6 +271,9 @@ def create_custom_reform(
         exemption_age_threshold: Age threshold for exemptions
         exemption_phaseout_rate: Exemption phase-out rate
         exemption_phaseout_thresholds: Dict of exemption phase-out thresholds by filing status
+        include_high_earner_tax: Whether to include the RI high-income surtax
+        high_earner_tax_threshold: Taxable-income threshold for the surtax
+        high_earner_tax_rates: Surtax rates keyed by start year
         year: Tax year for the reform (2026 or 2027)
 
     Returns:
@@ -314,12 +325,18 @@ def create_custom_reform(
 
     # Add stepped phaseout parameters if enabled (Governor's proposal style)
     if ctc_stepped_phaseout and ctc_stepped_phaseout_increment > 0:
+        stepped_threshold = (
+            ctc_stepped_phaseout_thresholds or {}
+        ).get("SINGLE", ctc_stepped_phaseout_threshold)
+        stepped_increment = (
+            ctc_stepped_phaseout_increments or {}
+        ).get("SINGLE", ctc_stepped_phaseout_increment)
         reform_dict.update({
             "gov.contrib.states.ri.ctc.stepped_phaseout.threshold": {
-                date_range: ctc_stepped_phaseout_threshold
+                date_range: stepped_threshold
             },
             "gov.contrib.states.ri.ctc.stepped_phaseout.increment": {
-                date_range: ctc_stepped_phaseout_increment
+                date_range: stepped_increment
             },
             "gov.contrib.states.ri.ctc.stepped_phaseout.rate_per_step": {
                 date_range: ctc_stepped_phaseout_rate_per_step
@@ -384,5 +401,37 @@ def create_custom_reform(
             },
         }
         reform_dict.update(exemption_params)
+
+    if include_high_earner_tax:
+        high_earner_params = {
+            "gov.contrib.states.ri.high_earner_tax.in_effect": {
+                date_range: True
+            },
+            "gov.contrib.states.ri.high_earner_tax.brackets[1].threshold": {
+                date_range: high_earner_tax_threshold
+            },
+        }
+        if high_earner_tax_rates:
+            sorted_rates = sorted(
+                (int(start_year), rate)
+                for start_year, rate in high_earner_tax_rates.items()
+            )
+            rate_schedule = {}
+            for index, (start_year, rate) in enumerate(sorted_rates):
+                next_year = (
+                    sorted_rates[index + 1][0]
+                    if index + 1 < len(sorted_rates)
+                    else None
+                )
+                stop = (
+                    f"{next_year - 1}-12-31"
+                    if next_year
+                    else "2100-12-31"
+                )
+                rate_schedule[f"{start_year}-01-01.{stop}"] = rate
+            high_earner_params[
+                "gov.contrib.states.ri.high_earner_tax.brackets[1].rate"
+            ] = rate_schedule
+        reform_dict.update(high_earner_params)
 
     return Reform.from_dict(reform_dict, country_id="us")
