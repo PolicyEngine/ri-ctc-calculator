@@ -19,7 +19,14 @@ class Settings(BaseSettings):
         "http://localhost:3002",
         "http://localhost:3003",
         "http://localhost:8080",
+        "https://policyengine.org",
+        "https://www.policyengine.org",
+        "https://ri-ctc-calculator.policyengine.org",
+        "https://ri-ctc-calculator.vercel.app",
     ]
+    cors_origin_regex: str | None = (
+        r"https://ri-ctc-calculator-[a-z0-9-]+-policy-engine\.vercel\.app"
+    )
 
     # Production frontend URL (set via environment variable)
     frontend_url: str | None = None

@@ -16,7 +16,9 @@ Run locally against the deployed image (good for first-load testing):
 
 The deployed URL has the shape
 ``https://<workspace>--ri-ctc-api-fastapi-app.modal.run`` — set that as
-``NEXT_PUBLIC_API_URL`` in the Vercel project.
+``NEXT_PUBLIC_API_URL`` in the Vercel project. The FastAPI app allows
+``policyengine.org``, the calculator domain, and PolicyEngine Vercel previews by
+default; set ``FRONTEND_URL`` only if an extra origin needs access.
 """
 
 from __future__ import annotations

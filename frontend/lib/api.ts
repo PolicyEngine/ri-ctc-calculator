@@ -17,7 +17,10 @@ import type {
 } from './types';
 import type { PresetPayload, StaticPresetId } from './presets';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+if (!API_BASE_URL) {
+  throw new Error('NEXT_PUBLIC_API_URL is not configured.');
+}
 const FALLBACK_BASE_PATH = '/us/rhode-island-ctc-calculator';
 const DEFAULT_TIMEOUT = 180_000;
 
