@@ -4,9 +4,10 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH !== undefined
   : '/us/rhode-island-ctc-calculator';
 
 const LOCAL_API_URL = 'http://localhost:8080';
+const DEFAULT_REMOTE_API_URL = 'https://ri-ctc-calculator-backend-5yhj7qazcq-uc.a.run.app';
 const isVercelBuild = process.env.VERCEL === '1';
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || (
-  isVercelBuild ? undefined : LOCAL_API_URL
+  isVercelBuild ? DEFAULT_REMOTE_API_URL : LOCAL_API_URL
 );
 
 if (!apiUrl) {
@@ -17,7 +18,7 @@ if (!apiUrl) {
 
 if (isVercelBuild && apiUrl.includes('localhost')) {
   throw new Error(
-    'NEXT_PUBLIC_API_URL must point to the deployed Modal API, not localhost.',
+    'NEXT_PUBLIC_API_URL must point to the deployed API, not localhost.',
   );
 }
 
