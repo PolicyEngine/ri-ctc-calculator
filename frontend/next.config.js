@@ -4,7 +4,11 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH !== undefined
   : '/us/rhode-island-ctc-calculator';
 
 const LOCAL_API_URL = 'http://localhost:8080';
-const DEFAULT_REMOTE_API_URL = 'https://ri-ctc-calculator-backend-5yhj7qazcq-uc.a.run.app';
+// Modal is the canonical backend (see scripts/modal_serve.py +
+// .github/workflows/deploy-modal.yml). The asgi app is labelled `ri-ctc-api`,
+// so its deployed URL is `https://<workspace>--ri-ctc-api.modal.run`. Vercel
+// should set NEXT_PUBLIC_API_URL explicitly; this is only the fallback.
+const DEFAULT_REMOTE_API_URL = 'https://policyengine--ri-ctc-api.modal.run';
 const isVercelBuild = process.env.VERCEL === '1';
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || (
   isVercelBuild ? DEFAULT_REMOTE_API_URL : LOCAL_API_URL

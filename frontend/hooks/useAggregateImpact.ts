@@ -2,10 +2,9 @@
  * React Query hook for aggregate impact calculations.
  *
  * Two sources, switched by ``presetId``:
- *   - static ``presetId`` set  → fetch the precomputed JSON under
+ *   - ``presetId`` set  → fetch the precomputed JSON under
  *     ``/data/presets/{id}.json`` (no API call, instant).
- *   - custom/enacted reform -> POST to the pinned Modal backend for a
- *     custom reform.
+ *   - custom slider reform -> POST to the pinned Modal backend.
  */
 
 import { useQuery } from '@tanstack/react-query';

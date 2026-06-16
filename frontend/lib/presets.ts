@@ -14,8 +14,8 @@
 import type { ReformParams } from './types';
 
 export type PresetId = 'original' | 'revised' | 'enacted';
-export type StaticPresetId = 'original' | 'revised';
-export type LocalHouseholdPresetId = 'enacted';
+/** Every preset is now fully precomputed into `{id}.json`. */
+export type StaticPresetId = PresetId;
 
 export const PRESET_IDS: PresetId[] = ['original', 'revised', 'enacted'];
 
@@ -70,7 +70,7 @@ const EMPTY_THRESHOLDS = {
   SEPARATE: 0,
 };
 
-export const ENACTED_CTC_PHASEOUT_THRESHOLDS = {
+const ENACTED_CTC_PHASEOUT_THRESHOLDS = {
   SINGLE: 88500,
   JOINT: 110640,
   HEAD_OF_HOUSEHOLD: 88500,
@@ -78,7 +78,7 @@ export const ENACTED_CTC_PHASEOUT_THRESHOLDS = {
   SEPARATE: 88500,
 };
 
-export const ENACTED_CTC_PHASEOUT_INCREMENTS = {
+const ENACTED_CTC_PHASEOUT_INCREMENTS = {
   SINGLE: 2875,
   JOINT: 3590,
   HEAD_OF_HOUSEHOLD: 2875,
@@ -170,8 +170,6 @@ export interface PresetMeta {
   shortLabel: string;
   description: string;
   ctcAmount: number;
-  aggregateSource: 'precomputed' | 'api';
-  householdSource: 'precomputed' | 'local';
 }
 
 export const PRESETS: Record<PresetId, PresetMeta> = {
@@ -182,8 +180,6 @@ export const PRESETS: Record<PresetId, PresetMeta> = {
     description:
       '$325 per child, fully refundable, ages 0–18, stepped phaseout (20% per $7,590 over $265,965), zeroes the dependent exemption for children.',
     ctcAmount: 325,
-    aggregateSource: 'precomputed',
-    householdSource: 'precomputed',
   },
   revised: {
     id: 'revised',
@@ -192,8 +188,6 @@ export const PRESETS: Record<PresetId, PresetMeta> = {
     description:
       '$650 per child, fully refundable, ages 0–18, stepped phaseout (20% per $7,590 over $265,965), zeroes the dependent exemption for children.',
     ctcAmount: 650,
-    aggregateSource: 'precomputed',
-    householdSource: 'precomputed',
   },
   enacted: {
     id: 'enacted',
@@ -202,22 +196,13 @@ export const PRESETS: Record<PresetId, PresetMeta> = {
     description:
       '$330 per child, fully refundable, ages 0-18, phaseout starts at $88,500 ($110,640 joint), and the dependent exemption stays in place.',
     ctcAmount: 330,
-    aggregateSource: 'api',
-    householdSource: 'local',
   },
 };
 
+/** Every preset ships a precomputed `{id}.json` (aggregate + sample
+ *  households); only custom slider reforms hit the live backend. */
 export function hasStaticPresetPayload(id: PresetId): id is StaticPresetId {
-  return (
-    PRESETS[id].aggregateSource === 'precomputed' &&
-    PRESETS[id].householdSource === 'precomputed'
-  );
-}
-
-export function hasLocalHouseholdCalculator(
-  id: PresetId,
-): id is LocalHouseholdPresetId {
-  return PRESETS[id].householdSource === 'local';
+  return PRESET_IDS.includes(id);
 }
 
 /** Shape of `frontend/public/data/presets/{id}.json`. The aggregate +

@@ -14,8 +14,8 @@ Run locally against the deployed image (good for first-load testing):
 
     modal serve scripts/modal_serve.py
 
-The deployed URL has the shape
-``https://<workspace>--ri-ctc-api-fastapi-app.modal.run`` — set that as
+The asgi app is labelled ``ri-ctc-api``, so the deployed URL has the shape
+``https://<workspace>--ri-ctc-api.modal.run`` — set that as
 ``NEXT_PUBLIC_API_URL`` in the Vercel project. The FastAPI app allows
 ``policyengine.org``, the calculator domain, and PolicyEngine Vercel previews by
 default; set ``FRONTEND_URL`` only if an extra origin needs access.

@@ -1,20 +1,17 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { fetchPresetPayload } from '@/lib/api';
 import {
   EXAMPLE_PROFILES,
   PRESET_YEAR,
   PRESETS,
-  hasLocalHouseholdCalculator,
   hasStaticPresetPayload,
-  presetReformParams,
   type ExampleProfile,
   type PresetId,
   type PrecomputedExample,
   type StaticPresetId,
 } from '@/lib/presets';
-import { calculateEnactedLawHouseholdImpact } from '@/lib/enactedLaw';
 
 interface Props {
   presetId: PresetId;
@@ -37,9 +34,8 @@ function formatUsd(value: number): string {
 
 /**
  * Three illustrative household outcomes rendered above the household
- * net-income chart. Static presets use precomputed JSON; law presets
- * with local household calculators are computed in the browser.
- * Clicking a card applies that profile to the household form.
+ * net-income chart. Every preset reads precomputed JSON. Clicking a card
+ * applies that profile to the household form.
  */
 export default function SampleFamilyImpacts({
   presetId,
@@ -56,22 +52,6 @@ export default function SampleFamilyImpacts({
     message: string;
   } | null>(null);
   const preset = PRESETS[presetId];
-  const localExamples = useMemo(() => {
-    if (!hasLocalHouseholdCalculator(presetId)) return null;
-
-    const reformParams = presetReformParams(presetId);
-    return EXAMPLE_PROFILES.map((profile) => ({
-      profile,
-      household: calculateEnactedLawHouseholdImpact({
-        age_head: profile.age_head,
-        age_spouse: profile.married ? profile.age_spouse : null,
-        dependent_ages: profile.dependent_ages,
-        income: profile.income,
-        year: PRESET_YEAR,
-        reform_params: reformParams,
-      }),
-    }));
-  }, [presetId]);
 
   useEffect(() => {
     if (!hasStaticPresetPayload(presetId)) return undefined;
@@ -103,14 +83,8 @@ export default function SampleFamilyImpacts({
 
   const staticPayloadForPreset =
     staticPayload?.presetId === presetId ? staticPayload : null;
-  const examples =
-    hasLocalHouseholdCalculator(presetId)
-      ? localExamples
-      : staticPayloadForPreset?.examples;
-  const year =
-    hasLocalHouseholdCalculator(presetId)
-      ? PRESET_YEAR
-      : staticPayloadForPreset?.year ?? PRESET_YEAR;
+  const examples = staticPayloadForPreset?.examples;
+  const year = staticPayloadForPreset?.year ?? PRESET_YEAR;
   const errorForPreset = error?.presetId === presetId ? error.message : null;
 
   if (errorForPreset) {

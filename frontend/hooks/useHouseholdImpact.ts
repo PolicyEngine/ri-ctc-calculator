@@ -1,20 +1,17 @@
 /**
  * React Query hook for household impact calculations.
  *
- * Presets can source household impacts from precomputed JSON or a local
- * law-specific calculator. Other requests fall through to the pinned
- * Modal backend so custom households still work.
+ * Preset households are served from precomputed JSON. Custom households
+ * fall through to the pinned Modal backend.
  */
 
 import { useQuery } from '@tanstack/react-query';
 import { api, fetchPresetPayload } from '@/lib/api';
 import {
   EXAMPLE_PROFILES,
-  hasLocalHouseholdCalculator,
   hasStaticPresetPayload,
   type PresetId,
 } from '@/lib/presets';
-import { calculateEnactedLawHouseholdImpact } from '@/lib/enactedLaw';
 import type { HouseholdRequest, HouseholdImpactResponse } from '@/lib/types';
 
 function matchingExampleId(request: HouseholdRequest): string | null {
@@ -39,22 +36,15 @@ export function useHouseholdImpact(
   enabled: boolean = true,
   presetId: PresetId | null = null,
 ) {
-  const usesLocalHouseholdCalculator =
-    presetId !== null && hasLocalHouseholdCalculator(presetId);
   const exampleId =
     presetId && hasStaticPresetPayload(presetId)
       ? matchingExampleId(request)
       : null;
   return useQuery<HouseholdImpactResponse>({
-    queryKey: usesLocalHouseholdCalculator
-      ? ['household-impact', 'preset', presetId, request]
-      : exampleId
+    queryKey: exampleId
       ? ['household-impact', 'preset', presetId, exampleId]
       : ['household-impact', 'custom', request],
     queryFn: async () => {
-      if (usesLocalHouseholdCalculator) {
-        return calculateEnactedLawHouseholdImpact(request);
-      }
       if (presetId && hasStaticPresetPayload(presetId) && exampleId) {
         const payload = await fetchPresetPayload(presetId);
         const match = payload.examples.find((e) => e.profile.id === exampleId);
