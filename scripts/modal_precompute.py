@@ -22,7 +22,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 image = (
     modal.Image.debian_slim(python_version="3.11")
     .pip_install(
-        "policyengine-us==1.729.2",
+        "policyengine-us==1.729.5",
         "fastapi>=0.110.0",
         "pydantic>=2.0",
         "pydantic-settings>=2.0",
