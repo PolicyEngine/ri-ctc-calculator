@@ -1,15 +1,17 @@
 /**
  * React Query hook for household impact calculations.
  *
- * When ``presetId`` is set AND the request matches one of the three
- * preloaded example profiles, the hook returns the precomputed
- * household impact from the static preset JSON. Otherwise it falls
- * through to the live Modal endpoint so custom households still work.
+ * Preset households are served from precomputed JSON. Custom households
+ * fall through to the pinned Modal backend.
  */
 
 import { useQuery } from '@tanstack/react-query';
 import { api, fetchPresetPayload } from '@/lib/api';
-import { EXAMPLE_PROFILES, type PresetId } from '@/lib/presets';
+import {
+  EXAMPLE_PROFILES,
+  hasStaticPresetPayload,
+  type PresetId,
+} from '@/lib/presets';
 import type { HouseholdRequest, HouseholdImpactResponse } from '@/lib/types';
 
 function matchingExampleId(request: HouseholdRequest): string | null {
@@ -34,13 +36,16 @@ export function useHouseholdImpact(
   enabled: boolean = true,
   presetId: PresetId | null = null,
 ) {
-  const exampleId = presetId ? matchingExampleId(request) : null;
+  const exampleId =
+    presetId && hasStaticPresetPayload(presetId)
+      ? matchingExampleId(request)
+      : null;
   return useQuery<HouseholdImpactResponse>({
     queryKey: exampleId
       ? ['household-impact', 'preset', presetId, exampleId]
       : ['household-impact', 'custom', request],
     queryFn: async () => {
-      if (presetId && exampleId) {
+      if (presetId && hasStaticPresetPayload(presetId) && exampleId) {
         const payload = await fetchPresetPayload(presetId);
         const match = payload.examples.find((e) => e.profile.id === exampleId);
         if (match) return match.household;

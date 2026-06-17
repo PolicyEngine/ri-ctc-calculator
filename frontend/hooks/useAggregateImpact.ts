@@ -4,13 +4,12 @@
  * Two sources, switched by ``presetId``:
  *   - ``presetId`` set  → fetch the precomputed JSON under
  *     ``/data/presets/{id}.json`` (no API call, instant).
- *   - ``presetId`` null → POST to the live Modal-hosted FastAPI endpoint
- *     for a custom reform.
+ *   - custom slider reform -> POST to the pinned Modal backend.
  */
 
 import { useQuery } from '@tanstack/react-query';
 import { api, fetchPresetPayload } from '@/lib/api';
-import type { PresetId } from '@/lib/presets';
+import { hasStaticPresetPayload, type PresetId } from '@/lib/presets';
 import type { ReformParams } from '@/lib/types';
 
 export function useAggregateImpact(
@@ -24,7 +23,7 @@ export function useAggregateImpact(
       ? ['aggregate-impact', 'preset', presetId]
       : ['aggregate-impact', 'custom', reformParams, year],
     queryFn: async () => {
-      if (presetId) {
+      if (presetId && hasStaticPresetPayload(presetId)) {
         const payload = await fetchPresetPayload(presetId);
         return payload.aggregate;
       }

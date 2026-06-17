@@ -14,6 +14,8 @@ export interface PhaseoutThresholds {
   SEPARATE: number;
 }
 
+export type FilingStatusKey = keyof PhaseoutThresholds;
+
 /**
  * Reform parameters for RI CTC calculations.
  */
@@ -26,9 +28,9 @@ export interface ReformParams {
   ctc_phaseout_thresholds: PhaseoutThresholds;
   // Stepped phaseout parameters (Governor's proposal style)
   ctc_stepped_phaseout: boolean;
-  ctc_stepped_phaseout_threshold: number;
-  ctc_stepped_phaseout_increment: number;
   ctc_stepped_phaseout_rate_per_step: number;
+  ctc_stepped_phaseout_thresholds: PhaseoutThresholds;
+  ctc_stepped_phaseout_increments: PhaseoutThresholds;
   ctc_young_child_boost_amount: number;
   ctc_young_child_boost_age_limit: number;
 
@@ -39,6 +41,7 @@ export interface ReformParams {
   exemption_age_threshold: number;
   exemption_phaseout_rate: number;
   exemption_phaseout_thresholds: PhaseoutThresholds;
+
 }
 
 /**

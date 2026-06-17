@@ -78,26 +78,88 @@ EXAMPLE_PROFILES = [
 ]
 
 
+EMPTY_THRESHOLDS = {
+    "SINGLE": 0,
+    "JOINT": 0,
+    "HEAD_OF_HOUSEHOLD": 0,
+    "SURVIVING_SPOUSE": 0,
+    "SEPARATE": 0,
+}
+
+# Enacted 2027 law: $330/child, phaseout starts at $88,500 ($110,640 joint),
+# dependent exemption stays in place. Mirror of
+# ``ENACTED_CTC_PHASEOUT_THRESHOLDS`` / ``_INCREMENTS`` in presets.ts.
+ENACTED_CTC_PHASEOUT_THRESHOLDS = {
+    "SINGLE": 88500,
+    "JOINT": 110640,
+    "HEAD_OF_HOUSEHOLD": 88500,
+    "SURVIVING_SPOUSE": 88500,
+    "SEPARATE": 88500,
+}
+
+ENACTED_CTC_PHASEOUT_INCREMENTS = {
+    "SINGLE": 2875,
+    "JOINT": 3590,
+    "HEAD_OF_HOUSEHOLD": 2875,
+    "SURVIVING_SPOUSE": 2875,
+    "SEPARATE": 2875,
+}
+
+
 def preset_reform_params(preset_id: str) -> dict[str, Any]:
     """Return the ``ReformParams`` dict for ``preset_id`` (mirror of
     ``presetReformParams`` in ``frontend/lib/presets.ts``)."""
+    if preset_id == "enacted":
+        return {
+            "ctc_amount": 330,
+            # The contrib CTC reform uses age < age_limit; 19 includes children
+            # age 18 or under, matching the enacted statute.
+            "ctc_age_limit": 19,
+            "ctc_refundability_cap": 100000,
+            "ctc_phaseout_rate": 0,
+            "ctc_phaseout_thresholds": dict(EMPTY_THRESHOLDS),
+            "ctc_stepped_phaseout": True,
+            "ctc_stepped_phaseout_rate_per_step": 0.20,
+            "ctc_stepped_phaseout_thresholds": dict(
+                ENACTED_CTC_PHASEOUT_THRESHOLDS
+            ),
+            "ctc_stepped_phaseout_increments": dict(
+                ENACTED_CTC_PHASEOUT_INCREMENTS
+            ),
+            "ctc_young_child_boost_amount": 0,
+            "ctc_young_child_boost_age_limit": 6,
+            # Enacted law keeps the dependent exemption in place.
+            "enable_exemption_reform": False,
+            "exemption_amount": 5200,
+            "exemption_age_limit_enabled": True,
+            "exemption_age_threshold": 19,
+            "exemption_phaseout_rate": 0,
+            "exemption_phaseout_thresholds": dict(EMPTY_THRESHOLDS),
+        }
+
     ctc_amount = 650 if preset_id == "revised" else 325
     return {
         "ctc_amount": ctc_amount,
         "ctc_age_limit": 19,
         "ctc_refundability_cap": 100000,
         "ctc_phaseout_rate": 0,
-        "ctc_phaseout_thresholds": {
-            "SINGLE": 0,
-            "JOINT": 0,
-            "HEAD_OF_HOUSEHOLD": 0,
-            "SURVIVING_SPOUSE": 0,
-            "SEPARATE": 0,
-        },
+        "ctc_phaseout_thresholds": dict(EMPTY_THRESHOLDS),
         "ctc_stepped_phaseout": True,
-        "ctc_stepped_phaseout_threshold": 265965,
-        "ctc_stepped_phaseout_increment": 7590,
         "ctc_stepped_phaseout_rate_per_step": 0.20,
+        "ctc_stepped_phaseout_thresholds": {
+            "SINGLE": 265965,
+            "JOINT": 265965,
+            "HEAD_OF_HOUSEHOLD": 265965,
+            "SURVIVING_SPOUSE": 265965,
+            "SEPARATE": 265965,
+        },
+        "ctc_stepped_phaseout_increments": {
+            "SINGLE": 7590,
+            "JOINT": 7590,
+            "HEAD_OF_HOUSEHOLD": 7590,
+            "SURVIVING_SPOUSE": 7590,
+            "SEPARATE": 7590,
+        },
         "ctc_young_child_boost_amount": 0,
         "ctc_young_child_boost_age_limit": 6,
         "enable_exemption_reform": True,
@@ -105,13 +167,7 @@ def preset_reform_params(preset_id: str) -> dict[str, Any]:
         "exemption_age_limit_enabled": True,
         "exemption_age_threshold": 19,
         "exemption_phaseout_rate": 0,
-        "exemption_phaseout_thresholds": {
-            "SINGLE": 0,
-            "JOINT": 0,
-            "HEAD_OF_HOUSEHOLD": 0,
-            "SURVIVING_SPOUSE": 0,
-            "SEPARATE": 0,
-        },
+        "exemption_phaseout_thresholds": dict(EMPTY_THRESHOLDS),
     }
 
 
@@ -173,7 +229,7 @@ async def main() -> None:
     baseline_sim = Microsimulation(dataset=RI_DATASET_PATH)
     print("Baseline loaded.")
 
-    for preset_id in ("original", "revised"):
+    for preset_id in ("original", "revised", "enacted"):
         payload = await _compute_preset(preset_id, baseline_sim)
         out_path = out_dir / f"{preset_id}.json"
         out_path.write_text(json.dumps(payload, indent=2))

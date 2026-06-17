@@ -18,14 +18,15 @@ This project has three main pieces:
 
 - **Backend**: FastAPI REST API (Python) hosted on **Modal** via
   `scripts/modal_serve.py` (`@modal.asgi_app()`). Only the
-  custom-reform path hits this; the two Governor's-proposal presets
-  read precomputed JSON from `frontend/public/data/presets/`.
+  custom-reform (slider) path hits this; all three presets read
+  precomputed JSON from `frontend/public/data/presets/`.
 - **Frontend**: Next.js 16 / Tailwind 4 / `@policyengine/ui-kit`
   (TypeScript).
 - **Precompute pipeline**: `scripts/precompute_presets.py` writes the
-  Governor's-original and Governor's-revised statewide + sample-
-  household impacts to JSON. Run locally with Python 3.11 / 3.12 or
-  via Modal with `modal run scripts/modal_precompute.py::run`.
+  Governor's-original, Governor's-revised, and enacted-2027-law
+  statewide + sample-household impacts to JSON. Run locally with
+  Python 3.11 / 3.12 or via Modal with
+  `modal run scripts/modal_precompute.py::run`.
 
 ## Deployment
 

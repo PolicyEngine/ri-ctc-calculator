@@ -43,14 +43,16 @@ export function buildReform(params: ReformParams, year: number): ReformOverrides
   // the rate-based phaseout when both are configured.
   if (
     params.ctc_stepped_phaseout &&
-    params.ctc_stepped_phaseout_increment > 0
+    FILING_STATUSES.some(
+      (status) => params.ctc_stepped_phaseout_increments[status] > 0,
+    )
   ) {
-    reform['gov.contrib.states.ri.ctc.stepped_phaseout.threshold'] = set(
-      params.ctc_stepped_phaseout_threshold,
-    );
-    reform['gov.contrib.states.ri.ctc.stepped_phaseout.increment'] = set(
-      params.ctc_stepped_phaseout_increment,
-    );
+    for (const status of FILING_STATUSES) {
+      reform[`gov.contrib.states.ri.ctc.stepped_phaseout.threshold.${status}`] =
+        set(params.ctc_stepped_phaseout_thresholds[status]);
+      reform[`gov.contrib.states.ri.ctc.stepped_phaseout.increment.${status}`] =
+        set(params.ctc_stepped_phaseout_increments[status]);
+    }
     reform['gov.contrib.states.ri.ctc.stepped_phaseout.rate_per_step'] = set(
       params.ctc_stepped_phaseout_rate_per_step,
     );

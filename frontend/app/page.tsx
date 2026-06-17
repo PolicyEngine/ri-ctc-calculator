@@ -44,9 +44,21 @@ export default function Home() {
       SEPARATE: 0,
     },
     ctc_stepped_phaseout: false,
-    ctc_stepped_phaseout_threshold: 0,
-    ctc_stepped_phaseout_increment: 0,
     ctc_stepped_phaseout_rate_per_step: 0,
+    ctc_stepped_phaseout_thresholds: {
+      SINGLE: 0,
+      JOINT: 0,
+      HEAD_OF_HOUSEHOLD: 0,
+      SURVIVING_SPOUSE: 0,
+      SEPARATE: 0,
+    },
+    ctc_stepped_phaseout_increments: {
+      SINGLE: 0,
+      JOINT: 0,
+      HEAD_OF_HOUSEHOLD: 0,
+      SURVIVING_SPOUSE: 0,
+      SEPARATE: 0,
+    },
     ctc_young_child_boost_amount: 0,
     ctc_young_child_boost_age_limit: 6,
     enable_exemption_reform: false,
@@ -63,7 +75,7 @@ export default function Home() {
     },
   });
 
-  // Which Governor's-proposal preset, if any, is currently active. Any
+  // Which policy preset, if any, is currently active. Any
   // user edit to a reform or household field clears this back to null so
   // we fall through to the live calculator instead of the precomputed JSON.
   const [activePresetId, setActivePresetId] = useState<PresetId | null>(null);

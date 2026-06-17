@@ -4,10 +4,13 @@ import { useEffect, useState } from 'react';
 import { fetchPresetPayload } from '@/lib/api';
 import {
   EXAMPLE_PROFILES,
+  PRESET_YEAR,
   PRESETS,
+  hasStaticPresetPayload,
   type ExampleProfile,
   type PresetId,
-  type PresetPayload,
+  type PrecomputedExample,
+  type StaticPresetId,
 } from '@/lib/presets';
 
 interface Props {
@@ -31,31 +34,46 @@ function formatUsd(value: number): string {
 
 /**
  * Three illustrative household outcomes rendered above the household
- * net-income chart. Data is read from the precomputed preset JSON so it
- * appears instantly with no API call. Clicking a card applies that
- * profile to the household form — the chart then hydrates from the
- * same precomputed JSON.
+ * net-income chart. Every preset reads precomputed JSON. Clicking a card
+ * applies that profile to the household form.
  */
 export default function SampleFamilyImpacts({
   presetId,
   activeExampleId,
   onSelectExample,
 }: Props) {
-  const [payload, setPayload] = useState<PresetPayload | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [staticPayload, setStaticPayload] = useState<{
+    presetId: StaticPresetId;
+    examples: PrecomputedExample[];
+    year: number;
+  } | null>(null);
+  const [error, setError] = useState<{
+    presetId: PresetId;
+    message: string;
+  } | null>(null);
   const preset = PRESETS[presetId];
 
   useEffect(() => {
+    if (!hasStaticPresetPayload(presetId)) return undefined;
+
     let cancelled = false;
-    setPayload(null);
-    setError(null);
     fetchPresetPayload(presetId)
       .then((p) => {
-        if (!cancelled) setPayload(p);
+        if (!cancelled) {
+          setStaticPayload({
+            presetId,
+            examples: p.examples,
+            year: p.year,
+          });
+        }
       })
       .catch((e) => {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : 'Failed to load examples');
+          setError({
+            presetId,
+            message:
+              e instanceof Error ? e.message : 'Failed to load examples',
+          });
         }
       });
     return () => {
@@ -63,15 +81,21 @@ export default function SampleFamilyImpacts({
     };
   }, [presetId]);
 
-  if (error) {
+  const staticPayloadForPreset =
+    staticPayload?.presetId === presetId ? staticPayload : null;
+  const examples = staticPayloadForPreset?.examples;
+  const year = staticPayloadForPreset?.year ?? PRESET_YEAR;
+  const errorForPreset = error?.presetId === presetId ? error.message : null;
+
+  if (errorForPreset) {
     return (
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
-        Could not load the sample-family impacts ({error}).
+        Could not load the sample-family impacts ({errorForPreset}).
       </div>
     );
   }
 
-  if (!payload) {
+  if (!examples) {
     return (
       <div className="bg-white border border-gray-200 rounded-lg p-4 text-sm text-gray-500">
         Loading sample-family impacts&hellip;
@@ -87,11 +111,11 @@ export default function SampleFamilyImpacts({
       <p className="text-sm text-gray-500 mb-4">
         How {preset.label.replace(/'/g, '\u2019')} ($
         {preset.ctcAmount}/child) would affect three representative Rhode
-        Island households in {payload.year}. Click a card to load its
+        Island households in {year}. Click a card to load its
         net-income chart below.
       </p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {payload.examples.map((ex) => {
+        {examples.map((ex) => {
           const profile =
             EXAMPLE_PROFILES.find((p) => p.id === ex.profile.id) ?? ex.profile;
           const change = ex.household.benefit_at_income.difference;
