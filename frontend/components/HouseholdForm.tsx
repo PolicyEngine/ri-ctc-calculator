@@ -365,6 +365,32 @@ export default function HouseholdForm({
                   </div>
 
                   <div>
+                    <label className="flex items-start space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={reformParams.ctc_refundability_cap > 0}
+                        onChange={(e) =>
+                          setReformParams({
+                            ...reformParams,
+                            ctc_refundability_cap: e.target.checked ? 100000 : 0,
+                          })
+                        }
+                        className="mt-1 h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary"
+                      />
+                      <div>
+                        <span className="text-sm font-semibold text-gray-700">
+                          Fully refundable
+                        </span>
+                        <p className="text-xs text-gray-500 mt-1">
+                          When checked, the full credit is paid even if it exceeds RI tax
+                          liability, so it reaches families with little or no tax. Unchecked,
+                          the credit is non-refundable and only offsets tax owed.
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+
+                  <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Age Limit</label>
                     <input
                       type="number"
