@@ -41,7 +41,7 @@ This project has three main pieces:
 
 ### Prerequisites
 
-- **Python 3.10+** (Python 3.11 recommended)
+- **Python 3.11+**
 - **Node.js 21+** (for frontend)
 - **Windows**: Long path support enabled (see [Windows Setup](#windows-setup))
 
