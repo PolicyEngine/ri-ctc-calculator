@@ -4,7 +4,7 @@
 
 ## Prerequisites
 
-- Python 3.10+ installed
+- Python 3.11+ installed
 - Node.js 21+ installed
 - Windows: Long paths enabled (see below)
 
